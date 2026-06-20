@@ -14,14 +14,16 @@ from sqlmodel import Session
 from app.models import Product
 
 CART_KEY = "cart"
+WHOLESALE_KEY = "wholesale_cart"  # separate B2B cart (different rules)
+WHOLESALE_MIN_QTY = 10            # minimum units per line for wholesale
 DEFAULT_VAT_RATE = 24.0  # Greece; overridden by the `vat_rate` site setting.
 
 
-# --- session helpers --------------------------------------------------------
+# --- session helpers (shared by retail + wholesale via `key`) ----------------
 
-def get_cart(request: Request) -> dict[str, int]:
+def get_cart(request: Request, key: str = CART_KEY) -> dict[str, int]:
     """Return the raw cart mapping `{product_id(str): qty}` from the session."""
-    cart = request.session.get(CART_KEY)
+    cart = request.session.get(key)
     if not isinstance(cart, dict):
         return {}
     # Normalise to {str: int}, dropping anything malformed.
@@ -36,38 +38,38 @@ def get_cart(request: Request) -> dict[str, int]:
     return clean
 
 
-def _save(request: Request, cart: dict[str, int]) -> None:
-    request.session[CART_KEY] = cart
+def _save(request: Request, cart: dict[str, int], key: str = CART_KEY) -> None:
+    request.session[key] = cart
 
 
-def cart_count(request: Request) -> int:
+def cart_count(request: Request, key: str = CART_KEY) -> int:
     """Total number of items (sum of quantities) — for the header badge."""
-    return sum(get_cart(request).values())
+    return sum(get_cart(request, key).values())
 
 
-def add(request: Request, product_id: int, qty: int = 1) -> None:
-    cart = get_cart(request)
+def add(request: Request, product_id: int, qty: int = 1, key: str = CART_KEY) -> None:
+    cart = get_cart(request, key)
     pid = str(product_id)
     cart[pid] = cart.get(pid, 0) + max(1, qty)
-    _save(request, cart)
+    _save(request, cart, key)
 
 
-def set_qty(request: Request, product_id: int, qty: int) -> None:
-    cart = get_cart(request)
+def set_qty(request: Request, product_id: int, qty: int, key: str = CART_KEY) -> None:
+    cart = get_cart(request, key)
     pid = str(product_id)
     if qty <= 0:
         cart.pop(pid, None)
     else:
         cart[pid] = qty
-    _save(request, cart)
+    _save(request, cart, key)
 
 
-def remove(request: Request, product_id: int) -> None:
-    set_qty(request, product_id, 0)
+def remove(request: Request, product_id: int, key: str = CART_KEY) -> None:
+    set_qty(request, product_id, 0, key)
 
 
-def clear(request: Request) -> None:
-    request.session.pop(CART_KEY, None)
+def clear(request: Request, key: str = CART_KEY) -> None:
+    request.session.pop(key, None)
 
 
 # --- money ------------------------------------------------------------------
@@ -135,5 +137,49 @@ def cart_view(request: Request, db: Session, lang: str, vat_rate: float = DEFAUL
         "vat": vat,
         "vat_rate": vat_rate,
         "total": subtotal,  # shipping is added at checkout
+        "currency": "EUR",
+    }
+
+
+# --- wholesale (B2B request) ------------------------------------------------
+
+def is_wholesale_item(product: Product) -> bool:
+    """Any active product can be added to a wholesale request (price not required)."""
+    return product is not None and product.is_active
+
+
+def wholesale_view(request: Request, db: Session, lang: str) -> dict:
+    """View of the wholesale request cart. Unlike retail: any active product, NO stock cap,
+    no VAT/totals shown on the storefront. `price_snapshot`/`line_total` are kept only for
+    the admin's reference (prices are hidden in the wholesale UI and negotiated on contact)."""
+    from app.routes.public import product_view  # lazy import avoids an import cycle
+
+    cart = get_cart(request, WHOLESALE_KEY)
+    items: list[dict] = []
+    subtotal = 0.0
+    pruned = dict(cart)
+    changed = False
+
+    for pid, qty in cart.items():
+        product = db.get(Product, int(pid))
+        if not is_wholesale_item(product):
+            pruned.pop(pid, None)
+            changed = True
+            continue
+        qty = max(WHOLESALE_MIN_QTY, qty)  # enforce per-line minimum
+        unit = product.price or 0.0
+        line_total = round(unit * qty, 2)
+        subtotal = round(subtotal + line_total, 2)
+        pv = product_view(product, lang)
+        pv.update({"qty": qty, "unit_price": unit, "line_total": line_total})
+        items.append(pv)
+
+    if changed:
+        _save(request, pruned, WHOLESALE_KEY)
+
+    return {
+        "lines": items,
+        "count": sum(i["qty"] for i in items),
+        "subtotal": subtotal,   # indicative only (admin reference)
         "currency": "EUR",
     }

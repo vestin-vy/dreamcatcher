@@ -57,6 +57,7 @@
                  max="{{ product.stock }}">
           <button class="btn btn-accent" type="submit">{{ ui.icon('bag') }} {{ _('cart.add') }}</button>
         </form>
+        <p class="product__stock muted">{{ _('product.in_stock') }}: <strong>{{ product.stock }}</strong></p>
         {% else %}
         <p class="chip" aria-disabled="true" style="margin-top:var(--space-md);">{{ _('product.out_of_stock') }}</p>
         {% endif %}

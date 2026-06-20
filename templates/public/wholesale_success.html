@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ _('wholesale.success.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+<section class="section container">
+  <div class="status-card panel">
+    <h1>{{ _('wholesale.success.title') }}</h1>
+    <p>{{ _('wholesale.success.body') }}</p>
+    {% if order_number %}<p class="muted">{{ _('wholesale.request_number') }}: <strong>{{ order_number }}</strong></p>{% endif %}
+    <a class="btn btn-primary" href="/{{ lang }}/wholesale">{{ _('wholesale.continue') }}</a>
+  </div>
+</section>
+{% endblock %}

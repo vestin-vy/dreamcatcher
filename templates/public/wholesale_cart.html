@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('wholesale.cart') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head section__head--left">
+    <span class="eyebrow">{{ _('wholesale.title') }}</span>
+    <h1>{{ _('wholesale.cart') }}</h1>
+    <p class="muted">{{ _('wholesale.min_notice') }}</p>
+  </div>
+
+  {% if not cart.lines %}
+    <p class="muted" style="padding: var(--space-2xl) 0;">{{ _('wholesale.empty') }}</p>
+    <a class="btn btn-primary" href="/{{ lang }}/wholesale">{{ _('wholesale.continue') }}</a>
+  {% else %}
+  <div class="cart-layout">
+    <div class="cart-items">
+      {% for it in cart.lines %}
+      <div class="cart-item">
+        <a class="cart-item__media" href="/{{ lang }}/product/{{ it.slug }}">
+          <img src="/static/{{ it.image or 'img/placeholder.svg' }}" alt="{{ it.title }}" width="96" height="120" loading="lazy">
+        </a>
+        <div class="cart-item__info">
+          <a class="cart-item__title" href="/{{ lang }}/product/{{ it.slug }}">{{ it.title }}</a>
+          {% if it.category_name %}<span class="muted">{{ it.category_name }}</span>{% endif %}
+        </div>
+        <form class="cart-item__qty" method="post" action="/{{ lang }}/wholesale/cart/update">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="product_id" value="{{ it.id }}">
+          <label class="visually-hidden" for="wq-{{ it.id }}">{{ _('wholesale.qty') }}</label>
+          <input class="input input--qty" id="wq-{{ it.id }}" type="number" name="qty"
+                 value="{{ it.qty }}" min="{{ min_qty }}" step="1">
+          <button class="btn btn-ghost btn-sm" type="submit">{{ _('cart.update') }}</button>
+        </form>
+        <div class="cart-item__total muted">×{{ it.qty }}</div>
+        <form method="post" action="/{{ lang }}/wholesale/cart/remove">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="product_id" value="{{ it.id }}">
+          <button class="btn btn-icon" type="submit" aria-label="{{ _('cart.remove') }}">{{ ui.icon('trash') }}</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    <aside class="cart-summary panel">
+      <h2>{{ _('wholesale.cart') }}</h2>
+      <p class="muted summary-note">{{ _('wholesale.intro') }}</p>
+      <a class="btn btn-accent btn-block" href="/{{ lang }}/wholesale/request">{{ _('wholesale.proceed') }}</a>
+      <a class="btn btn-ghost btn-block" href="/{{ lang }}/wholesale">{{ _('wholesale.continue') }}</a>
+    </aside>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

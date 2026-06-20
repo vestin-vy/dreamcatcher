@@ -28,6 +28,7 @@
         <li><a href="/{{ lang }}/collections" {% if current_path.endswith('/collections') %}aria-current="page"{% endif %}>{{ _('nav.collections') }}</a></li>
         <li><a href="/{{ lang }}/about" {% if current_path.endswith('/about') %}aria-current="page"{% endif %}>{{ _('nav.about') }}</a></li>
         <li><a href="/{{ lang }}/contact" {% if current_path.endswith('/contact') %}aria-current="page"{% endif %}>{{ _('nav.contact') }}</a></li>
+        <li><a class="nav-wholesale" href="/{{ lang }}/wholesale" {% if '/wholesale' in current_path %}aria-current="page"{% endif %}>{{ _('nav.wholesale') }}{% if wholesale_count %} <span class="nav-wholesale__count">{{ wholesale_count }}</span>{% endif %}</a></li>
       </ul>
     </nav>
 
@@ -63,6 +64,8 @@
       <li><a href="/{{ lang }}/collections">{{ _('nav.collections') }}</a></li>
       <li><a href="/{{ lang }}/about">{{ _('nav.about') }}</a></li>
       <li><a href="/{{ lang }}/contact">{{ _('nav.contact') }}</a></li>
+      <li><a href="/{{ lang }}/wholesale">{{ _('nav.wholesale') }}</a></li>
+      <li><a href="/{{ lang }}/cart">{{ _('nav.cart') }}{% if cart_count %} ({{ cart_count }}){% endif %}</a></li>
       <li class="mobile-menu__langs">
         {% for l in LANGS %}
         <a href="/{{ l }}{{ path_no_lang }}{% if not path_no_lang %}/{% endif %}"

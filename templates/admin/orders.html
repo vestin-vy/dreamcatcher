@@ -21,10 +21,11 @@
       <tbody>
         {% for o in orders %}
         <tr>
-          <td><a href="/admin/orders/{{ o.id }}"><strong>{{ o.number }}</strong></a></td>
+          <td><a href="/admin/orders/{{ o.id }}"><strong>{{ o.number }}</strong></a>
+              {% if o.is_wholesale %}<br><span class="pill pill--wholesale" style="font-size:0.7rem;">Wholesale</span>{% endif %}</td>
           <td>{{ o.customer_name }}<br><span class="muted" style="font-size:0.8rem;">{{ o.customer_email }}</span></td>
           <td>{{ o.items }}</td>
-          <td>{{ '%.2f'|format(o.total) }} {{ o.currency }}</td>
+          <td>{% if o.is_wholesale %}<span class="muted">— (quote)</span>{% else %}{{ '%.2f'|format(o.total) }} {{ o.currency }}{% endif %}</td>
           <td><span class="pill pill--{{ o.status }}">{{ o.status }}</span></td>
           <td class="muted" style="font-size:0.85rem;">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
         </tr>

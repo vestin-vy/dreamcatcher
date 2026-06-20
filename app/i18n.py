@@ -36,6 +36,7 @@ UI: dict[str, dict[str, str]] = {
     "nav.contact": {"el": "Επικοινωνία", "en": "Contact"},
     "nav.menu": {"el": "Μενού", "en": "Menu"},
     "nav.cart": {"el": "Καλάθι", "en": "Cart"},
+    "nav.wholesale": {"el": "Χονδρική", "en": "Wholesale"},
     # Hero / home
     "home.hero.tagline": {
         "el": "Χειροποίητα κοσμήματα που λένε τη δική σας ιστορία",
@@ -71,6 +72,7 @@ UI: dict[str, dict[str, str]] = {
     "product.related": {"el": "Παρόμοια κομμάτια", "en": "Related pieces"},
     "product.gallery": {"el": "Γκαλερί εικόνων", "en": "Image gallery"},
     "product.out_of_stock": {"el": "Εξαντλήθηκε", "en": "Out of stock"},
+    "product.in_stock": {"el": "Διαθέσιμα", "en": "In stock"},
     # Cart (SPEC-BILLING §2)
     "cart.title": {"el": "Το καλάθι μου", "en": "My cart"},
     "cart.empty": {"el": "Το καλάθι σας είναι άδειο.", "en": "Your cart is empty."},
@@ -124,6 +126,28 @@ UI: dict[str, dict[str, str]] = {
     "order.status.paid": {"el": "Πληρωμένη", "en": "Paid"},
     "order.status.shipped": {"el": "Απεστάλη", "en": "Shipped"},
     "order.status.cancelled": {"el": "Ακυρώθηκε", "en": "Cancelled"},
+    "order.status.wholesale": {"el": "Χονδρική", "en": "Wholesale"},
+    # Wholesale (B2B) — addendum 2
+    "wholesale.title": {"el": "Χονδρική παραγγελία", "en": "Wholesale order"},
+    "wholesale.intro": {
+        "el": "Παραγγελία χονδρικής: ελάχιστη ποσότητα 10 τεμάχια ανά προϊόν. Δεν πληρώνετε online — στέλνετε αίτημα και επικοινωνούμε μαζί σας για τις λεπτομέρειες και την τιμή.",
+        "en": "Wholesale ordering: minimum 10 units per item. No online payment — you send a request and we contact you to discuss details and pricing.",
+    },
+    "wholesale.min_notice": {"el": "Ελάχιστη ποσότητα: 10 τεμάχια ανά προϊόν", "en": "Minimum 10 units per item"},
+    "wholesale.add": {"el": "Προσθήκη στο αίτημα", "en": "Add to request"},
+    "wholesale.cart": {"el": "Το αίτημά μου", "en": "My request"},
+    "wholesale.empty": {"el": "Το αίτημα χονδρικής είναι άδειο.", "en": "Your wholesale request is empty."},
+    "wholesale.qty": {"el": "Ποσότητα (από 10)", "en": "Quantity (10+)"},
+    "wholesale.continue": {"el": "Συνέχεια επιλογής", "en": "Continue browsing"},
+    "wholesale.proceed": {"el": "Συνέχεια στο αίτημα", "en": "Continue to request"},
+    "wholesale.send_request": {"el": "Αποστολή αιτήματος", "en": "Send request"},
+    "wholesale.items": {"el": "Προϊόντα αιτήματος", "en": "Requested items"},
+    "wholesale.success.title": {"el": "Ευχαριστούμε για το αίτημα!", "en": "Thank you for your request!"},
+    "wholesale.success.body": {
+        "el": "Λάβαμε το αίτημα χονδρικής. Θα επικοινωνήσουμε μαζί σας σύντομα για τις λεπτομέρειες και την τιμή.",
+        "en": "We've received your wholesale request. We'll contact you shortly to discuss the details and pricing.",
+    },
+    "wholesale.request_number": {"el": "Αριθμός αιτήματος", "en": "Request number"},
     # Contact
     "contact.title": {"el": "Επικοινωνία", "en": "Contact"},
     "contact.address": {"el": "Διεύθυνση", "en": "Address"},

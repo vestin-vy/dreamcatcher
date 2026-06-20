@@ -93,3 +93,32 @@
   {% endif %}
 </div>
 {% endmacro %}
+
+{# ---------- Wholesale card (no price; qty min 10; "Add to request") ---------- #}
+{% macro wholesale_card(p, lang, min_qty) %}
+<div class="card product-card">
+  <a class="product-card__link" href="/{{ lang }}/product/{{ p.slug }}">
+    <div class="product-card__media">
+      {% if p.image %}
+        <img src="/static/{{ p.image }}" alt="{{ p.title }}" loading="lazy" width="400" height="500">
+      {% else %}
+        <img src="/static/img/placeholder.svg" alt="{{ p.title }}" loading="lazy" width="400" height="500">
+      {% endif %}
+    </div>
+    <div class="product-card__body">
+      {% if p.category_name %}<span class="product-card__cat">{{ p.category_name }}</span>{% endif %}
+      <span class="product-card__title">{{ p.title }}</span>
+    </div>
+  </a>
+  <div class="product-card__actions wholesale-add">
+    <form method="post" action="/{{ lang }}/wholesale/cart/add">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="product_id" value="{{ p.id }}">
+      <label class="visually-hidden" for="wq-{{ p.id }}">{{ _('wholesale.qty') }}</label>
+      <input class="input input--qty" id="wq-{{ p.id }}" type="number" name="qty"
+             value="{{ min_qty }}" min="{{ min_qty }}" step="1">
+      <button class="btn btn-primary btn-sm" type="submit">{{ icon('bag') }} {{ _('wholesale.add') }}</button>
+    </form>
+  </div>
+</div>
+{% endmacro %}

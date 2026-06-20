@@ -103,14 +103,16 @@ class ProductImage(SQLModel, table=True):
 
 # --- Orders (SPEC-BILLING §1) -----------------------------------------------
 
-# Allowed order statuses (the lifecycle: pending -> paid -> shipped, or cancelled).
-ORDER_STATUSES = ("pending", "paid", "shipped", "cancelled")
+# Allowed order statuses. Retail: pending -> paid -> shipped, or cancelled.
+# Wholesale requests start at "wholesale" (no payment) -> shipped, or cancelled.
+ORDER_STATUSES = ("pending", "paid", "shipped", "cancelled", "wholesale")
 
 
 class Order(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     number: str = Field(index=True, unique=True)  # human-readable, e.g. DC-20260620-0007
     status: str = Field(default="pending", index=True)  # see ORDER_STATUSES
+    is_wholesale: bool = Field(default=False, index=True)  # B2B request (no payment, no stock cap)
 
     # Contact details
     customer_name: str = Field(default="")

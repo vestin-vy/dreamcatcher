@@ -493,6 +493,11 @@ main { flex: 1 0 auto; }
 .pill--paid { background: #dcfce7; color: #166534; }
 .pill--shipped { background: #dbeafe; color: #1e40af; }
 .pill--cancelled { background: #fee2e2; color: #991b1b; }
+.pill--wholesale { background: #ede9fe; color: #5b21b6; }
+
+/* Wholesale nav tab badge + add row */
+.nav-wholesale__count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--color-accent-2); color: #fff; font-size: 0.7rem; font-weight: 700; vertical-align: middle; }
+.product__stock { margin-top: var(--space-sm); font-size: 0.9rem; }
 .chip.is-active { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
 .admin-grid-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--space-lg); align-items: start; }
 

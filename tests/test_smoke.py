@@ -49,7 +49,7 @@ def test_dropped_languages_are_404(client):
 @pytest.mark.parametrize("lang", ["el", "en"])
 def test_public_pages_render(client, lang):
     for path in ("catalog", "about", "contact", "collections", "cart",
-                 "terms", "returns", "privacy"):
+                 "terms", "returns", "privacy", "wholesale", "wholesale/cart"):
         r = client.get(f"/{lang}/{path}")
         assert r.status_code == 200, f"/{lang}/{path} -> {r.status_code}"
 

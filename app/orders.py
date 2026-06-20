@@ -51,14 +51,15 @@ def shipping_cost_for(site: dict, slug: str) -> tuple[str, float]:
 
 # --- order number -----------------------------------------------------------
 
-def generate_order_number(session: Session) -> str:
-    """Sequential, human-readable: DC-YYYYMMDD-NNNN (per day)."""
+def generate_order_number(session: Session, prefix: str = "DC") -> str:
+    """Sequential, human-readable: <PREFIX>-YYYYMMDD-NNNN (per day, per prefix).
+    Retail uses "DC", wholesale uses "DCW"."""
     today = _utcnow().strftime("%Y%m%d")
-    prefix = f"DC-{today}-"
+    full = f"{prefix}-{today}-"
     count = session.exec(
-        select(func.count()).select_from(Order).where(Order.number.like(f"{prefix}%"))
+        select(func.count()).select_from(Order).where(Order.number.like(f"{full}%"))
     ).one()
-    return f"{prefix}{count + 1:04d}"
+    return f"{full}{count + 1:04d}"
 
 
 # --- create order from cart -------------------------------------------------
@@ -105,6 +106,51 @@ def create_order_from_cart(
             product_id=it["id"],
             title_snapshot=it["title"],
             price_snapshot=it["price"],
+            qty=it["qty"],
+            line_total=it["line_total"],
+        ))
+    session.commit()
+    session.refresh(order)
+    return order
+
+
+# --- wholesale request (no payment, no stock cap, no decrement) -------------
+
+def create_wholesale_order(request, session: Session, lang: str, form: dict) -> Order | None:
+    """Create a wholesale Order (status 'wholesale') from the wholesale cart.
+
+    Unlike retail: no VAT/shipping/payment, stock is NOT capped or decremented; quantities
+    are taken as requested. `subtotal` is stored as an indicative reference for the admin.
+    """
+    view = cart_mod.wholesale_view(request, session, lang)
+    if not view["lines"]:
+        return None
+
+    order = Order(
+        number=generate_order_number(session, prefix="DCW"),
+        status="wholesale",
+        is_wholesale=True,
+        customer_name=(form.get("customer_name") or "").strip(),
+        customer_email=(form.get("customer_email") or "").strip(),
+        customer_phone=(form.get("customer_phone") or "").strip(),
+        ship_address=(form.get("ship_address") or "").strip(),
+        ship_city=(form.get("ship_city") or "").strip(),
+        ship_postcode=(form.get("ship_postcode") or "").strip(),
+        ship_country=(form.get("ship_country") or "GR").strip() or "GR",
+        subtotal=view["subtotal"],
+        total=view["subtotal"],  # indicative; final price negotiated on contact
+        currency=view["currency"],
+    )
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+
+    for it in view["lines"]:
+        session.add(OrderItem(
+            order_id=order.id,
+            product_id=it["id"],
+            title_snapshot=it["title"],
+            price_snapshot=it["unit_price"],
             qty=it["qty"],
             line_total=it["line_total"],
         ))

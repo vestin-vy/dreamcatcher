@@ -8,7 +8,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from app import i18n
-from app.cart import cart_count
+from app.cart import WHOLESALE_KEY, cart_count
 from app.config import settings
 from app.deps import DEFAULT_SETTINGS, is_authenticated
 from app.security import get_csrf_token
@@ -72,6 +72,7 @@ def render(
         # the header cart badge count. Explicit context values still override these.
         "csrf_token": get_csrf_token(request),
         "cart_count": cart_count(request),
+        "wholesale_count": cart_count(request, WHOLESALE_KEY),
         **context,
     }
     return templates.TemplateResponse(request, template, ctx)

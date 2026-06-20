@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('wholesale.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head section__head--left">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('wholesale.title') }}</h1>
+    <p>{{ _('wholesale.intro') }}</p>
+  </div>
+
+  <div class="toolbar">
+    <ul class="chips">
+      <li><a class="chip" href="/{{ lang }}/wholesale"
+             {% if not active_category %}aria-current="true"{% endif %}>{{ _('catalog.all') }}</a></li>
+      {% for c in categories %}
+      <li><a class="chip" href="/{{ lang }}/wholesale?category={{ c.slug }}"
+             {% if active_category == c.slug %}aria-current="true"{% endif %}>{{ c.name }}</a></li>
+      {% endfor %}
+    </ul>
+    <a class="btn btn-ghost btn-sm" href="/{{ lang }}/wholesale/cart">{{ ui.icon('bag') }} {{ _('wholesale.cart') }}{% if wholesale_count %} ({{ wholesale_count }}){% endif %}</a>
+  </div>
+
+  {% if products %}
+  <div class="grid grid--products">
+    {% for p in products %}{{ ui.wholesale_card(p, lang, min_qty) }}{% endfor %}
+  </div>
+  {% else %}
+  <p class="text-center muted" style="padding: var(--space-3xl) 0;">{{ _('catalog.empty') }}</p>
+  {% endif %}
+</section>
+
+{% endblock %}

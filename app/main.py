@@ -19,6 +19,7 @@ from app.routes.cart import router as cart_router
 from app.routes.checkout import router as checkout_router
 from app.routes.payments import router as payments_router
 from app.routes.public import router as public_router
+from app.routes.wholesale import router as wholesale_router
 
 
 @asynccontextmanager
@@ -62,4 +63,5 @@ app.include_router(admin_router)
 app.include_router(payments_router)
 app.include_router(cart_router)
 app.include_router(checkout_router)
+app.include_router(wholesale_router)
 app.include_router(public_router)

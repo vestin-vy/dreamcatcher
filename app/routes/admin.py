@@ -570,6 +570,7 @@ def order_list(request: Request, session: Session = Depends(get_session), status
     orders = session.exec(query).all()
     rows = [{
         "id": o.id, "number": o.number, "status": o.status,
+        "is_wholesale": o.is_wholesale,
         "customer_name": o.customer_name, "customer_email": o.customer_email,
         "total": o.total, "currency": o.currency, "created_at": o.created_at,
         "items": len(o.items),
@@ -599,6 +600,7 @@ _ALLOWED_TRANSITIONS = {
     "paid": {"shipped", "cancelled"},
     "shipped": {"cancelled"},
     "cancelled": set(),
+    "wholesale": {"shipped", "cancelled"},  # B2B request -> fulfilled or cancelled
 }
 
 
