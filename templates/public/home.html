@@ -13,15 +13,47 @@
         <a class="btn btn-secondary" href="/{{ lang }}/contact" style="color:#fff;border-color:rgba(255,255,255,0.7);">{{ _('nav.contact') }}</a>
       </div>
     </div>
-    {% set hero_imgs = featured | selectattr('image') | list %}
-    {% if hero_imgs %}
     <div class="hero__art" aria-hidden="true">
       <span class="hero__art-glow"></span>
-      {% for p in hero_imgs[:2] %}
-      <img src="/static/{{ p.image }}" alt="" width="400" height="500">
-      {% endfor %}
+      <div class="dreamcatcher" id="dreamcatcher">
+        <div class="dreamcatcher__inner">
+          <svg class="dc-svg" viewBox="0 0 240 440" xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="#E7C77A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <!-- cord -->
+              <path d="M120 2 V36"/>
+              <!-- rings -->
+              <circle cx="120" cy="120" r="84" stroke-width="4"/>
+              <circle cx="120" cy="120" r="78"/>
+              <!-- spokes -->
+              <path d="M120 120 L202 120 M120 120 L178 62 M120 120 L120 38 M120 120 L62 62 M120 120 L38 120 M120 120 L62 178 M120 120 L120 202 M120 120 L178 178"/>
+              <!-- inner web octagon -->
+              <path d="M160 120 L148 92 L120 80 L92 92 L80 120 L92 148 L120 160 L148 148 Z"/>
+              <circle cx="120" cy="120" r="7" fill="#E7C77A" stroke="none"/>
+              <!-- hanging strands + beads -->
+              <path d="M92 197 V300 M120 202 V332 M148 197 V300"/>
+              <circle cx="92" cy="236" r="4"/><circle cx="92" cy="266" r="4"/>
+              <circle cx="120" cy="244" r="4"/><circle cx="120" cy="284" r="4"/>
+              <circle cx="148" cy="236" r="4"/><circle cx="148" cy="266" r="4"/>
+            </g>
+            <!-- feathers (sway independently) -->
+            <g class="dc-feathers" fill="none" stroke="#E7C77A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <g>
+                <path d="M92 300 C78 326 78 360 92 384 C106 360 106 326 92 300 Z"/>
+                <path d="M92 308 V382 M92 322 L83 332 M92 322 L101 332 M92 344 L82 356 M92 344 L102 356"/>
+              </g>
+              <g>
+                <path d="M120 332 C104 362 104 400 120 428 C136 400 136 362 120 332 Z"/>
+                <path d="M120 340 V426 M120 356 L109 368 M120 356 L131 368 M120 382 L108 396 M120 382 L132 396"/>
+              </g>
+              <g>
+                <path d="M148 300 C134 326 134 360 148 384 C162 360 162 326 148 300 Z"/>
+                <path d="M148 308 V382 M148 322 L139 332 M148 322 L157 332 M148 344 L138 356 M148 344 L158 356"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
     </div>
-    {% endif %}
   </div>
 </section>
 

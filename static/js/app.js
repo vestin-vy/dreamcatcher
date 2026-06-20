@@ -81,6 +81,22 @@
     });
   }
 
+  // --- Dreamcatcher: cursor "pushes" it (spring-back via CSS transition) ---
+  var hero = document.querySelector(".hero");
+  var catcher = document.getElementById("dreamcatcher");
+  var reduceMo = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (hero && catcher && !reduceMo) {
+    hero.addEventListener("pointermove", function (e) {
+      var r = catcher.getBoundingClientRect();
+      var dx = (e.clientX - (r.left + r.width / 2)) / (r.width || 1);
+      var rot = Math.max(-14, Math.min(14, dx * 26));
+      catcher.style.transform = "rotate(" + rot.toFixed(2) + "deg)";
+    });
+    hero.addEventListener("pointerleave", function () {
+      catcher.style.transform = "rotate(0deg)";
+    });
+  }
+
   // --- Scroll reveal (progressive enhancement; respects reduced-motion) ---
   var reveals = document.querySelectorAll("[data-reveal]");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
