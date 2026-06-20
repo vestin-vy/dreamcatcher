@@ -551,10 +551,12 @@ main { flex: 1 0 auto; }
 .product-card:hover { border-color: var(--color-accent-2-soft); }
 .badge { background: var(--color-accent-2); }
 
-/* Category tile: editorial bottom-left label + gradient underline on hover. */
-.cat-tile { place-items: end start; }
-.cat-tile__label { text-align: left; font-size: 1.3rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
-.cat-tile__label::after { content: ""; height: 2px; width: 0; background: var(--gradient-accent); transition: width var(--transition); }
+/* Category tile: light, cohesive neutral tiles with a single gold icon (cat-*.svg).
+   Dark label on a soft scrim, subtle border, gold underline on hover. */
+.cat-tile { place-items: end start; color: var(--color-primary); border: 1px solid var(--color-border); background: var(--color-surface-alt); }
+.cat-tile:hover { color: var(--color-primary); }
+.cat-tile__label { text-align: left; font-size: 1.2rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; color: var(--color-primary); background: linear-gradient(0deg, rgba(255,255,255,0.95) 35%, rgba(255,255,255,0)); }
+.cat-tile__label::after { content: ""; height: 2px; width: 0; background: var(--color-accent); transition: width var(--transition); }
 .cat-tile:hover .cat-tile__label::after { width: 36px; }
 
 /* Editorial band: full-bleed gradient quote that breaks the grid monotony. */
