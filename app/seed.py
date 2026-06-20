@@ -63,6 +63,14 @@ CATEGORIES = [
     {"slug": "necklaces", "order": 2, "names": {"el": "Κολιέ", "en": "Necklaces"}},
     {"slug": "earrings", "order": 3, "names": {"el": "Σκουλαρίκια", "en": "Earrings"}},
     {"slug": "bracelets", "order": 4, "names": {"el": "Βραχιόλια", "en": "Bracelets"}},
+    {"slug": "anklets", "order": 5, "names": {"el": "Βραχιόλια ποδιού", "en": "Anklets"}},
+    {"slug": "pendants", "order": 6, "names": {"el": "Μενταγιόν", "en": "Pendants"}},
+    {"slug": "brooches", "order": 7, "names": {"el": "Καρφίτσες", "en": "Brooches"}},
+    {"slug": "charms", "order": 8, "names": {"el": "Γούρια & Charms", "en": "Charms"}},
+    {"slug": "hair-accessories", "order": 9, "names": {"el": "Αξεσουάρ μαλλιών", "en": "Hair accessories"}},
+    {"slug": "sets", "order": 10, "names": {"el": "Σετ κοσμημάτων", "en": "Jewelry sets"}},
+    {"slug": "body-jewelry", "order": 11, "names": {"el": "Κοσμήματα σώματος", "en": "Body jewelry"}},
+    {"slug": "watches", "order": 12, "names": {"el": "Ρολόγια", "en": "Watches"}},
 ]
 
 # Each product has el + en translations (en falls back to el when missing).
@@ -138,11 +146,9 @@ def run() -> None:
     with Session(engine) as session:
         # Categories
         cat_by_slug: dict[str, Category] = {}
-        for ci, c in enumerate(CATEGORIES):
+        for c in CATEGORIES:
             cat = Category(slug=c["slug"], sort_order=c["order"], is_active=True)
-            # Generated placeholder image so the category tiles look intentional.
-            meta = save_image(_placeholder_image(c["names"]["en"], ci))
-            cat.image, cat.thumb = meta["filename"], meta["thumb"]
+            # No seeded image: tiles fall back to the designed static/img/cat-<slug>.svg.
             session.add(cat)
             session.commit()
             session.refresh(cat)

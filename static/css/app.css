@@ -498,6 +498,7 @@ main { flex: 1 0 auto; }
 
 /* Cookie banner */
 .cookie-banner { position: fixed; left: var(--space-md); right: var(--space-md); bottom: var(--space-md); z-index: 60; display: flex; gap: var(--space-md); align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--color-primary); color: var(--color-on-primary); padding: var(--space-md) var(--space-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: var(--container-max); margin: 0 auto; }
+.cookie-banner[hidden] { display: none; }
 .cookie-banner__text { margin: 0; font-size: 0.9rem; max-width: 70ch; }
 
 @media (max-width: 900px) {
