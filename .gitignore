@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Env & secrets
+.env
+
+# Database
+data.db
+*.db-journal
+
+# Uploaded media (keep the folders, not the files)
+static/uploads/*
+!static/uploads/.gitkeep
+static/uploads/thumbs/*
+!static/uploads/thumbs/.gitkeep
+
+# Screenshots / scratch
+screenshots/
+.pytest_cache/
+
+# Local tooling / backups
+cloudflared.exe
+backups/

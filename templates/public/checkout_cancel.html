@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ _('checkout.cancel.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+<section class="section container">
+  <div class="status-card panel">
+    <h1>{{ _('checkout.cancel.title') }}</h1>
+    <p>{{ _('checkout.cancel.body') }}</p>
+    <a class="btn btn-primary" href="/{{ lang }}/cart">{{ _('cart.title') }}</a>
+    <a class="btn btn-ghost" href="/{{ lang }}/checkout">{{ _('checkout.title') }}</a>
+  </div>
+</section>
+{% endblock %}

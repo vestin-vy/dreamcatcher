@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ _('checkout.demo.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+<section class="section container">
+  <div class="status-card panel">
+    <span class="eyebrow">{{ _('checkout.demo.title') }}</span>
+    <h1>{{ format_price(order.total, order.currency, lang) }}</h1>
+    <p class="muted">{{ _('checkout.order_number') }}: <strong>{{ order.number }}</strong></p>
+    <p>{{ _('checkout.demo.body') }}</p>
+    <form method="post" action="/{{ lang }}/checkout/pay/{{ order.number }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn-primary btn-block" type="submit">{{ _('checkout.demo.pay') }}</button>
+    </form>
+    <a class="btn btn-ghost btn-block" href="/{{ lang }}/checkout/cancel?order={{ order.number }}">{{ _('checkout.cancel.title') }}</a>
+  </div>
+</section>
+{% endblock %}

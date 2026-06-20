@@ -1,0 +1,72 @@
+{% extends "admin/_base.html" %}
+{% block title %}Order {{ order.number }} · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head">
+  <h1>Order {{ order.number }}</h1>
+  <a class="btn btn-ghost" href="/admin/orders">← Orders</a>
+</div>
+
+<div class="admin-grid-2">
+  <div class="panel">
+    <h2>Items</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Item</th><th>Unit</th><th>Qty</th><th>Total</th></tr></thead>
+        <tbody>
+          {% for it in order.items %}
+          <tr>
+            <td>{{ it.title_snapshot }}</td>
+            <td>{{ '%.2f'|format(it.price_snapshot) }} {{ order.currency }}</td>
+            <td>{{ it.qty }}</td>
+            <td>{{ '%.2f'|format(it.line_total) }} {{ order.currency }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <dl class="summary-rows">
+      <div><dt>Subtotal</dt><dd>{{ '%.2f'|format(order.subtotal) }} {{ order.currency }}</dd></div>
+      <div><dt>Shipping ({{ order.shipping_method }})</dt><dd>{{ '%.2f'|format(order.shipping_cost) }} {{ order.currency }}</dd></div>
+      <div class="muted"><dt>VAT ({{ order.vat_rate|round(0)|int }}%)</dt><dd>{{ '%.2f'|format(order.vat_amount) }} {{ order.currency }}</dd></div>
+      <div class="summary-total"><dt>Total</dt><dd>{{ '%.2f'|format(order.total) }} {{ order.currency }}</dd></div>
+    </dl>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Status</h2>
+      <p><span class="pill pill--{{ order.status }}">{{ order.status }}</span></p>
+      <form action="/admin/orders/{{ order.id }}/status" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="field">
+          <label for="status">Change status</label>
+          <select class="input" id="status" name="status">
+            {% for s in statuses %}<option value="{{ s }}" {% if s == order.status %}selected{% endif %}>{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Update status</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Customer</h2>
+      <p>{{ order.customer_name }}<br>
+         <a href="mailto:{{ order.customer_email }}">{{ order.customer_email }}</a><br>
+         {{ order.customer_phone }}</p>
+      <h3>Shipping address</h3>
+      <p>{{ order.ship_address }}<br>{{ order.ship_postcode }} {{ order.ship_city }}<br>{{ order.ship_country }}</p>
+    </div>
+
+    <div class="panel">
+      <h2>Payment</h2>
+      <p class="muted" style="font-size:0.85rem;">
+        Order code: {{ order.viva_order_code or '—' }}<br>
+        Transaction: {{ order.viva_transaction_id or '—' }}<br>
+        Created: {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('contact.title') }} · {{ site.site_title }}{% endblock %}
+{% block head_extra %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('contact.title') }}</h1>
+  </div>
+
+  <div class="contact">
+    <div>
+      <ul class="contact__list">
+        {% if site.address %}
+        <li>{{ ui.icon('map-pin') }}<div><strong>{{ _('contact.address') }}</strong>{{ site.address }}</div></li>
+        {% endif %}
+        {% if site.phone %}
+        <li>{{ ui.icon('phone') }}<div><strong>{{ _('contact.phone') }}</strong><a href="tel:{{ site.phone|replace(' ', '') }}">{{ site.phone }}</a></div></li>
+        {% endif %}
+        {% if site.email %}
+        <li>{{ ui.icon('mail') }}<div><strong>{{ _('contact.email') }}</strong><a href="mailto:{{ site.email }}">{{ site.email }}</a></div></li>
+        {% endif %}
+      </ul>
+
+      <strong class="muted">{{ _('contact.follow') }}</strong>
+      <div class="social-links">
+        {% if site.instagram %}<a href="https://instagram.com/{{ site.instagram }}" aria-label="Instagram" target="_blank" rel="noopener">{{ ui.icon('instagram') }}</a>{% endif %}
+        {% if site.whatsapp %}<a href="https://wa.me/{{ site.whatsapp }}" aria-label="WhatsApp" target="_blank" rel="noopener">{{ ui.icon('whatsapp') }}</a>{% endif %}
+        {% if site.email %}<a href="mailto:{{ site.email }}" aria-label="{{ _('contact.email') }}">{{ ui.icon('mail') }}</a>{% endif %}
+      </div>
+
+      <div id="map" class="mt-lg"
+           data-lat="{{ site.map_lat }}" data-lng="{{ site.map_lng }}"
+           data-label="{{ site.site_title }}"></div>
+    </div>
+
+    <div>
+      <h2 style="font-size:1.6rem;">{{ _('contact.form.title') }}</h2>
+      <p class="muted" style="margin-bottom:var(--space-md);">{{ _('home.cta.subtitle') }}</p>
+      {# MVP: no SMTP. Submit builds a mailto: link (and WhatsApp shortcut below). #}
+      <form id="contact-form" action="mailto:{{ site.email }}" method="post" enctype="text/plain">
+        <div class="field">
+          <label for="cf-name">{{ _('contact.form.name') }}</label>
+          <input class="input" id="cf-name" name="name" required>
+        </div>
+        <div class="field">
+          <label for="cf-contact">{{ _('contact.form.contact') }}</label>
+          <input class="input" id="cf-contact" name="contact" required>
+        </div>
+        <div class="field">
+          <label for="cf-message">{{ _('contact.form.message') }}</label>
+          <textarea class="textarea" id="cf-message" name="message" required></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">{{ ui.icon('mail') }} {{ _('contact.form.send') }}</button>
+      </form>
+      {% if site.whatsapp %}
+      <a class="btn btn-secondary btn-block mt-lg" target="_blank" rel="noopener"
+         href="https://wa.me/{{ site.whatsapp }}">{{ ui.icon('whatsapp') }} {{ _('contact.form.whatsapp') }}</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block body_extra %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    (function () {
+      var el = document.getElementById('map');
+      if (!el || typeof L === 'undefined') return;
+      var lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
+      if (isNaN(lat) || isNaN(lng)) return;
+      var map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap', maxZoom: 19
+      }).addTo(map);
+      L.marker([lat, lng]).addTo(map).bindPopup(el.dataset.label);
+    })();
+  </script>
+{% endblock %}

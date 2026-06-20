@@ -1,0 +1,20 @@
+# DreamCatcher dependencies (Python 3.12, no node/npm/docker).
+# After the first successful install, lock exact versions:
+#   pip freeze > requirements.lock
+# The one HARD constraint is bcrypt<4.1 (4.1+ breaks passlib's version probe on 3.12).
+
+fastapi
+uvicorn[standard]
+jinja2
+sqlmodel
+python-multipart          # file uploads
+itsdangerous              # signed session cookies
+passlib[bcrypt]           # password hashing
+bcrypt<4.1                # passlib compatibility on 3.12
+pillow                    # image processing
+babel                     # i18n (or fall back to a JSON dictionary)
+python-dotenv             # .env config
+httpx                     # runtime: Viva API calls in VIVA_MODE=live; also powers TestClient
+
+# --- tests / verification ---
+pytest

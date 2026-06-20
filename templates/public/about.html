@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('about.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('about.title') }}</h1>
+  </div>
+  <div class="about-teaser" style="margin-bottom: var(--space-2xl);">
+    <div class="about-teaser__media">
+      <img src="/static/img/about.svg" alt="{{ _('about.title') }}" loading="lazy"
+           onerror="this.src='/static/img/placeholder.svg'">
+    </div>
+    <div class="prose" style="margin:0;">
+      {% for para in site.about_text.split('\n\n') %}
+      <p>{{ para }}</p>
+      {% endfor %}
+      <p><a class="btn btn-primary" href="/{{ lang }}/contact">{{ _('nav.contact') }} {{ ui.icon('arrow-right') }}</a></p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

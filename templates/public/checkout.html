@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('checkout.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('checkout.title') }}</h1>
+  </div>
+
+  <form class="checkout-layout" method="post" action="/{{ lang }}/checkout">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <div class="checkout-main">
+      <div class="panel">
+        <h2>{{ _('checkout.contact') }}</h2>
+        <div class="form-grid">
+          <div class="field"><label for="customer_name">{{ _('checkout.name') }}</label>
+            <input class="input" id="customer_name" name="customer_name" required></div>
+          <div class="field"><label for="customer_email">{{ _('checkout.email') }}</label>
+            <input class="input" id="customer_email" name="customer_email" type="email" required></div>
+          <div class="field"><label for="customer_phone">{{ _('checkout.phone') }}</label>
+            <input class="input" id="customer_phone" name="customer_phone" type="tel"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>{{ _('checkout.shipping_address') }}</h2>
+        <div class="form-grid">
+          <div class="field field--full"><label for="ship_address">{{ _('checkout.address') }}</label>
+            <input class="input" id="ship_address" name="ship_address" required></div>
+          <div class="field"><label for="ship_city">{{ _('checkout.city') }}</label>
+            <input class="input" id="ship_city" name="ship_city" required></div>
+          <div class="field"><label for="ship_postcode">{{ _('checkout.postcode') }}</label>
+            <input class="input" id="ship_postcode" name="ship_postcode" required></div>
+          <div class="field"><label for="ship_country">{{ _('checkout.country') }}</label>
+            <input class="input" id="ship_country" name="ship_country" value="GR"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>{{ _('checkout.shipping_method') }}</h2>
+        <div class="radio-list">
+          {% for m in shipping_methods %}
+          <label class="radio-row">
+            <input type="radio" name="shipping_method" value="{{ m.slug }}" {% if loop.first %}checked{% endif %}>
+            <span>{{ m.label }}</span>
+            <span class="radio-row__cost">{{ format_price(m.cost, cart.currency, lang) }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <aside class="checkout-summary panel">
+      <h2>{{ _('checkout.summary') }}</h2>
+      <ul class="summary-items">
+        {% for it in cart.lines %}
+        <li><span>{{ it.qty }}× {{ it.title }}</span><span>{{ format_price(it.line_total, it.currency, lang) }}</span></li>
+        {% endfor %}
+      </ul>
+      <dl class="summary-rows">
+        <div><dt>{{ _('cart.subtotal') }}</dt><dd>{{ format_price(cart.subtotal, cart.currency, lang) }}</dd></div>
+        <div class="muted"><dt>{{ _('cart.vat') }} ({{ cart.vat_rate|round(0)|int }}%)</dt><dd>{{ format_price(cart.vat, cart.currency, lang) }}</dd></div>
+        <div class="summary-total"><dt>{{ _('cart.total') }}</dt><dd>{{ format_price(cart.total, cart.currency, lang) }}</dd></div>
+      </dl>
+      <p class="muted summary-note">{{ _('cart.shipping') }}: {{ _('checkout.shipping_method') }}</p>
+      <button class="btn btn-primary btn-block" type="submit">{{ ui.icon('bag') }} {{ _('checkout.pay') }}</button>
+      <a class="btn btn-ghost btn-block" href="/{{ lang }}/cart">{{ _('cart.title') }}</a>
+    </aside>
+  </form>
+</section>
+
+{% endblock %}

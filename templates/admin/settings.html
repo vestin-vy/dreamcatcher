@@ -1,0 +1,56 @@
+{% extends "admin/_base.html" %}
+{% block title %}Settings · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head"><h1>Site settings</h1></div>
+
+<form action="/admin/settings" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <div class="panel">
+    <h2>General & contact</h2>
+    <div class="form-grid">
+      <div class="field"><label for="site_title">Site title</label><input class="input" id="site_title" name="site_title" value="{{ site.site_title }}"></div>
+      <div class="field"><label for="phone">Phone</label><input class="input" id="phone" name="phone" value="{{ site.phone }}"></div>
+      <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" value="{{ site.email }}"></div>
+      <div class="field"><label for="address">Address</label><input class="input" id="address" name="address" value="{{ site.address }}"></div>
+      <div class="field"><label for="whatsapp">WhatsApp (digits, intl)</label><input class="input" id="whatsapp" name="whatsapp" value="{{ site.whatsapp }}"></div>
+      <div class="field"><label for="instagram">Instagram handle</label><input class="input" id="instagram" name="instagram" value="{{ site.instagram }}"></div>
+      <div class="field field--full"><label for="about_text">About text</label><textarea class="textarea" id="about_text" name="about_text">{{ site.about_text }}</textarea></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Map & preferences</h2>
+    <div class="form-grid">
+      <div class="field"><label for="map_lat">Map latitude</label><input class="input" id="map_lat" name="map_lat" value="{{ site.map_lat }}"></div>
+      <div class="field"><label for="map_lng">Map longitude</label><input class="input" id="map_lng" name="map_lng" value="{{ site.map_lng }}"></div>
+      <div class="field">
+        <label for="default_lang">Default language</label>
+        <select class="input" id="default_lang" name="default_lang">
+          {% for l in LANGS %}<option value="{{ l }}" {% if site.default_lang == l %}selected{% endif %}>{{ LANG_NAMES[l] }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field" style="justify-content:flex-end;">
+        <label class="checkbox"><input type="checkbox" name="show_prices" {% if site.show_prices == '1' %}checked{% endif %} value="1"> Show prices on the site</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Billing &amp; shipping</h2>
+    <div class="form-grid">
+      <div class="field"><label for="vat_rate">VAT rate (%)</label><input class="input" id="vat_rate" name="vat_rate" value="{{ site.vat_rate }}"></div>
+      <div class="field"><label for="notify_email">Order notification email</label><input class="input" id="notify_email" name="notify_email" type="email" value="{{ site.notify_email }}"></div>
+      <div class="field field--full">
+        <label for="shipping_methods">Shipping methods</label>
+        <textarea class="textarea" id="shipping_methods" name="shipping_methods" rows="4">{{ site.shipping_methods }}</textarea>
+        <small class="muted">One per line: <code>slug|Greek label|English label|cost</code></small>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" type="submit">Save settings</button>
+</form>
+
+{% endblock %}

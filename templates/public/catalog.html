@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('catalog.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('catalog.title') }}</h1>
+  </div>
+
+  <div class="toolbar">
+    <ul class="chips">
+      <li><a class="chip" href="/{{ lang }}/catalog?sort={{ sort }}"
+             {% if not active_category %}aria-current="true"{% endif %}>{{ _('catalog.all') }}</a></li>
+      {% for c in categories %}
+      <li><a class="chip" href="/{{ lang }}/catalog?category={{ c.slug }}&sort={{ sort }}"
+             {% if active_category == c.slug %}aria-current="true"{% endif %}>{{ c.name }}</a></li>
+      {% endfor %}
+    </ul>
+    <form method="get" action="/{{ lang }}/catalog">
+      {% if active_category %}<input type="hidden" name="category" value="{{ active_category }}">{% endif %}
+      <label class="visually-hidden" for="sort">{{ _('catalog.sort') }}</label>
+      <select class="select" id="sort" name="sort" onchange="this.form.submit()">
+        <option value="newest" {% if sort=='newest' %}selected{% endif %}>{{ _('catalog.sort.newest') }}</option>
+        <option value="price_asc" {% if sort=='price_asc' %}selected{% endif %}>{{ _('catalog.sort.price_asc') }}</option>
+        <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>{{ _('catalog.sort.price_desc') }}</option>
+      </select>
+    </form>
+  </div>
+
+  {% if products %}
+  <div class="grid grid--products">
+    {% for p in products %}{{ ui.product_card(p, lang) }}{% endfor %}
+  </div>
+  {% else %}
+  <p class="text-center muted" style="padding: var(--space-3xl) 0;">{{ _('catalog.empty') }}</p>
+  {% endif %}
+</section>
+
+{% endblock %}

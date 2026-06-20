@@ -1,0 +1,128 @@
+{% extends "admin/_base.html" %}
+{% block title %}{{ 'New' if mode=='new' else 'Edit' }} product · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head">
+  <h1>{{ 'New product' if mode=='new' else 'Edit product' }}</h1>
+  <a class="btn btn-ghost" href="/admin/products">{{ ui.icon('arrow-right') }} Back to list</a>
+</div>
+
+<form action="{{ '/admin/products/new' if mode=='new' else '/admin/products/' ~ product.id ~ '/edit' }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <div class="panel">
+    <h2>Translations</h2>
+    <p class="muted" style="margin-bottom:var(--space-md);">Greek (el) is required — other languages fall back to it.</p>
+    <div class="tabs" role="tablist">
+      {% for l in langs %}
+      <button class="tab-btn {{ 'active' if loop.first }}" type="button" role="tab"
+              data-tab="tab-{{ l }}" id="tabbtn-{{ l }}">{{ l|upper }}{% if l=='el' %} *{% endif %}</button>
+      {% endfor %}
+    </div>
+    {% for l in langs %}
+    {% set tr = translations.get(l, {}) %}
+    <div class="tab-panel {{ 'active' if loop.first }}" id="tab-{{ l }}" role="tabpanel" aria-labelledby="tabbtn-{{ l }}">
+      <div class="field">
+        <label for="title_{{ l }}">Title ({{ l|upper }})</label>
+        <input class="input" id="title_{{ l }}" name="title_{{ l }}" value="{{ tr.get('title','') }}"
+               {% if l=='el' %}required{% endif %}>
+      </div>
+      <div class="field">
+        <label for="material_{{ l }}">Material ({{ l|upper }})</label>
+        <input class="input" id="material_{{ l }}" name="material_{{ l }}" value="{{ tr.get('material','') }}"
+               placeholder="e.g. 18k gold">
+      </div>
+      <div class="field">
+        <label for="description_{{ l }}">Description ({{ l|upper }})</label>
+        <textarea class="textarea" id="description_{{ l }}" name="description_{{ l }}">{{ tr.get('description','') }}</textarea>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2>Details</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="category_id">Category</label>
+        <select class="input" id="category_id" name="category_id">
+          <option value="">— none —</option>
+          {% for c in categories %}
+          <option value="{{ c.id }}" {% if product and product.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="sku">SKU</label>
+        <input class="input" id="sku" name="sku" value="{{ product.sku or '' if product else '' }}">
+      </div>
+      <div class="field">
+        <label for="price">Price</label>
+        <input class="input" id="price" name="price" type="text" inputmode="decimal"
+               value="{{ product.price if product and product.price is not none else '' }}">
+      </div>
+      <div class="field">
+        <label for="currency">Currency</label>
+        <input class="input" id="currency" name="currency" value="{{ product.currency if product else 'EUR' }}">
+      </div>
+      <div class="field">
+        <label for="sort_order">Sort order</label>
+        <input class="input" id="sort_order" name="sort_order" type="number" value="{{ product.sort_order if product else 0 }}">
+      </div>
+      <div class="field" style="justify-content:flex-end;gap:var(--space-sm);">
+        <label class="checkbox"><input type="checkbox" name="price_on_request" {% if product and product.price_on_request %}checked{% endif %}> Price on request</label>
+        <label class="checkbox"><input type="checkbox" name="is_active" {% if not product or product.is_active %}checked{% endif %}> Active (visible)</label>
+        <label class="checkbox"><input type="checkbox" name="is_featured" {% if product and product.is_featured %}checked{% endif %}> Featured</label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:var(--space-md);">
+    <button class="btn btn-primary" type="submit">Save product</button>
+    <a class="btn btn-secondary" href="/admin/products">Cancel</a>
+  </div>
+</form>
+
+{% if mode == 'edit' %}
+<div class="panel" style="margin-top:var(--space-xl);">
+  <h2>Images</h2>
+  <form action="/admin/products/{{ product.id }}/images" method="post" enctype="multipart/form-data" style="margin-bottom:var(--space-lg);">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="field">
+      <label for="images">Upload images (multiple, images only)</label>
+      <input class="input" id="images" name="images" type="file" accept="image/*" multiple required>
+    </div>
+    <button class="btn btn-primary" type="submit">{{ ui.icon('plus') }} Upload</button>
+  </form>
+
+  {% if images %}
+  <div class="img-grid">
+    {% for im in images %}
+    <div class="img-card {{ 'is-main' if loop.first }}">
+      <img src="/static/{{ im.thumb }}" alt="{{ im.alt or '' }}">
+      <div class="img-card__actions">
+        {% if not loop.first %}
+        <form action="/admin/images/{{ im.id }}/main" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="btn btn-secondary btn-sm" type="submit" title="Set as main">{{ ui.icon('star') }}</button>
+        </form>
+        {% else %}
+        <span class="pill pill--on" style="flex:1;justify-content:center;">Main</span>
+        {% endif %}
+        <form action="/admin/images/{{ im.id }}/delete" method="post" onsubmit="return confirm('Delete this image?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="btn btn-danger btn-sm" type="submit" title="Delete">{{ ui.icon('trash') }}</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="muted">No images yet.</p>
+  {% endif %}
+</div>
+{% else %}
+<p class="muted" style="margin-top:var(--space-md);">Save the product first to add images.</p>
+{% endif %}
+
+{% endblock %}

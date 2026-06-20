@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DreamCatcher Shop — User Guide / Руководство</title>
+<style>
+  :root{
+    --black:#1C1917; --gold:#A16207; --gold-dark:#854D0E; --bg:#FAFAF9;
+    --ink:#0C0A09; --muted:#57534E; --border:#D6D3D1; --surface:#FFFFFF;
+    --surface-alt:#F5F5F4;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; font-size:17px;
+  }
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif; color:var(--black); line-height:1.2; letter-spacing:.01em;}
+  h1{font-size:2.4rem; margin:0;}
+  h2{font-size:1.7rem; margin:2.6rem 0 .8rem; padding-top:1rem; border-top:1px solid var(--border);}
+  h3{font-size:1.25rem; margin:1.8rem 0 .5rem;}
+  p{margin:.6rem 0;}
+  a{color:var(--gold-dark);}
+  code{background:var(--surface-alt); border:1px solid var(--border); border-radius:5px; padding:1px 6px; font-size:.92em;}
+  pre{background:#1c1917; color:#f5f5f4; border-radius:10px; padding:14px 16px; overflow:auto; font-size:.9rem; line-height:1.5;}
+  pre code{background:transparent; border:none; color:inherit; padding:0;}
+  .wrap{max-width:900px; margin:0 auto; padding:0 20px 80px;}
+
+  header{
+    background:radial-gradient(circle at 30% 20%,#3f3a34,#1c1917 70%);
+    color:#fff; padding:38px 20px 30px; text-align:center;
+  }
+  header h1{color:#fff;}
+  header .sub{color:rgba(255,255,255,.8); margin-top:.4rem;}
+  .gem{width:40px;height:40px;color:var(--gold);margin:0 auto 10px;}
+
+  .lang-toggle{display:flex; gap:8px; justify-content:center; margin-top:18px;}
+  .lang-toggle button{
+    cursor:pointer; border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff;
+    padding:8px 18px; border-radius:999px; font-weight:600; font-size:.95rem; transition:all .2s ease;
+  }
+  .lang-toggle button:hover{border-color:#fff;}
+  .lang-toggle button.active{background:var(--gold); border-color:var(--gold);}
+
+  .callout{
+    background:#FFFBEB; border:1px solid #FDE68A; border-left:4px solid var(--gold);
+    border-radius:8px; padding:12px 16px; margin:1.2rem 0;
+  }
+  .callout.warn{background:#FEF2F2; border-color:#FECACA; border-left-color:#DC2626;}
+
+  figure{margin:1.4rem 0; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,.08);}
+  figure img{display:block; width:100%; height:auto;}
+  figcaption{padding:8px 14px; font-size:.85rem; color:var(--muted); background:var(--surface-alt); border-top:1px solid var(--border);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+
+  table{width:100%; border-collapse:collapse; margin:1rem 0; background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden;}
+  th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top;}
+  th{background:var(--surface-alt); font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  tr:last-child td{border-bottom:none;}
+
+  ul,ol{padding-left:1.3rem;}
+  li{margin:.35rem 0;}
+  .toc{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin:1.4rem 0;}
+  .toc strong{display:block; margin-bottom:.4rem; font-family:Georgia,serif;}
+  .toc a{display:block; padding:3px 0; color:var(--ink); text-decoration:none;}
+  .toc a:hover{color:var(--gold-dark);}
+
+  body.show-en .ru{display:none;}
+  body.show-ru .en{display:none;}
+  .pill{display:inline-block; background:#ECFDF5; color:#065F46; border-radius:999px; padding:2px 10px; font-size:.8rem; font-weight:600;}
+</style>
+</head>
+<body class="show-en">
+<header>
+  <svg class="gem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3 6 9l6 12M15 3l3 6-6 12"/></svg>
+  <h1>DreamCatcher — Shop &amp; Billing</h1>
+  <div class="sub en">Operator guide: cart, checkout, online payments (Viva), order management</div>
+  <div class="sub ru">Руководство: корзина, оформление, онлайн-оплата (Viva), управление заказами</div>
+  <div class="lang-toggle">
+    <button data-lang="en" class="active">English</button>
+    <button data-lang="ru">Русский</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toc">
+    <strong class="en">Contents</strong><strong class="ru">Содержание</strong>
+    <a href="#overview"><span class="en">1. Overview</span><span class="ru">1. Обзор</span></a>
+    <a href="#customer"><span class="en">2. The customer journey</span><span class="ru">2. Путь покупателя</span></a>
+    <a href="#admin"><span class="en">3. Admin: products, orders, settings</span><span class="ru">3. Админка: товары, заказы, настройки</span></a>
+    <a href="#payments"><span class="en">4. Payments (Viva)</span><span class="ru">4. Оплата (Viva)</span></a>
+    <a href="#run"><span class="en">5. Running locally</span><span class="ru">5. Локальный запуск</span></a>
+    <a href="#share"><span class="en">6. Publishing a demo</span><span class="ru">6. Публикация демо</span></a>
+    <a href="#notes"><span class="en">7. Important notes</span><span class="ru">7. Важные детали</span></a>
+  </div>
+
+  <!-- 1. OVERVIEW -->
+  <h2 id="overview"><span class="en">1. Overview</span><span class="ru">1. Обзор</span></h2>
+  <p class="en">DreamCatcher is a server-rendered jewelry shop built on FastAPI + SQLite + Jinja2
+  (no Node/Docker). Visitors browse the catalog, add items to a cart, check out, and pay online
+  via Viva.com. The administrator manages products, categories, orders and site settings.
+  The site runs in two languages: <strong>Greek (default)</strong> and <strong>English</strong>.</p>
+  <p class="ru">DreamCatcher — это магазин украшений с серверным рендерингом на FastAPI + SQLite + Jinja2
+  (без Node/Docker). Посетитель просматривает каталог, кладёт товары в корзину, оформляет заказ и
+  оплачивает онлайн через Viva.com. Администратор управляет товарами, категориями, заказами и
+  настройками. Сайт работает на двух языках: <strong>греческий (по умолчанию)</strong> и <strong>английский</strong>.</p>
+  <figure><img src="screenshots/home-el-1440.png" alt="Home page">
+    <figcaption class="en">Home page (Greek)</figcaption><figcaption class="ru">Главная страница (греческий)</figcaption></figure>
+
+  <!-- 2. CUSTOMER -->
+  <h2 id="customer"><span class="en">2. The customer journey</span><span class="ru">2. Путь покупателя</span></h2>
+  <ol>
+    <li class="en"><strong>Browse</strong> the catalog or a product page. Priced, in-stock items show an <em>Add to cart</em> button; items marked “price on request” show a contact button instead.</li>
+    <li class="ru"><strong>Просмотр</strong> каталога или карточки товара. У товаров с ценой и в наличии есть кнопка <em>«В корзину»</em>; у товаров «цена по запросу» — кнопка связи.</li>
+    <li class="en"><strong>Cart</strong> — change quantity, remove items. Prices are shown gross (VAT included); the VAT share is displayed.</li>
+    <li class="ru"><strong>Корзина</strong> — изменить количество, удалить позиции. Цены брутто (с НДС); доля НДС показывается отдельно.</li>
+    <li class="en"><strong>Checkout</strong> — enter contact + shipping details, pick a shipping method.</li>
+    <li class="ru"><strong>Оформление</strong> — контакты + адрес доставки, выбор способа доставки.</li>
+    <li class="en"><strong>Pay</strong> — redirected to the payment page. On success the order is confirmed.</li>
+    <li class="ru"><strong>Оплата</strong> — переход на страницу оплаты. При успехе заказ подтверждается.</li>
+  </ol>
+  <div class="grid2">
+    <figure><img src="screenshots/catalog-1440.png" alt="Catalog"><figcaption class="en">Catalog with Add-to-cart</figcaption><figcaption class="ru">Каталог с кнопкой «В корзину»</figcaption></figure>
+    <figure><img src="screenshots/product-1440.png" alt="Product"><figcaption class="en">Product page</figcaption><figcaption class="ru">Страница товара</figcaption></figure>
+    <figure><img src="screenshots/cart-1440.png" alt="Cart"><figcaption class="en">Cart with VAT breakdown</figcaption><figcaption class="ru">Корзина с разбивкой НДС</figcaption></figure>
+    <figure><img src="screenshots/checkout-1440.png" alt="Checkout"><figcaption class="en">Checkout form</figcaption><figcaption class="ru">Форма оформления</figcaption></figure>
+    <figure><img src="screenshots/checkout-pay-1440.png" alt="Payment"><figcaption class="en">Payment page (demo mode)</figcaption><figcaption class="ru">Страница оплаты (demo-режим)</figcaption></figure>
+    <figure><img src="screenshots/checkout-success-1440.png" alt="Success"><figcaption class="en">Order confirmed</figcaption><figcaption class="ru">Заказ подтверждён</figcaption></figure>
+  </div>
+
+  <!-- 3. ADMIN -->
+  <h2 id="admin"><span class="en">3. Admin: products, orders, settings</span><span class="ru">3. Админка: товары, заказы, настройки</span></h2>
+  <p class="en">Open <code>/admin/login</code> and sign in (single admin account). The dashboard shows
+  product and order counts.</p>
+  <p class="ru">Откройте <code>/admin/login</code> и войдите (единый аккаунт администратора). На дашборде —
+  счётчики товаров и заказов.</p>
+  <figure><img src="screenshots/admin-dashboard-1440.png" alt="Dashboard"><figcaption class="en">Admin dashboard</figcaption><figcaption class="ru">Дашборд администратора</figcaption></figure>
+
+  <h3 class="en">Orders</h3><h3 class="ru">Заказы</h3>
+  <p class="en">The <strong>Orders</strong> section lists every order with a status filter
+  (pending → paid → shipped → cancelled). Open an order to see line items, totals, customer and
+  shipping details, and payment references. Change status there (e.g. mark a paid order as shipped,
+  or cancel it). Payment to <em>paid</em> happens automatically via the payment webhook — not by hand.</p>
+  <p class="ru">Раздел <strong>«Заказы»</strong> показывает все заказы с фильтром по статусу
+  (pending → paid → shipped → cancelled). Откройте заказ — увидите позиции, суммы, контакты и адрес,
+  данные платежа. Там же меняется статус (например, оплаченный → отправлен, или отмена). Перевод в
+  <em>paid</em> происходит автоматически по webhook оплаты — не вручную.</p>
+  <div class="grid2">
+    <figure><img src="screenshots/admin-orders-1440.png" alt="Orders list"><figcaption class="en">Orders list with status filter</figcaption><figcaption class="ru">Список заказов с фильтром</figcaption></figure>
+    <figure><img src="screenshots/admin-order-detail-1440.png" alt="Order detail"><figcaption class="en">Order detail + status control</figcaption><figcaption class="ru">Карточка заказа + смена статуса</figcaption></figure>
+  </div>
+
+  <h3 class="en">Products &amp; settings</h3><h3 class="ru">Товары и настройки</h3>
+  <p class="en">Manage products (price, stock, translations, images) as before. In <strong>Settings</strong>
+  set the <strong>VAT rate</strong> (Greece 24%), <strong>shipping methods</strong> (one per line:
+  <code>slug|Greek label|English label|cost</code>) and the order <strong>notification email</strong>.</p>
+  <p class="ru">Товары (цена, остаток, переводы, изображения) управляются как раньше. В <strong>настройках</strong>
+  задаются <strong>ставка НДС</strong> (Греция 24%), <strong>способы доставки</strong> (по строке:
+  <code>slug|метка el|метка en|стоимость</code>) и <strong>email уведомлений</strong> о заказах.</p>
+  <div class="grid2">
+    <figure><img src="screenshots/admin-products-1440.png" alt="Products"><figcaption class="en">Products</figcaption><figcaption class="ru">Товары</figcaption></figure>
+    <figure><img src="screenshots/admin-settings-1440.png" alt="Settings"><figcaption class="en">Settings (VAT, shipping, email)</figcaption><figcaption class="ru">Настройки (НДС, доставка, email)</figcaption></figure>
+  </div>
+
+  <!-- 4. PAYMENTS -->
+  <h2 id="payments"><span class="en">4. Payments (Viva)</span><span class="ru">4. Оплата (Viva)</span></h2>
+  <p class="en">Payments go through a provider abstraction, so another gateway (e.g. Stripe) can be added
+  later without rewriting orders. Two modes via <code>VIVA_MODE</code>:</p>
+  <p class="ru">Оплата идёт через абстракцию провайдера, поэтому позже можно подключить другой шлюз
+  (напр. Stripe) без переписывания заказов. Два режима через <code>VIVA_MODE</code>:</p>
+  <table>
+    <tr><th>VIVA_MODE</th><th class="en">Behaviour</th><th class="ru">Поведение</th></tr>
+    <tr><td><code>demo</code></td>
+        <td class="en">Internal stub checkout — no keys needed. The demo pay page calls the same webhook path the real gateway would, so the flow is genuine.</td>
+        <td class="ru">Внутренняя заглушка — ключи не нужны. Страница demo-оплаты дёргает тот же webhook, что и реальный шлюз, — поток настоящий.</td></tr>
+    <tr><td><code>live</code></td>
+        <td class="en">Real Viva Smart Checkout. Requires merchant keys in <code>.env</code> (skeleton present; confirm API fields against Viva docs before enabling).</td>
+        <td class="ru">Реальный Viva Smart Checkout. Нужны ключи мерчанта в <code>.env</code> (каркас готов; перед включением сверить поля API с документацией Viva).</td></tr>
+  </table>
+  <div class="callout warn">
+    <span class="en"><strong>The webhook is the only proof of payment.</strong> Returning to the “success”
+    page does <em>not</em> mark an order paid. The webhook is idempotent: a redelivered event will not
+    pay an order or reduce stock twice.</span>
+    <span class="ru"><strong>Единственное подтверждение оплаты — webhook.</strong> Возврат на страницу
+    «успех» <em>не</em> переводит заказ в оплаченный. Webhook идемпотентен: повторная доставка события
+    не оплатит заказ и не спишет остаток дважды.</span>
+  </div>
+
+  <!-- 5. RUN -->
+  <h2 id="run"><span class="en">5. Running locally</span><span class="ru">5. Локальный запуск</span></h2>
+  <pre><code>cd D:\Dreamcatcher_site_with_billing
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+copy .env.example .env      # set SECRET_KEY, ADMIN_PASSWORD_HASH; VIVA_MODE=demo
+python -m app.seed          # demo data
+python -m pytest -q         # 14 tests should pass
+python -m uvicorn app.main:app --reload   # http://127.0.0.1:8000 -> /el/</code></pre>
+  <div class="callout">
+    <span class="en">For local HTTP, keep <code>DEBUG=true</code> (or <code>SESSION_HTTPS_ONLY=false</code>)
+    so the session cookie — which holds the cart — works without HTTPS. In production leave it on.</span>
+    <span class="ru">Для локального HTTP держите <code>DEBUG=true</code> (или <code>SESSION_HTTPS_ONLY=false</code>),
+    чтобы cookie сессии (в нём корзина) работала без HTTPS. В проде — включить.</span>
+  </div>
+
+  <!-- 6. SHARE -->
+  <h2 id="share"><span class="en">6. Publishing a demo</span><span class="ru">6. Публикация демо</span></h2>
+  <p class="en"><strong>Quick &amp; free (Cloudflare Tunnel):</strong> run the dev server, then expose it with a
+  temporary public HTTPS link — no account needed (works while your PC is on):</p>
+  <p class="ru"><strong>Быстро и бесплатно (Cloudflare Tunnel):</strong> запустите сервер и откройте его
+  временной публичной HTTPS-ссылкой — без аккаунта (работает, пока включён ваш ПК):</p>
+  <pre><code># terminal 1 — server (session cookie over the tunnel's HTTPS)
+SESSION_HTTPS_ONLY=false python -m uvicorn app.main:app --port 8000
+# terminal 2 — tunnel
+cloudflared.exe tunnel --url http://127.0.0.1:8000
+# -> prints https://&lt;random&gt;.trycloudflare.com</code></pre>
+  <p class="en">For a <strong>persistent</strong> free link that survives your PC being off, deploy to
+  <strong>Render</strong> (free web service, needs a GitHub repo) or <strong>Hugging Face Spaces</strong>
+  (Docker space). On free tiers SQLite is ephemeral — fine for a showcase (re-seed on boot).</p>
+  <p class="ru">Для <strong>постоянной</strong> бесплатной ссылки, не зависящей от вашего ПК, разверните на
+  <strong>Render</strong> (free web service, нужен GitHub-репозиторий) или <strong>Hugging Face Spaces</strong>
+  (Docker space). На бесплатных тарифах SQLite эфемерный — для демо нормально (пересев при старте).</p>
+
+  <!-- 7. NOTES -->
+  <h2 id="notes"><span class="en">7. Important notes</span><span class="ru">7. Важные детали</span></h2>
+  <ul>
+    <li class="en"><strong>Prices are gross</strong> (VAT-inclusive); VAT is back-computed: <code>vat = total − total/(1 + rate/100)</code>.</li>
+    <li class="ru"><strong>Цены брутто</strong> (с НДС); НДС считается обратным ходом: <code>НДС = итог − итог/(1 + ставка/100)</code>.</li>
+    <li class="en"><strong>Cart</strong> lives in the server session (only ids + quantities); prices are always read from the DB and snapshotted onto the order at checkout.</li>
+    <li class="ru"><strong>Корзина</strong> хранится в серверной сессии (только id + количества); цены берутся из БД и фиксируются в заказе при оформлении.</li>
+    <li class="en"><strong>Backups:</strong> <code>python -m scripts.backup</code> copies <code>data.db</code> and <code>static/uploads/</code> into <code>backups/&lt;timestamp&gt;/</code>.</li>
+    <li class="ru"><strong>Бэкап:</strong> <code>python -m scripts.backup</code> копирует <code>data.db</code> и <code>static/uploads/</code> в <code>backups/&lt;timestamp&gt;/</code>.</li>
+    <li class="en"><strong>Screenshots</strong> are regenerated with <code>python scripts/shoot.py</code> (needs Playwright + a running dev server).</li>
+    <li class="ru"><strong>Скриншоты</strong> пересоздаются командой <code>python scripts/shoot.py</code> (нужен Playwright и запущенный сервер).</li>
+    <li class="en">The billing spec is <code>SPEC-BILLING.md</code>; the showcase spec remains <code>SPEC.md</code>.</li>
+    <li class="ru">Спека по биллингу — <code>SPEC-BILLING.md</code>; спека по витрине — <code>SPEC.md</code>.</li>
+  </ul>
+
+</div>
+
+<script>
+  document.querySelectorAll(".lang-toggle button").forEach(function(b){
+    b.addEventListener("click", function(){
+      var lang = b.getAttribute("data-lang");
+      document.body.className = "show-" + lang;
+      document.querySelectorAll(".lang-toggle button").forEach(function(x){x.classList.remove("active");});
+      b.classList.add("active");
+    });
+  });
+</script>
+</body>
+</html>

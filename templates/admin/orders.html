@@ -1,0 +1,39 @@
+{% extends "admin/_base.html" %}
+{% block title %}Orders · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head">
+  <h1>Orders</h1>
+</div>
+
+<div class="panel">
+  <div class="chips" style="margin-bottom:var(--space-md);">
+    <a class="chip {% if not active_status %}is-active{% endif %}" href="/admin/orders">All</a>
+    {% for s in statuses %}
+    <a class="chip {% if active_status == s %}is-active{% endif %}" href="/admin/orders?status={{ s }}">{{ s }}</a>
+    {% endfor %}
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><a href="/admin/orders/{{ o.id }}"><strong>{{ o.number }}</strong></a></td>
+          <td>{{ o.customer_name }}<br><span class="muted" style="font-size:0.8rem;">{{ o.customer_email }}</span></td>
+          <td>{{ o.items }}</td>
+          <td>{{ '%.2f'|format(o.total) }} {{ o.currency }}</td>
+          <td><span class="pill pill--{{ o.status }}">{{ o.status }}</span></td>
+          <td class="muted" style="font-size:0.85rem;">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">No orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

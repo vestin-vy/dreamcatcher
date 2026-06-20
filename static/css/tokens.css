@@ -1,0 +1,56 @@
+/* DreamCatcher design tokens — sourced verbatim from
+   design-system/dreamcatcher/MASTER.md. Do not hand-tune colors here without
+   updating MASTER.md (the source of truth for the palette). */
+
+:root {
+  /* --- Color palette (MASTER.md §Color Palette) --- */
+  --color-primary: #1C1917;       /* premium black: text, outline buttons */
+  --color-on-primary: #FFFFFF;
+  --color-secondary: #44403C;
+  --color-accent: #A16207;        /* gold: CTA, accents (WCAG-safe) */
+  --color-accent-hover: #854D0E;  /* darker gold for hover/contrast */
+  --color-background: #FAFAF9;    /* warm white */
+  --color-foreground: #0C0A09;
+  --color-muted: #E8ECF0;
+  --color-border: #D6D3D1;
+  --color-destructive: #DC2626;
+  --color-ring: #1C1917;
+
+  /* Surfaces / supporting tones derived from the palette */
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F5F5F4;
+  --color-muted-foreground: #57534E;
+
+  /* --- Spacing (MASTER.md §Spacing Variables) --- */
+  --space-xs: 0.25rem;   /* 4px  */
+  --space-sm: 0.5rem;    /* 8px  */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  --space-3xl: 4rem;     /* 64px */
+
+  /* --- Shadows (MASTER.md §Shadow Depths) --- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  /* --- Typography --- */
+  --font-heading: 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-body: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-base: 16px;
+  --leading: 1.5;
+
+  /* --- Radii & layout --- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --container-max: 1200px;
+  --navbar-h: 72px;
+
+  /* --- Motion --- */
+  --transition: 200ms ease;
+  --transition-slow: 300ms ease;
+}

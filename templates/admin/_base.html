@@ -1,0 +1,43 @@
+{% import "_macros.html" as ui with context %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Admin · {{ site.site_title }}{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-topbar">
+  <div class="container admin-topbar__inner">
+    <a class="admin-brand" href="/admin">{{ ui.icon('gem') }} {{ site.site_title }}</a>
+    <nav class="admin-nav" aria-label="Admin">
+      <a href="/admin" {% if current_path == '/admin' or current_path == '/admin/' %}aria-current="page"{% endif %}>{{ ui.icon('cog') }} Dashboard</a>
+      <a href="/admin/products" {% if '/admin/products' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('box') }} Products</a>
+      <a href="/admin/orders" {% if '/admin/orders' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('bag') }} Orders</a>
+      <a href="/admin/categories" {% if '/admin/categories' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('tag') }} Categories</a>
+      <a href="/admin/settings" {% if '/admin/settings' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('cog') }} Settings</a>
+      <a href="/{{ DEFAULT_LANG }}/" target="_blank">{{ ui.icon('eye') }} View site</a>
+      <form action="/admin/logout" method="post" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn btn-ghost btn-sm" type="submit" style="color:rgba(255,255,255,0.8);">{{ ui.icon('logout') }} Logout</button>
+      </form>
+    </nav>
+  </div>
+</header>
+
+<main class="admin-main">
+  <div class="container">
+    {% for f in flashes %}
+    <div class="flash flash--{{ f.level }}">{{ f.message }}</div>
+    {% endfor %}
+    {% block body %}{% endblock %}
+  </div>
+</main>
+
+<script src="/static/js/admin.js" defer></script>
+{% block body_extra %}{% endblock %}
+</body>
+</html>

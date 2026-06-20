@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ _('legal.' ~ kind) }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ _('legal.legal') }}</span>
+    <h1>{{ _('legal.' ~ kind) }}</h1>
+  </div>
+
+  <div class="prose">
+    {# Placeholder copy — replace with the final legal text (SPEC-BILLING open question). #}
+    {% if kind == 'terms' %}
+      {% if lang == 'el' %}
+        <p>Οι παρόντες όροι πώλησης διέπουν τις αγορές από το {{ site.site_title }}. Όλες οι τιμές
+        αναγράφονται σε ευρώ (EUR) και περιλαμβάνουν ΦΠΑ. Η παραγγελία επιβεβαιώνεται μετά την
+        επιτυχή ολοκλήρωση της πληρωμής.</p>
+        <p><em>Το πλήρες κείμενο των όρων θα οριστικοποιηθεί από τον πωλητή.</em></p>
+      {% else %}
+        <p>These terms of sale govern purchases from {{ site.site_title }}. All prices are shown in
+        euro (EUR) and include VAT. An order is confirmed once payment completes successfully.</p>
+        <p><em>The full terms text will be finalised by the seller.</em></p>
+      {% endif %}
+    {% elif kind == 'returns' %}
+      {% if lang == 'el' %}
+        <p>Έχετε δικαίωμα επιστροφής εντός 14 ημερών από την παραλαβή, σύμφωνα με την ευρωπαϊκή
+        νομοθεσία προστασίας καταναλωτή. Επικοινωνήστε μαζί μας στο {{ site.email }}.</p>
+        <p><em>Η πλήρης πολιτική επιστροφών θα οριστικοποιηθεί από τον πωλητή.</em></p>
+      {% else %}
+        <p>You have the right to return items within 14 days of delivery, in line with EU consumer
+        protection law. Contact us at {{ site.email }}.</p>
+        <p><em>The full returns policy will be finalised by the seller.</em></p>
+      {% endif %}
+    {% else %}
+      {% if lang == 'el' %}
+        <p>Σεβόμαστε το απόρρητό σας. Επεξεργαζόμαστε τα προσωπικά σας δεδομένα μόνο για την
+        εκτέλεση της παραγγελίας σας, σύμφωνα με τον GDPR. Χρησιμοποιούμε μόνο απαραίτητα cookies.</p>
+        <p><em>Η πλήρης πολιτική απορρήτου θα οριστικοποιηθεί από τον πωλητή.</em></p>
+      {% else %}
+        <p>We respect your privacy. We process your personal data only to fulfil your order, in
+        accordance with the GDPR. We use essential cookies only.</p>
+        <p><em>The full privacy policy will be finalised by the seller.</em></p>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

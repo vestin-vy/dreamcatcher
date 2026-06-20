@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ _('collections.title') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('collections.title') }}</h1>
+  </div>
+
+  {% if featured %}
+  <div class="section__head" style="margin-bottom:var(--space-lg);">
+    <h2>{{ _('collections.featured') }}</h2>
+  </div>
+  <div class="grid grid--products" style="margin-bottom:var(--space-2xl);">
+    {% for p in featured %}{{ ui.product_card(p, lang) }}{% endfor %}
+  </div>
+  {% endif %}
+
+  {% for group in by_category %}
+  <div class="section__head" style="margin-bottom:var(--space-lg);">
+    <h2>{{ group.category.name }}</h2>
+  </div>
+  <div class="grid grid--products" style="margin-bottom:var(--space-2xl);">
+    {% for p in group.products %}{{ ui.product_card(p, lang) }}{% endfor %}
+  </div>
+  {% endfor %}
+
+  {% if not featured and not by_category %}
+  <p class="text-center muted" style="padding: var(--space-3xl) 0;">{{ _('catalog.empty') }}</p>
+  {% endif %}
+</section>
+
+{% endblock %}

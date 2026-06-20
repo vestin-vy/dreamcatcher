@@ -1,0 +1,176 @@
+"""Order service (SPEC-BILLING §1, §3): shipping config, order creation, mark-as-paid.
+
+Pure-ish helpers shared by checkout, the webhook, and the admin. Prices are gross
+(VAT-inclusive); the VAT amount is back-computed from the gross total.
+"""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+from sqlmodel import Session, func, select
+
+from app import cart as cart_mod
+from app.models import Order, OrderItem, Product
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+# --- shipping methods (stored as a `shipping_methods` site setting) ----------
+# One method per line: "slug|Greek label|English label|cost"
+DEFAULT_SHIPPING = "courier|Ταχυμεταφορά|Courier|5\npickup|Παραλαβή από το κατάστημα|Store pickup|0"
+
+
+def parse_shipping_methods(site: dict, lang: str) -> list[dict]:
+    raw = (site.get("shipping_methods") or DEFAULT_SHIPPING).strip()
+    methods: list[dict] = []
+    for line in raw.splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 4 or not parts[0]:
+            continue
+        slug, label_el, label_en, cost_raw = parts[0], parts[1], parts[2], parts[3]
+        try:
+            cost = float(cost_raw.replace(",", "."))
+        except ValueError:
+            cost = 0.0
+        methods.append({"slug": slug, "label": label_el if lang == "el" else label_en, "cost": cost})
+    return methods
+
+
+def shipping_cost_for(site: dict, slug: str) -> tuple[str, float]:
+    """Return (slug, cost) for the chosen method, defaulting to the first method."""
+    methods = parse_shipping_methods(site, "en")
+    for m in methods:
+        if m["slug"] == slug:
+            return m["slug"], m["cost"]
+    if methods:
+        return methods[0]["slug"], methods[0]["cost"]
+    return "", 0.0
+
+
+# --- order number -----------------------------------------------------------
+
+def generate_order_number(session: Session) -> str:
+    """Sequential, human-readable: DC-YYYYMMDD-NNNN (per day)."""
+    today = _utcnow().strftime("%Y%m%d")
+    prefix = f"DC-{today}-"
+    count = session.exec(
+        select(func.count()).select_from(Order).where(Order.number.like(f"{prefix}%"))
+    ).one()
+    return f"{prefix}{count + 1:04d}"
+
+
+# --- create order from cart -------------------------------------------------
+
+def create_order_from_cart(
+    request, session: Session, lang: str, form: dict, site: dict
+) -> Order | None:
+    """Create a pending Order + OrderItems from the current cart. Returns None if empty."""
+    vat_rate = _vat_rate(site)
+    view = cart_mod.cart_view(request, session, lang, vat_rate=vat_rate)
+    if not view["lines"]:
+        return None
+
+    ship_slug, ship_cost = shipping_cost_for(site, (form.get("shipping_method") or "").strip())
+    subtotal = view["subtotal"]
+    total = round(subtotal + ship_cost, 2)
+    vat_amount = cart_mod.vat_from_gross(total, vat_rate)
+
+    order = Order(
+        number=generate_order_number(session),
+        status="pending",
+        customer_name=(form.get("customer_name") or "").strip(),
+        customer_email=(form.get("customer_email") or "").strip(),
+        customer_phone=(form.get("customer_phone") or "").strip(),
+        ship_address=(form.get("ship_address") or "").strip(),
+        ship_city=(form.get("ship_city") or "").strip(),
+        ship_postcode=(form.get("ship_postcode") or "").strip(),
+        ship_country=(form.get("ship_country") or "GR").strip() or "GR",
+        shipping_method=ship_slug,
+        shipping_cost=ship_cost,
+        subtotal=subtotal,
+        vat_amount=vat_amount,
+        vat_rate=vat_rate,
+        total=total,
+        currency=view["currency"],
+    )
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+
+    for it in view["lines"]:
+        session.add(OrderItem(
+            order_id=order.id,
+            product_id=it["id"],
+            title_snapshot=it["title"],
+            price_snapshot=it["price"],
+            qty=it["qty"],
+            line_total=it["line_total"],
+        ))
+    session.commit()
+    session.refresh(order)
+    return order
+
+
+# --- mark paid (idempotent) -------------------------------------------------
+
+def mark_order_paid(session: Session, order: Order, transaction_id: str | None) -> bool:
+    """Transition a pending order to paid exactly once.
+
+    Idempotent (SPEC-BILLING §6): if the order is already paid, or this transaction was
+    already recorded, do nothing and return False. Otherwise mark paid, record the
+    transaction, decrement tracked stock, and return True.
+    """
+    if order.status == "paid":
+        return False
+    if transaction_id and order.viva_transaction_id == transaction_id:
+        return False
+
+    order.status = "paid"
+    order.viva_transaction_id = transaction_id
+    order.updated_at = _utcnow()
+    session.add(order)
+
+    # Decrement stock for tracked products.
+    for item in order.items:
+        if item.product_id is None:
+            continue
+        product = session.get(Product, item.product_id)
+        if product and product.track_stock:
+            product.stock = max(0, product.stock - item.qty)
+            session.add(product)
+
+    session.commit()
+    return True
+
+
+def find_order_by_ref(session: Session, ref: str) -> Order | None:
+    """Locate an order by its provider code or its human-readable number."""
+    if not ref:
+        return None
+    order = session.exec(select(Order).where(Order.viva_order_code == ref)).first()
+    if order:
+        return order
+    return session.exec(select(Order).where(Order.number == ref)).first()
+
+
+def apply_payment_result(session: Session, result) -> bool:
+    """Resolve a PaymentResult to an order and mark it paid (idempotently).
+
+    Shared by the Viva webhook endpoint and the demo pay page so both exercise the exact
+    same mark-paid path. Returns True only on the first successful application.
+    """
+    if result is None or not result.is_paid:
+        return False
+    order = find_order_by_ref(session, result.order_ref)
+    if not order:
+        return False
+    return mark_order_paid(session, order, result.transaction_id)
+
+
+def _vat_rate(site: dict) -> float:
+    try:
+        return float(site.get("vat_rate") or cart_mod.DEFAULT_VAT_RATE)
+    except (TypeError, ValueError):
+        return cart_mod.DEFAULT_VAT_RATE

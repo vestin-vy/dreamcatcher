@@ -1,0 +1,41 @@
+{% extends "admin/_base.html" %}
+{% block title %}Dashboard · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head">
+  <h1>Dashboard</h1>
+  <a class="btn btn-primary" href="/admin/products/new">{{ ui.icon('plus') }} New product</a>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat__num">{{ stats.total }}</div><div class="stat__label">Products</div></div>
+  <div class="stat"><div class="stat__num">{{ stats.active }}</div><div class="stat__label">Active</div></div>
+  <div class="stat"><div class="stat__num">{{ stats.featured }}</div><div class="stat__label">Featured</div></div>
+  <div class="stat"><div class="stat__num">{{ stats.categories }}</div><div class="stat__label">Categories</div></div>
+  <div class="stat"><div class="stat__num">{{ stats.orders }}</div><div class="stat__label">Orders</div></div>
+  <div class="stat"><div class="stat__num">{{ stats.orders_pending }}</div><div class="stat__label">Pending</div></div>
+  <div class="stat"><div class="stat__num">{{ stats.orders_paid }}</div><div class="stat__label">Paid</div></div>
+</div>
+
+<div class="admin-head" style="margin-top:var(--space-xl);">
+  <h2 style="margin:0;">Recent activity</h2>
+  <a class="btn btn-ghost btn-sm" href="/admin/orders">{{ ui.icon('bag') }} View orders</a>
+</div>
+
+<div class="panel">
+  <h2>By category</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Category</th><th>Products</th></tr></thead>
+      <tbody>
+        {% for c in cat_counts %}
+        <tr><td>{{ c.name }}</td><td>{{ c.count }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="muted">No categories yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

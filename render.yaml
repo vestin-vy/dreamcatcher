@@ -1,0 +1,35 @@
+# Render Blueprint — free web service for the DreamCatcher shop.
+# Deploy: push this repo to GitHub, then Render Dashboard -> New + -> Blueprint -> pick the repo.
+#
+# Notes:
+#  * Free tier has an EPHEMERAL filesystem and spins down when idle. AUTO_SEED=true
+#    re-creates the demo catalog (and images) on each cold start, so the demo always works.
+#    Orders placed on the demo are therefore not durable — fine for showing the site.
+#  * Render serves HTTPS, so SESSION_HTTPS_ONLY=true is correct here.
+services:
+  - type: web
+    name: dreamcatcher-shop
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: SECRET_KEY
+        generateValue: true          # Render generates a strong random value
+      - key: ADMIN_USERNAME
+        value: admin
+      # bcrypt hash for the demo admin password "dreamcatcher".
+      # Change it in the Render dashboard (Environment) for anything non-demo:
+      #   python -m app.security hash "your-password"
+      - key: ADMIN_PASSWORD_HASH
+        value: "$2b$12$4wdPwZvxMMT78foW.XDjAOrzf.0Oo4tXvcist2UjLeJhZdcntkgQ."
+      - key: DEFAULT_LANG
+        value: el
+      - key: VIVA_MODE
+        value: demo
+      - key: SESSION_HTTPS_ONLY
+        value: "true"
+      - key: AUTO_SEED
+        value: "true"

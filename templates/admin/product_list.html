@@ -1,0 +1,66 @@
+{% extends "admin/_base.html" %}
+{% block title %}Products · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head">
+  <h1>Products</h1>
+  <a class="btn btn-primary" href="/admin/products/new">{{ ui.icon('plus') }} New product</a>
+</div>
+
+<div class="panel">
+  <form method="get" action="/admin/products" style="margin-bottom:var(--space-md);max-width:360px;">
+    <input class="input" name="q" value="{{ q }}" placeholder="Search by title…">
+  </form>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th></th><th>Title</th><th>Price</th><th>Active</th><th>Featured</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>{% if p.image %}<img src="/static/{{ p.image }}" alt="">{% else %}<img src="/static/img/placeholder.svg" alt="">{% endif %}</td>
+          <td><strong>{{ p.title }}</strong><br><span class="muted" style="font-size:0.8rem;">/{{ p.slug }}</span></td>
+          <td>
+            {% if p.price_on_request or p.price is none %}<span class="muted">On request</span>
+            {% else %}{{ '%.2f'|format(p.price) }} {{ p.currency }}{% endif %}
+          </td>
+          <td>
+            <form action="/admin/products/{{ p.id }}/toggle" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <input type="hidden" name="field" value="is_active">
+              <button class="pill {{ 'pill--on' if p.is_active else 'pill--off' }}" type="submit" title="Toggle visibility">
+                {{ 'Visible' if p.is_active else 'Hidden' }}
+              </button>
+            </form>
+          </td>
+          <td>
+            <form action="/admin/products/{{ p.id }}/toggle" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <input type="hidden" name="field" value="is_featured">
+              <button class="icon-btn" type="submit" title="Toggle featured" aria-label="Toggle featured"
+                      style="{{ 'color:var(--color-accent);border-color:var(--color-accent);' if p.is_featured }}">
+                {{ ui.icon('star') }}
+              </button>
+            </form>
+          </td>
+          <td>
+            <div class="row-actions">
+              <a class="icon-btn" href="/admin/products/{{ p.id }}/edit" title="Edit" aria-label="Edit">{{ ui.icon('pencil') }}</a>
+              <form action="/admin/products/{{ p.id }}/delete" method="post"
+                    onsubmit="return confirm('Delete this product and its images?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button class="icon-btn icon-btn--danger" type="submit" title="Delete" aria-label="Delete">{{ ui.icon('trash') }}</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">No products yet. <a href="/admin/products/new">Create one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

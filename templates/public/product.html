@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ product.title }} · {{ site.site_title }}{% endblock %}
+{% block description %}{{ product.description[:150] }}{% endblock %}
+{% block content %}
+
+<section class="section container">
+  <div class="product">
+    <div class="gallery">
+      <div class="gallery__main">
+        {% if product.images %}
+        <img data-gallery-main data-lightbox-trigger src="/static/{{ product.images[0].filename }}"
+             alt="{{ product.images[0].alt }}" width="800" height="800">
+        {% else %}
+        <img src="/static/img/placeholder.svg" alt="{{ product.title }}" width="800" height="800">
+        {% endif %}
+      </div>
+      {% if product.images|length > 1 %}
+      <div class="gallery__thumbs" role="group" aria-label="{{ _('product.gallery') }}">
+        {% for im in product.images %}
+        <button type="button" class="gallery__thumb" data-gallery-thumb
+                data-full="/static/{{ im.filename }}" data-alt="{{ im.alt }}"
+                {% if loop.first %}aria-current="true"{% endif %} aria-label="{{ product.title }} {{ loop.index }}">
+          <img src="/static/{{ im.thumb }}" alt="" loading="lazy" width="160" height="160">
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="product__info">
+      {% if product.category_name %}<span class="eyebrow">{{ product.category_name }}</span>{% endif %}
+      <h1>{{ product.title }}</h1>
+      <div class="product__price">
+        {% if product.price_on_request or not show_prices or product.price is none %}
+          {{ _('product.price_on_request') }}
+        {% else %}
+          {{ format_price(product.price, product.currency, lang) }}
+        {% endif %}
+      </div>
+
+      <ul class="product__meta">
+        {% if product.material %}<li><span>{{ _('product.material') }}</span> {{ product.material }}</li>{% endif %}
+        {% if product.sku %}<li><span>{{ _('product.sku') }}</span> {{ product.sku }}</li>{% endif %}
+      </ul>
+
+      {% if product.description %}<p class="product__desc">{{ product.description|replace('\n', '<br>')|safe }}</p>{% endif %}
+
+      {% if show_prices and not product.price_on_request and product.price is not none %}
+        {% if product.in_stock %}
+        <form class="product__buy" method="post" action="/{{ lang }}/cart/add">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <input type="hidden" name="next" value="/{{ lang }}/cart">
+          <label class="visually-hidden" for="buy-qty">{{ _('cart.qty') }}</label>
+          <input class="input input--qty" id="buy-qty" type="number" name="qty" value="1" min="1"
+                 {% if product.track_stock %}max="{{ product.stock }}"{% endif %}>
+          <button class="btn btn-primary" type="submit">{{ ui.icon('bag') }} {{ _('cart.add') }}</button>
+        </form>
+        {% else %}
+        <p class="chip" aria-disabled="true" style="margin-top:var(--space-md);">{{ _('product.out_of_stock') }}</p>
+        {% endif %}
+      {% endif %}
+
+      <div class="hero__actions" style="justify-content:flex-start;margin-top:var(--space-lg);">
+        {% if site.whatsapp %}
+        <a class="btn btn-primary" target="_blank" rel="noopener"
+           href="https://wa.me/{{ site.whatsapp }}?text={{ (_('product.request') ~ ': ' ~ product.title)|urlencode }}">
+           {{ ui.icon('whatsapp') }} {{ _('product.request') }}</a>
+        {% endif %}
+        <a class="btn btn-secondary"
+           href="mailto:{{ site.email }}?subject={{ ('['~site.site_title~'] '~product.title)|urlencode }}&body={{ (_('product.request') ~ ': ' ~ product.title)|urlencode }}">
+           {{ ui.icon('mail') }} {{ _('contact.email') }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="section--tight container">
+  <div class="section__head"><h2>{{ _('product.related') }}</h2></div>
+  <div class="grid grid--products">
+    {% for p in related %}{{ ui.product_card(p, lang) }}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="{{ _('product.gallery') }}">
+  <button class="lightbox__close" type="button" aria-label="{{ _('product.gallery') }}">{{ ui.icon('close') }}</button>
+  <img src="" alt="">
+</div>
+
+{% endblock %}

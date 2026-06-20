@@ -1,0 +1,131 @@
+{% import "_macros.html" as ui with context %}<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site.site_title }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ _('footer.tagline') }}{% endblock %}">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  {% block hreflang %}
+    {% for alt in hreflang_alternates(path_no_lang) %}
+    <link rel="alternate" hreflang="{{ alt.lang }}" href="{{ alt.href }}">
+    {% endfor %}
+  {% endblock %}
+  <link rel="stylesheet" href="/static/css/app.css">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+<a class="skip-link" href="#main">{{ _('nav.menu') }}</a>
+
+<header class="navbar">
+  <div class="container navbar__inner">
+    <a class="brand" href="/{{ lang }}/">{{ ui.icon('gem') }} {{ site.site_title }}</a>
+
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="/{{ lang }}/catalog" {% if current_path.endswith('/catalog') %}aria-current="page"{% endif %}>{{ _('nav.catalog') }}</a></li>
+        <li><a href="/{{ lang }}/collections" {% if current_path.endswith('/collections') %}aria-current="page"{% endif %}>{{ _('nav.collections') }}</a></li>
+        <li><a href="/{{ lang }}/about" {% if current_path.endswith('/about') %}aria-current="page"{% endif %}>{{ _('nav.about') }}</a></li>
+        <li><a href="/{{ lang }}/contact" {% if current_path.endswith('/contact') %}aria-current="page"{% endif %}>{{ _('nav.contact') }}</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <div class="lang-switch">
+        <button class="lang-switch__btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="{{ _('nav.menu') }}">
+          {{ ui.icon('globe') }} {{ lang|upper }} {{ ui.icon('chevron-down') }}
+        </button>
+        <ul class="lang-switch__menu" role="menu">
+          {% for l in LANGS %}
+          <li role="none">
+            <a role="menuitem" href="/{{ l }}{{ path_no_lang }}{% if not path_no_lang %}/{% endif %}"
+               {% if l == lang %}aria-current="true"{% endif %}>{{ LANG_NAMES[l] }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <a class="cart-link" href="/{{ lang }}/cart" aria-label="{{ _('nav.cart') }}">
+        {{ ui.icon('bag') }}
+        {% if cart_count %}<span class="cart-link__count">{{ cart_count }}</span>{% endif %}
+      </a>
+      <a class="btn btn-primary btn-sm" href="/{{ lang }}/contact">{{ _('nav.contact') }}</a>
+    </div>
+
+    <button class="nav-toggle" type="button" aria-label="{{ _('nav.menu') }}" aria-expanded="false" aria-controls="mobile-menu">
+      {{ ui.icon('menu') }}
+    </button>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <ul>
+      <li><a href="/{{ lang }}/catalog">{{ _('nav.catalog') }}</a></li>
+      <li><a href="/{{ lang }}/collections">{{ _('nav.collections') }}</a></li>
+      <li><a href="/{{ lang }}/about">{{ _('nav.about') }}</a></li>
+      <li><a href="/{{ lang }}/contact">{{ _('nav.contact') }}</a></li>
+      <li class="mobile-menu__langs">
+        {% for l in LANGS %}
+        <a href="/{{ l }}{{ path_no_lang }}{% if not path_no_lang %}/{% endif %}"
+           class="chip" {% if l == lang %}aria-current="true"{% endif %}>{{ l|upper }}</a>
+        {% endfor %}
+      </li>
+    </ul>
+  </div>
+</header>
+
+<main id="main">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">{{ site.site_title }}</div>
+        <p style="max-width: 38ch;">{{ _('footer.tagline') }}</p>
+        <div class="social-links">
+          {% if site.instagram %}<a href="https://instagram.com/{{ site.instagram }}" aria-label="Instagram" target="_blank" rel="noopener">{{ ui.icon('instagram') }}</a>{% endif %}
+          {% if site.whatsapp %}<a href="https://wa.me/{{ site.whatsapp }}" aria-label="WhatsApp" target="_blank" rel="noopener">{{ ui.icon('whatsapp') }}</a>{% endif %}
+          {% if site.email %}<a href="mailto:{{ site.email }}" aria-label="{{ _('contact.email') }}">{{ ui.icon('mail') }}</a>{% endif %}
+        </div>
+      </div>
+      <div>
+        <h4>{{ _('footer.nav') }}</h4>
+        <ul>
+          <li><a href="/{{ lang }}/catalog">{{ _('nav.catalog') }}</a></li>
+          <li><a href="/{{ lang }}/collections">{{ _('nav.collections') }}</a></li>
+          <li><a href="/{{ lang }}/about">{{ _('nav.about') }}</a></li>
+          <li><a href="/{{ lang }}/contact">{{ _('nav.contact') }}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>{{ _('footer.contact') }}</h4>
+        <ul>
+          {% if site.phone %}<li><a href="tel:{{ site.phone|replace(' ', '') }}">{{ site.phone }}</a></li>{% endif %}
+          {% if site.email %}<li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>{% endif %}
+          {% if site.address %}<li class="muted">{{ site.address }}</li>{% endif %}
+        </ul>
+      </div>
+      <div>
+        <h4>{{ _('legal.legal') }}</h4>
+        <ul>
+          <li><a href="/{{ lang }}/terms">{{ _('legal.terms') }}</a></li>
+          <li><a href="/{{ lang }}/returns">{{ _('legal.returns') }}</a></li>
+          <li><a href="/{{ lang }}/privacy">{{ _('legal.privacy') }}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      © {{ year }} {{ site.site_title }}. {{ _('footer.rights') }}
+    </div>
+  </div>
+</footer>
+
+<div class="cookie-banner" id="cookie-banner" hidden>
+  <p class="cookie-banner__text">{{ _('cookie.text') }}</p>
+  <button class="btn btn-primary btn-sm" type="button" id="cookie-accept">{{ _('cookie.accept') }}</button>
+</div>
+
+<script src="/static/js/app.js" defer></script>
+{% block body_extra %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero__inner">
+    <span class="eyebrow">{{ site.site_title }}</span>
+    <h1>{{ _('home.hero.tagline') }}</h1>
+    <p>{{ site.about_text }}</p>
+    <div class="hero__actions">
+      <a class="btn btn-primary" href="/{{ lang }}/catalog">{{ _('home.hero.cta') }} {{ ui.icon('arrow-right') }}</a>
+      <a class="btn btn-secondary" href="/{{ lang }}/contact" style="color:#fff;border-color:#fff;">{{ _('nav.contact') }}</a>
+    </div>
+  </div>
+</section>
+
+{% if featured %}
+<section class="section container">
+  <div class="section__head">
+    <span class="eyebrow">{{ _('home.featured.title') }}</span>
+    <h2>{{ _('home.featured.subtitle') }}</h2>
+  </div>
+  <div class="grid grid--products">
+    {% for p in featured %}{{ ui.product_card(p, lang) }}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if categories %}
+<section class="section--tight container">
+  <div class="section__head">
+    <h2>{{ _('home.categories.title') }}</h2>
+  </div>
+  <div class="grid grid--cats">
+    {% for c in categories %}
+    <a class="cat-tile" href="/{{ lang }}/catalog?category={{ c.slug }}">
+      <img src="/static/img/cat-{{ c.slug }}.svg" alt="{{ c.name }}" loading="lazy"
+           onerror="this.src='/static/img/placeholder.svg'">
+      <span class="cat-tile__label">{{ c.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section container">
+  <div class="about-teaser">
+    <div class="about-teaser__media">
+      <img src="/static/img/about.svg" alt="{{ _('home.about.title') }}" loading="lazy"
+           onerror="this.src='/static/img/placeholder.svg'">
+    </div>
+    <div>
+      <span class="eyebrow">{{ _('about.title') }}</span>
+      <h2>{{ _('home.about.title') }}</h2>
+      <p class="mt-lg">{{ site.about_text }}</p>
+      <p class="mt-lg"><a class="btn btn-secondary" href="/{{ lang }}/about">{{ _('home.about.more') }} {{ ui.icon('arrow-right') }}</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="cta-band">
+    <h2>{{ _('home.cta.title') }}</h2>
+    <p>{{ _('home.cta.subtitle') }}</p>
+    <a class="btn btn-primary" href="/{{ lang }}/contact">{{ _('nav.contact') }} {{ ui.icon('arrow-right') }}</a>
+  </div>
+</section>
+
+{% endblock %}
