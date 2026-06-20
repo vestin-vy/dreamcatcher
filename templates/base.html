@@ -12,7 +12,7 @@
     <link rel="alternate" hreflang="{{ alt.lang }}" href="{{ alt.href }}">
     {% endfor %}
   {% endblock %}
-  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/css/app.css?v={{ ASSET_V }}">
   {% block head_extra %}{% endblock %}
 </head>
 <body>
@@ -126,7 +126,7 @@
   <button class="btn btn-primary btn-sm" type="button" id="cookie-accept">{{ _('cookie.accept') }}</button>
 </div>
 
-<script src="/static/js/app.js" defer></script>
+<script src="/static/js/app.js?v={{ ASSET_V }}" defer></script>
 {% block body_extra %}{% endblock %}
 </body>
 </html>

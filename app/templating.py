@@ -1,6 +1,7 @@
 """Jinja2 templates configured with i18n + design helpers and a render helper."""
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 
 from fastapi import Request
@@ -20,6 +21,21 @@ templates.env.globals["LANG_NAMES"] = i18n.LANG_NAMES
 templates.env.globals["DEFAULT_LANG"] = settings.DEFAULT_LANG
 templates.env.globals["format_price"] = i18n.format_price
 templates.env.globals["hreflang_alternates"] = i18n.hreflang_alternates
+
+
+def _asset_version() -> str:
+    """Cache-busting token = newest mtime of CSS/JS. Changes on every deploy so a new
+    release invalidates stale browser caches of /static/css|js."""
+    newest = 0.0
+    for rel in ("css/app.css", "js/app.js", "js/admin.js", "css/tokens.css"):
+        try:
+            newest = max(newest, os.path.getmtime(settings.STATIC_DIR / rel))
+        except OSError:
+            continue
+    return str(int(newest)) or "1"
+
+
+templates.env.globals["ASSET_V"] = _asset_version()
 
 
 def render(
