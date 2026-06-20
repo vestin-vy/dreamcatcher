@@ -21,6 +21,9 @@ class Category(SQLModel, table=True):
     slug: str = Field(index=True, unique=True)
     sort_order: int = Field(default=0)
     is_active: bool = Field(default=True)
+    # Optional category image (paths relative to static/, like ProductImage).
+    image: str | None = Field(default=None)
+    thumb: str | None = Field(default=None)
 
     translations: list["CategoryTranslation"] = Relationship(
         back_populates="category",

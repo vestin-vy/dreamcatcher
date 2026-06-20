@@ -15,7 +15,7 @@ DEFAULT_SETTINGS: dict[str, str] = {
     "email": "hello@dreamcatcher.example",
     "address": "Ermou 1, Athens 105 63, Greece",
     "whatsapp": "302100000000",
-    "instagram": "dreamcatcher.jewelry",
+    "instagram": "dreamcatchergreece",
     "map_lat": "37.9755",
     "map_lng": "23.7348",
     "default_lang": "el",

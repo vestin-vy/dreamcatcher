@@ -421,8 +421,28 @@ def category_list(request: Request, session: Session = Depends(get_session)):
     for c in cats:
         names = {tr.lang: tr.name for tr in c.translations}
         rows.append({"id": c.id, "slug": c.slug, "is_active": c.is_active,
-                     "sort_order": c.sort_order, "names": names})
+                     "sort_order": c.sort_order, "names": names,
+                     "image": c.image, "thumb": c.thumb})
     return admin_render(request, "admin/categories.html", categories=rows, langs=LANGS)
+
+
+async def _save_category_image(request: Request, form, cat: Category) -> None:
+    """Apply image changes from a category form: remove and/or replace."""
+    if form.get("remove_image") == "on" and cat.image:
+        delete_image_files(cat.image, cat.thumb)
+        cat.image = cat.thumb = None
+    file = form.get("image")
+    if isinstance(file, UploadFile) and file.filename:
+        data = await file.read()
+        if data:
+            try:
+                meta = save_image(data)
+            except InvalidImageError:
+                flash(request, "Category image rejected (not a valid image).", "error")
+                return
+            if cat.image:
+                delete_image_files(cat.image, cat.thumb)
+            cat.image, cat.thumb = meta["filename"], meta["thumb"]
 
 
 @router.post("/categories/new")
@@ -442,6 +462,8 @@ async def category_create(request: Request, session: Session = Depends(get_sessi
         name = (form.get(f"name_{lang}") or "").strip()
         if name:
             session.add(CategoryTranslation(category_id=cat.id, lang=lang, name=name))
+    await _save_category_image(request, form, cat)
+    session.add(cat)
     session.commit()
     flash(request, "Category created.")
     return RedirectResponse(url="/admin/categories", status_code=303)
@@ -467,6 +489,7 @@ async def category_update(category_id: int, request: Request, session: Session =
             session.add(existing[lang])
         elif name:
             session.add(CategoryTranslation(category_id=cat.id, lang=lang, name=name))
+    await _save_category_image(request, form, cat)
     session.add(cat)
     session.commit()
     flash(request, "Category saved.")
@@ -486,6 +509,8 @@ async def category_delete(category_id: int, request: Request, session: Session =
         for p in session.exec(select(Product).where(Product.category_id == cat.id)).all():
             p.category_id = None
             session.add(p)
+        if cat.image:
+            delete_image_files(cat.image, cat.thumb)
         session.delete(cat)
         session.commit()
         flash(request, "Category deleted.")

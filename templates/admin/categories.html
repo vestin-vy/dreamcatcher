@@ -6,7 +6,7 @@
 
 <div class="panel">
   <h2>Add category</h2>
-  <form action="/admin/categories/new" method="post">
+  <form action="/admin/categories/new" method="post" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <div class="form-grid">
       {% for l in langs %}
@@ -23,6 +23,10 @@
         <label for="sort_order_new">Sort order</label>
         <input class="input" id="sort_order_new" name="sort_order" type="number" value="0">
       </div>
+      <div class="field">
+        <label for="image_new">Image (optional)</label>
+        <input class="input" id="image_new" name="image" type="file" accept="image/*">
+      </div>
       <div class="field"><label class="checkbox"><input type="checkbox" name="is_active" checked> Active</label></div>
     </div>
     <button class="btn btn-primary" type="submit">{{ ui.icon('plus') }} Add category</button>
@@ -33,11 +37,17 @@
   <h2>Existing</h2>
   <div class="table-wrap">
     <table class="table">
-      <thead><tr><th>Slug</th>{% for l in langs %}<th>{{ l|upper }}</th>{% endfor %}<th>Order</th><th>Active</th><th></th></tr></thead>
+      <thead><tr><th>Image</th><th>Slug</th>{% for l in langs %}<th>{{ l|upper }}</th>{% endfor %}<th>Order</th><th>Active</th><th></th></tr></thead>
       <tbody>
         {% for c in categories %}
         <tr>
-          <td><form id="cat-{{ c.id }}" action="/admin/categories/{{ c.id }}/edit" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"></form>{{ c.slug }}</td>
+          <td>
+            <form id="cat-{{ c.id }}" action="/admin/categories/{{ c.id }}/edit" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"></form>
+            {% if c.thumb %}<img src="/static/{{ c.thumb }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block;margin-bottom:4px;">{% endif %}
+            <input type="file" form="cat-{{ c.id }}" name="image" accept="image/*" style="max-width:150px;font-size:.8rem;">
+            {% if c.image %}<label class="checkbox" style="font-size:.78rem;"><input form="cat-{{ c.id }}" type="checkbox" name="remove_image"> remove</label>{% endif %}
+          </td>
+          <td>{{ c.slug }}</td>
           {% for l in langs %}
           <td><input class="input" form="cat-{{ c.id }}" name="name_{{ l }}" value="{{ c.names.get(l, '') }}" style="min-width:120px;"></td>
           {% endfor %}
@@ -54,7 +64,7 @@
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="{{ langs|length + 4 }}" class="muted">No categories yet.</td></tr>
+        <tr><td colspan="{{ langs|length + 5 }}" class="muted">No categories yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

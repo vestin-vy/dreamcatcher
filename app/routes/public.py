@@ -54,7 +54,11 @@ def active_categories(session: Session, lang: str) -> list[dict]:
     cats = session.exec(
         select(Category).where(Category.is_active == True).order_by(Category.sort_order)  # noqa: E712
     ).all()
-    return [{"id": c.id, "slug": c.slug, "name": _category_name(c, lang)} for c in cats]
+    return [
+        {"id": c.id, "slug": c.slug, "name": _category_name(c, lang),
+         "image": c.image, "thumb": c.thumb}
+        for c in cats
+    ]
 
 
 # --- routes -----------------------------------------------------------------
