@@ -81,6 +81,21 @@
     });
   }
 
+  // --- Scroll reveal (progressive enhancement; respects reduced-motion) ---
+  var reveals = document.querySelectorAll("[data-reveal]");
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reveals.length && "IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.08 });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    // No observer / reduced motion: show everything immediately.
+    reveals.forEach(function (el) { el.classList.add("in"); });
+  }
+
   // --- Cookie banner (essential cookies; consent stored locally) ---
   var banner = document.getElementById("cookie-banner");
   if (banner) {

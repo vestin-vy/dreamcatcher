@@ -53,7 +53,7 @@ def _shot(page, name: str, width: int) -> None:
 
 def shoot_public(browser) -> None:
     for width in WIDTHS:
-        ctx = browser.new_context(viewport={"width": width, "height": 900}, device_scale_factor=1)
+        ctx = browser.new_context(viewport={"width": width, "height": 900}, device_scale_factor=1, reduced_motion="reduce")
         page = ctx.new_page()
         for name, path in PUBLIC_PAGES:
             page.goto(f"{BASE}{path}", wait_until="networkidle", timeout=30000)
@@ -77,7 +77,7 @@ def shoot_buy_flow_and_admin(browser) -> None:
     then log into the admin and shoot the management pages."""
     width = 1440
     # --- buy flow (creates a paid order) ---
-    ctx = browser.new_context(viewport={"width": width, "height": 900})
+    ctx = browser.new_context(viewport={"width": width, "height": 900}, reduced_motion="reduce")
     page = ctx.new_page()
     page.goto(f"{BASE}/el/product/{DEMO_PRODUCT}", wait_until="networkidle")
     page.click("form.product__buy button[type=submit]")
@@ -100,7 +100,7 @@ def shoot_buy_flow_and_admin(browser) -> None:
     ctx.close()
 
     # --- admin ---
-    ctx = browser.new_context(viewport={"width": width, "height": 900})
+    ctx = browser.new_context(viewport={"width": width, "height": 900}, reduced_motion="reduce")
     page = ctx.new_page()
     page.goto(f"{BASE}/admin/login", wait_until="networkidle")
     _shot(page, "admin-login", width)
@@ -126,7 +126,7 @@ def shoot_buy_flow_and_admin(browser) -> None:
 
     # Admin login also at small widths (responsive check).
     for w in (375, 768, 1024):
-        ctx = browser.new_context(viewport={"width": w, "height": 900})
+        ctx = browser.new_context(viewport={"width": w, "height": 900}, reduced_motion="reduce")
         page = ctx.new_page()
         page.goto(f"{BASE}/admin/login", wait_until="networkidle")
         page.wait_for_timeout(250)

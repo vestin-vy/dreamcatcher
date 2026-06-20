@@ -21,6 +21,26 @@
   --color-surface-alt: #F5F5F4;
   --color-muted-foreground: #57534E;
 
+  /* --- Editorial Pop accent (fashion rose) — costume-jewelry energy ---
+     accent-2 is WCAG-safe for text/CTA on white; -bright is decoration only. */
+  --color-accent-2: #BE185D;          /* rose: CTA / action color (white text passes 4.5:1) */
+  --color-accent-2-hover: #9D174D;
+  --color-accent-2-bright: #EC4899;   /* gradients / glow only — NOT text on white */
+  --color-accent-2-soft: #FDF2F8;     /* soft rose surface, pills */
+  --color-accent-2-on-soft: #9D174D;  /* text on the soft rose surface */
+
+  /* Display type scale (fluid) for editorial headlines */
+  --fs-display: clamp(2.6rem, 6vw, 5rem);
+  --fs-h1: clamp(2rem, 4vw, 3.25rem);
+  --fs-h2: clamp(1.6rem, 2.6vw, 2.4rem);
+
+  /* Layered hero background (gold + rose glow on ink) */
+  --gradient-hero:
+    radial-gradient(120% 120% at 82% 8%, rgba(236,72,153,0.34), transparent 55%),
+    radial-gradient(120% 120% at 0% 100%, rgba(161,98,7,0.42), transparent 52%),
+    linear-gradient(180deg, #1c1917 0%, #0c0a09 100%);
+  --gradient-accent: linear-gradient(120deg, var(--color-accent) 0%, var(--color-accent-2-bright) 100%);
+
   /* --- Spacing (MASTER.md §Spacing Variables) --- */
   --space-xs: 0.25rem;   /* 4px  */
   --space-sm: 0.5rem;    /* 8px  */

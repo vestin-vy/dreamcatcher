@@ -138,8 +138,11 @@ def run() -> None:
     with Session(engine) as session:
         # Categories
         cat_by_slug: dict[str, Category] = {}
-        for c in CATEGORIES:
+        for ci, c in enumerate(CATEGORIES):
             cat = Category(slug=c["slug"], sort_order=c["order"], is_active=True)
+            # Generated placeholder image so the category tiles look intentional.
+            meta = save_image(_placeholder_image(c["names"]["en"], ci))
+            cat.image, cat.thumb = meta["filename"], meta["thumb"]
             session.add(cat)
             session.commit()
             session.refresh(cat)

@@ -3,21 +3,32 @@
 {% block content %}
 
 <section class="hero">
-  <div class="hero__inner">
-    <span class="eyebrow">{{ site.site_title }}</span>
-    <h1>{{ _('home.hero.tagline') }}</h1>
-    <p>{{ site.about_text }}</p>
-    <div class="hero__actions">
-      <a class="btn btn-primary" href="/{{ lang }}/catalog">{{ _('home.hero.cta') }} {{ ui.icon('arrow-right') }}</a>
-      <a class="btn btn-secondary" href="/{{ lang }}/contact" style="color:#fff;border-color:#fff;">{{ _('nav.contact') }}</a>
+  <div class="hero__inner container">
+    <div class="hero__copy">
+      <span class="eyebrow">{{ site.site_title }}</span>
+      <h1>{{ _('home.hero.tagline') }}</h1>
+      <p>{{ site.about_text }}</p>
+      <div class="hero__actions">
+        <a class="btn btn-accent" href="/{{ lang }}/catalog">{{ _('home.hero.cta') }} {{ ui.icon('arrow-right') }}</a>
+        <a class="btn btn-secondary" href="/{{ lang }}/contact" style="color:#fff;border-color:rgba(255,255,255,0.7);">{{ _('nav.contact') }}</a>
+      </div>
     </div>
+    {% set hero_imgs = featured | selectattr('image') | list %}
+    {% if hero_imgs %}
+    <div class="hero__art" aria-hidden="true">
+      <span class="hero__art-glow"></span>
+      {% for p in hero_imgs[:2] %}
+      <img src="/static/{{ p.image }}" alt="" width="400" height="500">
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </section>
 
 {% if featured %}
-<section class="section container">
-  <div class="section__head">
-    <span class="eyebrow">{{ _('home.featured.title') }}</span>
+<section class="section container" data-reveal>
+  <div class="section__head section__head--left">
+    <span class="eyebrow"><span class="section-index">01</span> {{ _('home.featured.title') }}</span>
     <h2>{{ _('home.featured.subtitle') }}</h2>
   </div>
   <div class="grid grid--products">
@@ -26,10 +37,18 @@
 </section>
 {% endif %}
 
+<section class="section container" data-reveal>
+  <div class="editorial">
+    <span class="eyebrow">{{ _('home.featured.title') }}</span>
+    <p class="editorial__quote">{{ _('home.hero.tagline') }}</p>
+    <a class="btn btn-accent" href="/{{ lang }}/catalog">{{ _('home.hero.cta') }} {{ ui.icon('arrow-right') }}</a>
+  </div>
+</section>
+
 {% if categories %}
-<section class="section--tight container">
-  <div class="section__head">
-    <h2>{{ _('home.categories.title') }}</h2>
+<section class="section--tight container" data-reveal>
+  <div class="section__head section__head--left">
+    <span class="eyebrow"><span class="section-index">02</span> {{ _('home.categories.title') }}</span>
   </div>
   <div class="grid grid--cats">
     {% for c in categories %}
@@ -47,14 +66,13 @@
 </section>
 {% endif %}
 
-<section class="section container">
+<section class="section container" data-reveal>
   <div class="about-teaser">
-    <div class="about-teaser__media">
-      <img src="/static/img/about.svg" alt="{{ _('home.about.title') }}" loading="lazy"
-           onerror="this.src='/static/img/placeholder.svg'">
+    <div class="about-teaser__media about-teaser__media--gradient">
+      {{ ui.icon('gem') }}
     </div>
     <div>
-      <span class="eyebrow">{{ _('about.title') }}</span>
+      <span class="eyebrow"><span class="section-index">03</span> {{ _('about.title') }}</span>
       <h2>{{ _('home.about.title') }}</h2>
       <p class="mt-lg">{{ site.about_text }}</p>
       <p class="mt-lg"><a class="btn btn-secondary" href="/{{ lang }}/about">{{ _('home.about.more') }} {{ ui.icon('arrow-right') }}</a></p>
@@ -62,11 +80,11 @@
   </div>
 </section>
 
-<section class="section container">
+<section class="section container" data-reveal>
   <div class="cta-band">
     <h2>{{ _('home.cta.title') }}</h2>
     <p>{{ _('home.cta.subtitle') }}</p>
-    <a class="btn btn-primary" href="/{{ lang }}/contact">{{ _('nav.contact') }} {{ ui.icon('arrow-right') }}</a>
+    <a class="btn btn-accent" href="/{{ lang }}/contact">{{ _('nav.contact') }} {{ ui.icon('arrow-right') }}</a>
   </div>
 </section>
 

@@ -9,7 +9,7 @@
     <p>{{ _('checkout.demo.body') }}</p>
     <form method="post" action="/{{ lang }}/checkout/pay/{{ order.number }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <button class="btn btn-primary btn-block" type="submit">{{ _('checkout.demo.pay') }}</button>
+      <button class="btn btn-accent btn-block" type="submit">{{ _('checkout.demo.pay') }}</button>
     </form>
     <a class="btn btn-ghost btn-block" href="/{{ lang }}/checkout/cancel?order={{ order.number }}">{{ _('checkout.cancel.title') }}</a>
   </div>
