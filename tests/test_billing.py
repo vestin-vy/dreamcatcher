@@ -157,6 +157,39 @@ def test_webhook_idempotent_over_http(client):
     assert second.json()["applied"] is False  # redelivery is a no-op
 
 
+def test_out_of_stock_product_not_purchasable(client):
+    # The seeded olive-leaf-band has stock 0 -> shows "Out of stock", no buy form.
+    r = client.get("/en/product/olive-leaf-band")
+    assert r.status_code == 200
+    assert "Out of stock" in r.text
+    assert "product__buy" not in r.text
+    with Session(engine) as session:
+        p = session.exec(select(Product).where(Product.slug == "olive-leaf-band")).first()
+        assert p is not None and not cart_mod.is_purchasable(p)
+
+
+def test_add_to_cart_caps_at_stock(client):
+    # Dedicated product (stock 3) so other tests can't drain it; adding 10 must clamp to 3.
+    with Session(engine) as session:
+        prod = Product(slug="test-cap-item", price=20.0, stock=3, track_stock=True, is_active=True)
+        session.add(prod); session.commit(); session.refresh(prod)
+        pid = prod.id
+    try:
+        csrf = _csrf(client.get("/el/catalog").text)
+        client.post("/el/cart/remove", data={"csrf_token": csrf, "product_id": str(pid)})
+        client.post("/el/cart/add", data={"csrf_token": csrf, "product_id": str(pid), "qty": "10"})
+        cart = client.get("/el/cart").text
+        m = re.search(r'id="qty-%d"[^>]*value="(\d+)"' % pid, cart)
+        assert m, "qty field for the item not found in cart"
+        assert int(m.group(1)) == 3  # clamped to available stock
+        client.post("/el/cart/remove", data={"csrf_token": csrf, "product_id": str(pid)})
+    finally:
+        with Session(engine) as session:
+            p = session.get(Product, pid)
+            if p:
+                session.delete(p); session.commit()
+
+
 def test_success_redirect_does_not_confirm_payment(client):
     catalog = client.get("/el/catalog")
     csrf = _csrf(catalog.text)

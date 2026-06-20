@@ -29,7 +29,7 @@
           <input type="hidden" name="product_id" value="{{ it.id }}">
           <label class="visually-hidden" for="qty-{{ it.id }}">{{ _('cart.qty') }}</label>
           <input class="input input--qty" id="qty-{{ it.id }}" type="number" name="qty"
-                 value="{{ it.qty }}" min="0" {% if it.track_stock %}max="{{ it.stock }}"{% endif %}>
+                 value="{{ it.qty }}" min="0" max="{{ it.stock }}">
           <button class="btn btn-ghost btn-sm" type="submit">{{ _('cart.update') }}</button>
         </form>
         <div class="cart-item__total">{{ format_price(it.line_total, it.currency, lang) }}</div>

@@ -169,6 +169,7 @@ def product_list(request: Request, session: Session = Depends(get_session), q: s
             "title": tr.title if tr else p.slug,
             "price": p.price, "currency": p.currency,
             "price_on_request": p.price_on_request,
+            "stock": p.stock,
             "is_active": p.is_active, "is_featured": p.is_featured,
             "image": p.images[0].thumb if p.images else None,
         })
@@ -229,6 +230,10 @@ def _save_product_from_form(session: Session, request: Request, form, product: P
     product.price_on_request = form.get("price_on_request") == "on"
     product.is_active = form.get("is_active") == "on"
     product.is_featured = form.get("is_featured") == "on"
+    # Stock is always tracked and required (addendum). Blank/invalid -> 0.
+    stock_raw = (form.get("stock") or "0").strip()
+    product.stock = max(0, int(stock_raw)) if stock_raw.lstrip("-").isdigit() else 0
+    product.track_stock = True
     order_raw = (form.get("sort_order") or "0").strip()
     product.sort_order = int(order_raw) if order_raw.lstrip("-").isdigit() else 0
 

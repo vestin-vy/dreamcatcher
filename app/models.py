@@ -54,10 +54,11 @@ class Product(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_featured: bool = Field(default=False)
     sort_order: int = Field(default=0)
-    # Stock control (SPEC-BILLING §1). When track_stock is False, stock is ignored
-    # and the product is always purchasable.
+    # Stock control (SPEC-BILLING §1 + addendum). Stock is always tracked now; the
+    # admin always provides it. `track_stock` is kept as an internal always-on flag
+    # (no UI toggle) so existing enforcement keyed on it keeps working without a migration.
     stock: int = Field(default=0)
-    track_stock: bool = Field(default=False)
+    track_stock: bool = Field(default=True)
     created_at: datetime = Field(default_factory=_utcnow)
     updated_at: datetime = Field(default_factory=_utcnow)
 

@@ -77,22 +77,21 @@ CATEGORIES = [
 # A couple of items use stock tracking to exercise the out-of-stock path.
 PRODUCTS = [
     {
-        "slug": "aurora-solitaire-ring", "cat": "rings", "price": 1290.0, "featured": True, "sku": "DC-R-001",
+        "slug": "aurora-solitaire-ring", "cat": "rings", "price": 1290.0, "featured": True, "sku": "DC-R-001", "stock": 8,
         "tr": {
             "el": {"title": "Δαχτυλίδι Aurora", "material": "Χρυσός 18Κ, διαμάντι", "description": "Μονόπετρο δαχτυλίδι με λαμπερό διαμάντι, σύμβολο διαχρονικής κομψότητας."},
             "en": {"title": "Aurora Solitaire Ring", "material": "18K gold, diamond", "description": "A solitaire ring with a brilliant diamond — a symbol of timeless elegance."},
         },
     },
     {
-        "slug": "luna-pearl-necklace", "cat": "necklaces", "price": 760.0, "featured": True, "sku": "DC-N-001",
-        "track_stock": True, "stock": 5,
+        "slug": "luna-pearl-necklace", "cat": "necklaces", "price": 760.0, "featured": True, "sku": "DC-N-001", "stock": 5,
         "tr": {
             "el": {"title": "Κολιέ Luna", "material": "Ασήμι 925, μαργαριτάρι", "description": "Λεπτό κολιέ με φυσικό μαργαριτάρι που φωτίζει διακριτικά."},
             "en": {"title": "Luna Pearl Necklace", "material": "925 silver, pearl", "description": "A delicate necklace with a natural pearl that glows softly."},
         },
     },
     {
-        "slug": "celeste-drop-earrings", "cat": "earrings", "price": 540.0, "featured": True, "sku": "DC-E-001",
+        "slug": "celeste-drop-earrings", "cat": "earrings", "price": 540.0, "featured": True, "sku": "DC-E-001", "stock": 6,
         "tr": {
             "el": {"title": "Σκουλαρίκια Celeste", "material": "Χρυσός 14Κ, ζαφείρι", "description": "Κρεμαστά σκουλαρίκια με βαθύ μπλε ζαφείρι."},
             "en": {"title": "Celeste Drop Earrings", "material": "14K gold, sapphire", "description": "Drop earrings featuring a deep blue sapphire."},
@@ -107,28 +106,28 @@ PRODUCTS = [
     },
     {
         "slug": "olive-leaf-band", "cat": "rings", "price": 320.0, "sku": "DC-R-002",
-        "track_stock": True, "stock": 0,  # demonstrates the out-of-stock state
+        "stock": 0,  # demonstrates the out-of-stock state (Εξαντλήθηκε)
         "tr": {
             "el": {"title": "Δαχτυλίδι Olive Leaf", "material": "Ασήμι 925", "description": "Βέρα εμπνευσμένη από το φύλλο ελιάς, σύμβολο ειρήνης."},
             "en": {"title": "Olive Leaf Band", "material": "925 silver", "description": "A band inspired by the olive leaf, a symbol of peace."},
         },
     },
     {
-        "slug": "helios-chain-necklace", "cat": "necklaces", "price": 410.0, "sku": "DC-N-002",
+        "slug": "helios-chain-necklace", "cat": "necklaces", "price": 410.0, "sku": "DC-N-002", "stock": 12,
         "tr": {
             "el": {"title": "Κολιέ Helios", "material": "Χρυσός 14Κ", "description": "Αλυσίδα με μενταγιόν ήλιου, για καθημερινή λάμψη."},
             "en": {"title": "Helios Chain Necklace", "material": "14K gold", "description": "A chain with a sun pendant for everyday shine."},
         },
     },
     {
-        "slug": "thalassa-hoop-earrings", "cat": "earrings", "price": 280.0, "sku": "DC-E-002",
+        "slug": "thalassa-hoop-earrings", "cat": "earrings", "price": 280.0, "sku": "DC-E-002", "stock": 20,
         "tr": {
             "el": {"title": "Κρίκοι Thalassa", "material": "Χρυσός 14Κ", "description": "Κλασικοί κρίκοι με λεπτή υφή, ελαφρύ βάρος."},
             "en": {"title": "Thalassa Hoop Earrings", "material": "14K gold", "description": "Classic hoops with a fine texture and light weight."},
         },
     },
     {
-        "slug": "meandros-cuff", "cat": "bracelets", "price": 690.0, "sku": "DC-B-002",
+        "slug": "meandros-cuff", "cat": "bracelets", "price": 690.0, "sku": "DC-B-002", "stock": 4,
         "tr": {
             "el": {"title": "Βραχιόλι Meandros", "material": "Ασήμι 925, επιχρύσωση", "description": "Βραχιόλι με αρχαιοελληνικό μοτίβο μαιάνδρου."},
             "en": {"title": "Meandros Cuff", "material": "925 silver, gold plated", "description": "A cuff featuring the ancient Greek meander motif."},
@@ -166,7 +165,7 @@ def run() -> None:
                 currency="EUR",
                 price_on_request=p.get("on_request", False),
                 is_active=True, is_featured=p.get("featured", False),
-                stock=p.get("stock", 0), track_stock=p.get("track_stock", False),
+                stock=p.get("stock", 0), track_stock=True,
                 sort_order=i,
             )
             session.add(product)

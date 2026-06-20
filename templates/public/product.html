@@ -54,7 +54,7 @@
           <input type="hidden" name="next" value="/{{ lang }}/cart">
           <label class="visually-hidden" for="buy-qty">{{ _('cart.qty') }}</label>
           <input class="input input--qty" id="buy-qty" type="number" name="qty" value="1" min="1"
-                 {% if product.track_stock %}max="{{ product.stock }}"{% endif %}>
+                 max="{{ product.stock }}">
           <button class="btn btn-accent" type="submit">{{ ui.icon('bag') }} {{ _('cart.add') }}</button>
         </form>
         {% else %}

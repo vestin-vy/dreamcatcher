@@ -66,6 +66,12 @@
         <input class="input" id="currency" name="currency" value="{{ product.currency if product else 'EUR' }}">
       </div>
       <div class="field">
+        <label for="stock">Stock (units) *</label>
+        <input class="input" id="stock" name="stock" type="number" min="0" step="1" required
+               value="{{ product.stock if product else 0 }}">
+        <small class="muted">0 = out of stock. Ignored for “price on request” items.</small>
+      </div>
+      <div class="field">
         <label for="sort_order">Sort order</label>
         <input class="input" id="sort_order" name="sort_order" type="number" value="{{ product.sort_order if product else 0 }}">
       </div>

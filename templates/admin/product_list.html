@@ -14,7 +14,7 @@
   <div class="table-wrap">
     <table class="table">
       <thead>
-        <tr><th></th><th>Title</th><th>Price</th><th>Active</th><th>Featured</th><th>Actions</th></tr>
+        <tr><th></th><th>Title</th><th>Price</th><th>Stock</th><th>Active</th><th>Featured</th><th>Actions</th></tr>
       </thead>
       <tbody>
         {% for p in products %}
@@ -24,6 +24,11 @@
           <td>
             {% if p.price_on_request or p.price is none %}<span class="muted">On request</span>
             {% else %}{{ '%.2f'|format(p.price) }} {{ p.currency }}{% endif %}
+          </td>
+          <td>
+            {% if p.price_on_request %}<span class="muted">—</span>
+            {% elif p.stock <= 0 %}<span class="pill pill--cancelled" title="Εξαντλήθηκε">0</span>
+            {% else %}{{ p.stock }}{% endif %}
           </td>
           <td>
             <form action="/admin/products/{{ p.id }}/toggle" method="post">
@@ -56,7 +61,7 @@
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="6" class="muted">No products yet. <a href="/admin/products/new">Create one</a>.</td></tr>
+        <tr><td colspan="7" class="muted">No products yet. <a href="/admin/products/new">Create one</a>.</td></tr>
         {% endfor %}
       </tbody>
     </table>

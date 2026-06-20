@@ -50,7 +50,12 @@ async def cart_add(
     qty = max(1, _int(form.get("qty"), default=1))
     product = session.get(Product, pid) if pid else None
     if product and cart_mod.is_purchasable(product):
-        cart_mod.add(request, product.id, qty)
+        # Never let the cart exceed available stock (combined with what's already in it).
+        if product.track_stock:
+            in_cart = cart_mod.get_cart(request).get(str(product.id), 0)
+            qty = max(0, min(qty, product.stock - in_cart))
+        if qty > 0:
+            cart_mod.add(request, product.id, qty)
     # Return to the cart by default, or to the page the form came from.
     nxt = form.get("next") or f"/{lang}/cart"
     return RedirectResponse(url=nxt, status_code=status.HTTP_303_SEE_OTHER)
