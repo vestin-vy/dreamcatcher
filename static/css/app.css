@@ -581,21 +581,32 @@ main { flex: 1 0 auto; }
 .hero__inner { position: relative; z-index: 1; max-width: 820px; width: 100%; margin-inline: auto; display: flex; flex-direction: column; align-items: center; gap: var(--space-lg); text-align: center; }
 .hero h1 { font-size: var(--fs-display); line-height: 1.02; letter-spacing: -0.01em; }
 .hero__actions { justify-content: center; }
-.hero__art { position: relative; aspect-ratio: 4 / 5; min-height: 360px; display: flex; align-items: flex-start; justify-content: center; }
+.hero__art { position: relative; aspect-ratio: 4 / 5; min-height: 360px; display: flex; align-items: flex-start; justify-content: center; touch-action: pan-y; cursor: grab; }
+.hero__art:active { cursor: grabbing; }
 .hero__art-glow { position: absolute; inset: 6% 12% auto auto; width: 58%; aspect-ratio: 1; background: var(--gradient-accent); filter: blur(70px); opacity: 0.45; border-radius: 50%; }
 
 /* Living dreamcatcher (Addendum 4): all sway/rays/words motion is driven by one
    rAF loop in app.js (SVG transform attrs); CSS only sizes it and keeps bead twinkle.
    touch-action:none so press-and-hold doesn't scroll the page on mobile. */
-/* touch-action: pan-y lets a vertical swipe scroll the page THROUGH the catcher;
-   a stationary press-and-hold still drives the wind (browser cancels the pointer
-   when it decides the gesture is a scroll). */
-.dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; touch-action: pan-y; cursor: grab; }
-.dreamcatcher:active { cursor: grabbing; }
+/* The press-and-hold zone is the whole .hero__art (incl. the words area to the
+   right). touch-action:pan-y there lets a vertical swipe still scroll the page. */
+.dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; }
 .dc-svg { width: min(80%, 300px); height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45)); overflow: visible; }
 .dc-bead { transform-box: fill-box; transform-origin: center; animation: dc-twinkle 2.6s ease-in-out infinite; }
-.dc-word { font-family: var(--font-heading); fill: #f4e4bf; font-size: 15px; pointer-events: none; }
 @keyframes dc-twinkle { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.25); } }
+
+/* Words drift up beside the catcher — DOM layer (desktop: right of it). */
+.dc-words { position: absolute; top: 0; bottom: 0; right: 0; width: 44%; pointer-events: none; z-index: 2; }
+.dc-word {
+  position: absolute; left: 50%; top: 46%; transform: translate(-50%, 0); opacity: 0;
+  font-family: var(--font-heading); font-style: italic; color: #f4e4bf; white-space: nowrap;
+  font-size: clamp(1.25rem, 1.7vw, 1.9rem); text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  pointer-events: none; will-change: transform, opacity;
+}
+@media (max-width: 768px) {
+  /* On phones the catcher is centered with little room aside, so words go centered. */
+  .dc-words { left: 0; right: 0; width: 100%; }
+}
 @media (max-width: 900px) {
   /* Hero is centered on all widths; just trim the dreamcatcher size on phones. */
   .hero__art { min-height: 300px; margin-top: var(--space-md); }

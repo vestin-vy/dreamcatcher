@@ -86,6 +86,7 @@
   (function () {
     var NS = "http://www.w3.org/2000/svg";
     var stage = document.getElementById("dreamcatcher");
+    var holdZone = document.querySelector(".hero__art") || stage; // press anywhere here
     var catcher = document.getElementById("dc-catcher");
     var beam = document.getElementById("dc-beam");
     var wordsG = document.getElementById("dc-words");
@@ -97,7 +98,7 @@
       gustDeg: 5, cursorLeanDeg: 6,
       windIdle: 0.12, windMax: 1.05, windUpLerp: 0.045, windDownLerp: 0.035,
       beamSpeedIdle: 0.015, beamTempoMax: 9, rayLen: 118,
-      wordRisePx: 42, wordLifeMs: 3600, wordEmitIdleMs: 1500, wordEmitMinMs: 450, wordMaxLive: 6
+      wordRisePx: 72, wordLifeMs: 3600, wordEmitIdleMs: 1500, wordEmitMinMs: 450, wordMaxLive: 6
     };
     var cx = CFG.center.x, cy = CFG.center.y;
     function polar(r, deg) { var a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
@@ -122,12 +123,10 @@
     var wordIndex = 0, liveWords = [], nextEmit = 0;
     function emitWord(now) {
       if (!tokens.length || liveWords.length >= CFG.wordMaxLive) return;
-      var t = document.createElementNS(NS, "text");
-      t.setAttribute("class", "dc-word"); t.setAttribute("text-anchor", "middle");
-      t.setAttribute("aria-hidden", "true");
+      var t = document.createElement("span");
+      t.className = "dc-word";
       t.textContent = tokens[wordIndex % tokens.length]; wordIndex++;
-      t.setAttribute("x", (cx + (Math.random() * 32 - 16)).toFixed(1));
-      t.setAttribute("y", cy);
+      t.style.top = (46 + (Math.random() * 16 - 8)).toFixed(0) + "%";
       wordsG.appendChild(t);
       liveWords.push({ el: t, born: now });
     }
@@ -138,19 +137,19 @@
     // Interaction: hold to intensify; pointer lean. Scoped to the dreamcatcher
     // (touch-action:none in CSS) so page scroll / buttons elsewhere still work.
     var holding = false, wind = CFG.windIdle, lean = 0, targetLean = 0;
-    stage.addEventListener("pointerdown", function (e) {
+    holdZone.addEventListener("pointerdown", function (e) {
       holding = true;
       // Capture only the mouse; capturing touch would fight the browser's scroll.
-      if (e.pointerType === "mouse") { try { stage.setPointerCapture(e.pointerId); } catch (err) {} }
+      if (e.pointerType === "mouse") { try { holdZone.setPointerCapture(e.pointerId); } catch (err) {} }
     });
     window.addEventListener("pointerup", function () { holding = false; });
     // When the browser takes the gesture for scrolling, it cancels the pointer.
     window.addEventListener("pointercancel", function () { holding = false; });
-    stage.addEventListener("pointermove", function (e) {
-      var r = stage.getBoundingClientRect();
+    holdZone.addEventListener("pointermove", function (e) {
+      var r = holdZone.getBoundingClientRect();
       targetLean = ((e.clientX - r.left) / r.width - 0.5) * 2 * CFG.cursorLeanDeg;
     });
-    stage.addEventListener("pointerleave", function () { targetLean = 0; });
+    holdZone.addEventListener("pointerleave", function () { targetLean = 0; });
 
     var lastNow = performance.now(), swayPhase = 0, flutterPhase = 0, beamAngle = 0;
     function frame(now) {
@@ -187,8 +186,8 @@
         if (age > CFG.wordLifeMs) { wordsG.removeChild(w.el); liveWords.splice(i, 1); continue; }
         var p = age / CFG.wordLifeMs;
         var op = p < 0.25 ? p / 0.25 : (p > 0.7 ? (1 - p) / 0.3 : 1);
-        w.el.setAttribute("y", (cy - p * CFG.wordRisePx).toFixed(1));
-        w.el.setAttribute("opacity", Math.max(0, op).toFixed(2));
+        w.el.style.transform = "translate(-50%, " + (-p * CFG.wordRisePx).toFixed(1) + "px)";
+        w.el.style.opacity = Math.max(0, op).toFixed(2);
       }
       requestAnimationFrame(frame);
     }
