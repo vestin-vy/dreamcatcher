@@ -635,6 +635,12 @@ main { flex: 1 0 auto; }
 /* "Our story" media becomes a gradient panel (no dead empty block). */
 .about-teaser__media--gradient { position: relative; background: var(--gradient-accent); display: grid; place-items: center; color: #fff; }
 .about-teaser__media--gradient svg { width: 96px; height: 96px; opacity: 0.95; }
+@media (max-width: 768px) {
+  /* On mobile the square panel reads as a big empty block — make it a slim banner. */
+  .about-teaser { gap: var(--space-lg); }
+  .about-teaser__media--gradient { aspect-ratio: auto; height: 130px; }
+  .about-teaser__media--gradient svg { width: 60px; height: 60px; }
+}
 
 /* Scroll reveal — opt-in only when JS is active (.js on <html>), so no-JS users
    always see content. Disabled under reduced-motion below. */
