@@ -73,6 +73,11 @@ UI: dict[str, dict[str, str]] = {
     "product.gallery": {"el": "Γκαλερί εικόνων", "en": "Image gallery"},
     "product.out_of_stock": {"el": "Εξαντλήθηκε", "en": "Out of stock"},
     "product.in_stock": {"el": "Διαθέσιμα", "en": "In stock"},
+    # Words that drift out of the hero dreamcatcher (Addendum 4) — split on spaces in JS.
+    "dreamcatcher.phrase": {
+        "el": "Το όνειρό σου γίνεται πραγματικότητα σήμερα",
+        "en": "your dream comes true today",
+    },
     # Cart (SPEC-BILLING §2)
     "cart.title": {"el": "Το καλάθι μου", "en": "My cart"},
     "cart.empty": {"el": "Το καλάθι σας είναι άδειο.", "en": "Your cart is empty."},

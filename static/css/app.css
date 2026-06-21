@@ -584,16 +584,14 @@ main { flex: 1 0 auto; }
 .hero__art { position: relative; aspect-ratio: 4 / 5; min-height: 360px; display: flex; align-items: flex-start; justify-content: center; }
 .hero__art-glow { position: absolute; inset: 6% 12% auto auto; width: 58%; aspect-ratio: 1; background: var(--gradient-accent); filter: blur(70px); opacity: 0.45; border-radius: 50%; }
 
-/* Animated dreamcatcher: cursor "push" on the outer node (JS sets transform),
-   idle wind-sway on the inner node, feathers sway on their own. */
-.dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center;
-  transform-origin: top center; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
-.dreamcatcher__inner { transform-origin: top center; animation: dc-sway 6s ease-in-out infinite; }
-.dc-svg { width: min(80%, 300px); height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45)); }
-.dc-feathers { transform-box: fill-box; transform-origin: top center; animation: dc-feather 4.8s ease-in-out infinite; }
+/* Living dreamcatcher (Addendum 4): all sway/rays/words motion is driven by one
+   rAF loop in app.js (SVG transform attrs); CSS only sizes it and keeps bead twinkle.
+   touch-action:none so press-and-hold doesn't scroll the page on mobile. */
+.dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; touch-action: none; cursor: grab; }
+.dreamcatcher:active { cursor: grabbing; }
+.dc-svg { width: min(80%, 300px); height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45)); overflow: visible; }
 .dc-bead { transform-box: fill-box; transform-origin: center; animation: dc-twinkle 2.6s ease-in-out infinite; }
-@keyframes dc-sway { 0%, 100% { transform: rotate(-2.2deg); } 50% { transform: rotate(2.2deg); } }
-@keyframes dc-feather { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.dc-word { font-family: var(--font-heading); fill: #f4e4bf; font-size: 15px; pointer-events: none; }
 @keyframes dc-twinkle { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.25); } }
 @media (max-width: 900px) {
   /* Hero is centered on all widths; just trim the dreamcatcher size on phones. */

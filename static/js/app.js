@@ -81,21 +81,113 @@
     });
   }
 
-  // --- Dreamcatcher: cursor "pushes" it (spring-back via CSS transition) ---
-  var hero = document.querySelector(".hero");
-  var catcher = document.getElementById("dreamcatcher");
-  var reduceMo = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (hero && catcher && !reduceMo) {
-    hero.addEventListener("pointermove", function (e) {
-      var r = catcher.getBoundingClientRect();
-      var dx = (e.clientX - (r.left + r.width / 2)) / (r.width || 1);
-      var rot = Math.max(-14, Math.min(14, dx * 26));
-      catcher.style.transform = "rotate(" + rot.toFixed(2) + "deg)";
+  // --- Living dreamcatcher: wind sway + beacon rays + drifting words --------
+  // One rAF loop, delta-time driven; only transform + opacity are animated.
+  (function () {
+    var NS = "http://www.w3.org/2000/svg";
+    var stage = document.getElementById("dreamcatcher");
+    var catcher = document.getElementById("dc-catcher");
+    var beam = document.getElementById("dc-beam");
+    var wordsG = document.getElementById("dc-words");
+    if (!stage || !catcher || !beam || !wordsG) return;
+
+    var CFG = {
+      center: { x: 120, y: 120 }, pivot: { x: 120, y: 2 },
+      swayIdleDeg: 1.8, swayMaxDeg: 16, swayPeriodMs: 4200, tempoMax: 3.5,
+      gustDeg: 5, cursorLeanDeg: 6,
+      windIdle: 0.12, windMax: 1.05, windUpLerp: 0.045, windDownLerp: 0.035,
+      beamSpeedIdle: 0.015, beamTempoMax: 9, rayLen: 118,
+      wordRisePx: 42, wordLifeMs: 3600, wordEmitIdleMs: 1500, wordEmitMinMs: 450, wordMaxLive: 6
+    };
+    var cx = CFG.center.x, cy = CFG.center.y;
+    function polar(r, deg) { var a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    // Build soft beacon rays inside the (swaying) catcher group.
+    [-10, 80, 170, 260].forEach(function (a) {
+      var p1 = polar(CFG.rayLen, a - 11), p2 = polar(CFG.rayLen, a + 11);
+      var ray = document.createElementNS(NS, "path");
+      ray.setAttribute("d", "M" + cx + " " + cy + " L" + p1[0].toFixed(1) + " " + p1[1].toFixed(1) + " L" + p2[0].toFixed(1) + " " + p2[1].toFixed(1) + " Z");
+      ray.setAttribute("fill", "url(#dc-ray)");
+      beam.appendChild(ray);
     });
-    hero.addEventListener("pointerleave", function () {
-      catcher.style.transform = "rotate(0deg)";
+
+    // Strands (each swings on its own pivot, more than the ring).
+    var strands = [];
+    Array.prototype.slice.call(document.querySelectorAll(".dc-strand")).forEach(function (el, i) {
+      strands.push({ el: el, px: parseFloat(el.dataset.px), py: parseFloat(el.dataset.py), phase: i * 1.3, amp: 0.6 + i * 0.5 });
     });
-  }
+
+    var tokens = (stage.dataset.words || "").split(/\s+/).filter(Boolean);
+    var wordIndex = 0, liveWords = [], nextEmit = 0;
+    function emitWord(now) {
+      if (!tokens.length || liveWords.length >= CFG.wordMaxLive) return;
+      var t = document.createElementNS(NS, "text");
+      t.setAttribute("class", "dc-word"); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("aria-hidden", "true");
+      t.textContent = tokens[wordIndex % tokens.length]; wordIndex++;
+      t.setAttribute("x", (cx + (Math.random() * 32 - 16)).toFixed(1));
+      t.setAttribute("y", cy);
+      wordsG.appendChild(t);
+      liveWords.push({ el: t, born: now });
+    }
+
+    var dcReduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (dcReduce) { beam.setAttribute("opacity", "0.18"); return; } // static pose, no loop/words
+
+    // Interaction: hold to intensify; pointer lean. Scoped to the dreamcatcher
+    // (touch-action:none in CSS) so page scroll / buttons elsewhere still work.
+    var holding = false, wind = CFG.windIdle, lean = 0, targetLean = 0;
+    stage.addEventListener("pointerdown", function (e) { holding = true; try { stage.setPointerCapture(e.pointerId); } catch (err) {} });
+    window.addEventListener("pointerup", function () { holding = false; });
+    stage.addEventListener("pointermove", function (e) {
+      var r = stage.getBoundingClientRect();
+      targetLean = ((e.clientX - r.left) / r.width - 0.5) * 2 * CFG.cursorLeanDeg;
+    });
+    stage.addEventListener("pointerleave", function () { targetLean = 0; });
+
+    var lastNow = performance.now(), swayPhase = 0, flutterPhase = 0, beamAngle = 0;
+    function frame(now) {
+      var dt = Math.min(now - lastNow, 50); lastNow = now;
+      var target = holding ? CFG.windMax : CFG.windIdle;
+      wind = lerp(wind, target, holding ? CFG.windUpLerp : CFG.windDownLerp);
+      lean = lerp(lean, targetLean, 0.05);
+      var windN = (wind - CFG.windIdle) / (CFG.windMax - CFG.windIdle);
+      var speed = 1 + windN * (CFG.tempoMax - 1);
+
+      swayPhase += (2 * Math.PI / CFG.swayPeriodMs) * speed * dt;
+      var amp = CFG.swayIdleDeg + (CFG.swayMaxDeg - CFG.swayIdleDeg) * windN;
+      var sway = Math.sin(swayPhase) * amp;
+      var gust = Math.sin(now * 0.0007 + 1.3) * CFG.gustDeg * wind;
+      catcher.setAttribute("transform", "rotate(" + (sway + gust + lean).toFixed(3) + " " + CFG.pivot.x + " " + CFG.pivot.y + ")");
+
+      flutterPhase += 0.0026 * speed * dt;
+      strands.forEach(function (s) {
+        var flutter = Math.sin(flutterPhase + s.phase) * (4 + windN * 14) * s.amp;
+        s.el.setAttribute("transform", "rotate(" + flutter.toFixed(3) + " " + s.px + " " + s.py + ")");
+      });
+
+      var beamSpeed = CFG.beamSpeedIdle * (1 + windN * CFG.beamTempoMax);
+      beamAngle = (beamAngle + beamSpeed * dt) % 360;
+      beam.setAttribute("transform", "rotate(" + beamAngle.toFixed(2) + " " + cx + " " + cy + ")");
+      beam.setAttribute("opacity", (0.18 + windN * 0.5).toFixed(2));
+
+      if (now > nextEmit) {
+        emitWord(now);
+        nextEmit = now + Math.max(CFG.wordEmitMinMs, CFG.wordEmitIdleMs - (CFG.wordEmitIdleMs - CFG.wordEmitMinMs) * windN);
+      }
+      for (var i = liveWords.length - 1; i >= 0; i--) {
+        var w = liveWords[i], age = now - w.born;
+        if (age > CFG.wordLifeMs) { wordsG.removeChild(w.el); liveWords.splice(i, 1); continue; }
+        var p = age / CFG.wordLifeMs;
+        var op = p < 0.25 ? p / 0.25 : (p > 0.7 ? (1 - p) / 0.3 : 1);
+        w.el.setAttribute("y", (cy - p * CFG.wordRisePx).toFixed(1));
+        w.el.setAttribute("opacity", Math.max(0, op).toFixed(2));
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
 
   // --- Scroll reveal (progressive enhancement; respects reduced-motion) ---
   var reveals = document.querySelectorAll("[data-reveal]");
