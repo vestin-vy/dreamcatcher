@@ -129,4 +129,33 @@
       }
     }
   }
+
+  // --- First-visit language chooser ---
+  var langModal = document.getElementById("lang-modal");
+  if (langModal) {
+    var langChosen;
+    try { langChosen = window.localStorage.getItem("dc_lang_choice"); } catch (e) { langChosen = "1"; }
+    if (!langChosen) {
+      langModal.hidden = false;
+      langModal.querySelectorAll("[data-lang]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var l = btn.getAttribute("data-lang");
+          try { window.localStorage.setItem("dc_lang_choice", l); } catch (e) {}
+          document.cookie = "lang=" + l + ";path=/;max-age=31536000";
+          var cur = langModal.getAttribute("data-cur");
+          var path = langModal.getAttribute("data-path") || "";
+          if (l !== cur) {
+            window.location.href = "/" + l + (path || "/");
+          } else {
+            langModal.hidden = true;
+          }
+        });
+      });
+    }
+  }
+
+  // --- Cart: auto-submit quantity on change (no need to tap "Update") ---
+  document.querySelectorAll(".cart-item__qty input[type=number]").forEach(function (inp) {
+    inp.addEventListener("change", function () { if (inp.form) inp.form.submit(); });
+  });
 })();

@@ -23,6 +23,7 @@
         <div class="cart-item__info">
           <a class="cart-item__title" href="/{{ lang }}/product/{{ it.slug }}">{{ it.title }}</a>
           <span class="muted">{{ format_price(it.price, it.currency, lang) }}</span>
+          {% if it.track_stock %}<span class="muted" style="font-size:0.82rem;">{{ _('product.in_stock') }}: {{ it.stock }}</span>{% endif %}
         </div>
         <form class="cart-item__qty" method="post" action="/{{ lang }}/cart/update">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -33,7 +34,7 @@
           <button class="btn btn-ghost btn-sm" type="submit">{{ _('cart.update') }}</button>
         </form>
         <div class="cart-item__total">{{ format_price(it.line_total, it.currency, lang) }}</div>
-        <form method="post" action="/{{ lang }}/cart/remove">
+        <form class="cart-item__remove" method="post" action="/{{ lang }}/cart/remove">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <input type="hidden" name="product_id" value="{{ it.id }}">
           <button class="btn btn-icon" type="submit" aria-label="{{ _('cart.remove') }}">{{ ui.icon('trash') }}</button>

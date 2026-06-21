@@ -34,7 +34,7 @@
           <button class="btn btn-ghost btn-sm" type="submit">{{ _('cart.update') }}</button>
         </form>
         <div class="cart-item__total muted">×{{ it.qty }}</div>
-        <form method="post" action="/{{ lang }}/wholesale/cart/remove">
+        <form class="cart-item__remove" method="post" action="/{{ lang }}/wholesale/cart/remove">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <input type="hidden" name="product_id" value="{{ it.id }}">
           <button class="btn btn-icon" type="submit" aria-label="{{ _('cart.remove') }}">{{ ui.icon('trash') }}</button>

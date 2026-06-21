@@ -124,6 +124,17 @@
   </div>
 </footer>
 
+<div class="lang-modal" id="lang-modal" data-cur="{{ lang }}" data-path="{{ path_no_lang }}" hidden>
+  <div class="lang-modal__card">
+    <h2>Γλώσσα · Language</h2>
+    <p class="lang-modal__sub">Επιλέξτε γλώσσα · Choose your language</p>
+    <div class="lang-modal__btns">
+      <button class="btn btn-primary btn-block" type="button" data-lang="el">Ελληνικά</button>
+      <button class="btn btn-secondary btn-block" type="button" data-lang="en">English</button>
+    </div>
+  </div>
+</div>
+
 <div class="cookie-banner" id="cookie-banner" hidden>
   <p class="cookie-banner__text">{{ _('cookie.text') }}</p>
   <button class="btn btn-primary btn-sm" type="button" id="cookie-accept">{{ _('cookie.accept') }}</button>
