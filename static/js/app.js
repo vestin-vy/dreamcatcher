@@ -158,4 +158,29 @@
   document.querySelectorAll(".cart-item__qty input[type=number]").forEach(function (inp) {
     inp.addEventListener("change", function () { if (inp.form) inp.form.submit(); });
   });
+
+  // --- Checkout: live-update the summary when a shipping method is picked ---
+  var summary = document.getElementById("checkout-summary");
+  if (summary) {
+    var subtotal = parseFloat(summary.dataset.subtotal) || 0;
+    var rate = parseFloat(summary.dataset.rate) || 0;
+    var loc = (summary.dataset.lang === "el") ? "el-GR" : "en-US";
+    var money = new Intl.NumberFormat(loc, { style: "currency", currency: "EUR" });
+    var shipEl = document.getElementById("sum-shipping");
+    var vatEl = document.getElementById("sum-vat");
+    var totEl = document.getElementById("sum-total");
+    function recomputeSummary() {
+      var sel = document.querySelector("input[name=shipping_method]:checked");
+      var cost = sel ? (parseFloat(sel.dataset.cost) || 0) : 0;
+      var total = subtotal + cost;
+      var vat = rate ? total - total / (1 + rate / 100) : 0;
+      if (shipEl) shipEl.textContent = money.format(cost);
+      if (vatEl) vatEl.textContent = money.format(vat);
+      if (totEl) totEl.textContent = money.format(total);
+    }
+    document.querySelectorAll("input[name=shipping_method]").forEach(function (r) {
+      r.addEventListener("change", recomputeSummary);
+    });
+    recomputeSummary();
+  }
 })();

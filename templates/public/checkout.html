@@ -44,7 +44,7 @@
         <div class="radio-list">
           {% for m in shipping_methods %}
           <label class="radio-row">
-            <input type="radio" name="shipping_method" value="{{ m.slug }}" {% if loop.first %}checked{% endif %}>
+            <input type="radio" name="shipping_method" value="{{ m.slug }}" data-cost="{{ m.cost }}" {% if loop.first %}checked{% endif %}>
             <span>{{ m.label }}</span>
             <span class="radio-row__cost">{{ format_price(m.cost, cart.currency, lang) }}</span>
           </label>
@@ -60,12 +60,17 @@
         <li><span>{{ it.qty }}× {{ it.title }}</span><span>{{ format_price(it.line_total, it.currency, lang) }}</span></li>
         {% endfor %}
       </ul>
-      <dl class="summary-rows">
+      {% set rate = cart.vat_rate %}
+      {% set ship0 = (shipping_methods[0].cost if shipping_methods else 0) %}
+      {% set total0 = cart.subtotal + ship0 %}
+      {% set vat0 = total0 - total0 / (1 + rate / 100) %}
+      <dl class="summary-rows" id="checkout-summary" data-subtotal="{{ cart.subtotal }}" data-rate="{{ rate }}" data-lang="{{ lang }}">
         <div><dt>{{ _('cart.subtotal') }}</dt><dd>{{ format_price(cart.subtotal, cart.currency, lang) }}</dd></div>
-        <div class="muted"><dt>{{ _('cart.vat') }} ({{ cart.vat_rate|round(0)|int }}%)</dt><dd>{{ format_price(cart.vat, cart.currency, lang) }}</dd></div>
-        <div class="summary-total"><dt>{{ _('cart.total') }}</dt><dd>{{ format_price(cart.total, cart.currency, lang) }}</dd></div>
+        <div><dt>{{ _('cart.shipping') }}</dt><dd id="sum-shipping">{{ format_price(ship0, cart.currency, lang) }}</dd></div>
+        <div class="muted"><dt>{{ _('cart.vat') }} ({{ rate|round(0)|int }}%)</dt><dd id="sum-vat">{{ format_price(vat0, cart.currency, lang) }}</dd></div>
+        <div class="summary-total"><dt>{{ _('cart.total') }}</dt><dd id="sum-total">{{ format_price(total0, cart.currency, lang) }}</dd></div>
       </dl>
-      <p class="muted summary-note">{{ _('cart.shipping') }}: {{ _('checkout.shipping_method') }}</p>
+      <p class="muted summary-note">{{ _('cart.vat_included') }}</p>
       <button class="btn btn-accent btn-block" type="submit">{{ ui.icon('bag') }} {{ _('checkout.pay') }}</button>
       <a class="btn btn-ghost btn-block" href="/{{ lang }}/cart">{{ _('cart.title') }}</a>
     </aside>
