@@ -587,7 +587,10 @@ main { flex: 1 0 auto; }
 /* Living dreamcatcher (Addendum 4): all sway/rays/words motion is driven by one
    rAF loop in app.js (SVG transform attrs); CSS only sizes it and keeps bead twinkle.
    touch-action:none so press-and-hold doesn't scroll the page on mobile. */
-.dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; touch-action: none; cursor: grab; }
+/* touch-action: pan-y lets a vertical swipe scroll the page THROUGH the catcher;
+   a stationary press-and-hold still drives the wind (browser cancels the pointer
+   when it decides the gesture is a scroll). */
+.dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; touch-action: pan-y; cursor: grab; }
 .dreamcatcher:active { cursor: grabbing; }
 .dc-svg { width: min(80%, 300px); height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45)); overflow: visible; }
 .dc-bead { transform-box: fill-box; transform-origin: center; animation: dc-twinkle 2.6s ease-in-out infinite; }

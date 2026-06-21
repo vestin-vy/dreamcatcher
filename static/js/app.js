@@ -138,8 +138,14 @@
     // Interaction: hold to intensify; pointer lean. Scoped to the dreamcatcher
     // (touch-action:none in CSS) so page scroll / buttons elsewhere still work.
     var holding = false, wind = CFG.windIdle, lean = 0, targetLean = 0;
-    stage.addEventListener("pointerdown", function (e) { holding = true; try { stage.setPointerCapture(e.pointerId); } catch (err) {} });
+    stage.addEventListener("pointerdown", function (e) {
+      holding = true;
+      // Capture only the mouse; capturing touch would fight the browser's scroll.
+      if (e.pointerType === "mouse") { try { stage.setPointerCapture(e.pointerId); } catch (err) {} }
+    });
     window.addEventListener("pointerup", function () { holding = false; });
+    // When the browser takes the gesture for scrolling, it cancels the pointer.
+    window.addEventListener("pointercancel", function () { holding = false; });
     stage.addEventListener("pointermove", function (e) {
       var r = stage.getBoundingClientRect();
       targetLean = ((e.clientX - r.left) / r.width - 0.5) * 2 * CFG.cursorLeanDeg;
