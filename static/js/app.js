@@ -98,7 +98,10 @@
       gustDeg: 5, cursorLeanDeg: 6,
       windIdle: 0.12, windMax: 1.05, windUpLerp: 0.045, windDownLerp: 0.035,
       beamSpeedIdle: 0.015, beamTempoMax: 9, rayLen: 118,
-      wordRisePx: 72, wordLifeMs: 3600, wordEmitIdleMs: 1500, wordEmitMinMs: 450, wordMaxLive: 6
+      // Words rise as a single spaced column; speed scales with wind.
+      wordRiseSpeed: 0.030, wordRiseTempo: 2.2, wordMaxRisePx: 100,
+      wordFadeInPx: 18, wordFadeOutPx: 36, wordMinGapPx: 34,
+      wordEmitIdleMs: 1500, wordEmitMinMs: 320, wordMaxLive: 5
     };
     var cx = CFG.center.x, cy = CFG.center.y;
     function polar(r, deg) { var a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
@@ -126,9 +129,11 @@
       var t = document.createElement("span");
       t.className = "dc-word";
       t.textContent = tokens[wordIndex % tokens.length]; wordIndex++;
-      t.style.top = (46 + (Math.random() * 16 - 8)).toFixed(0) + "%";
+      t.style.left = (50 + (Math.random() * 8 - 4)).toFixed(0) + "%"; // slight organic jitter
+      t.style.top = "58%";
+      t.style.transform = "translate(-50%,0)";
       wordsG.appendChild(t);
-      liveWords.push({ el: t, born: now });
+      liveWords.push({ el: t, y: 0 }); // y = px risen so far
     }
 
     var dcReduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -177,16 +182,20 @@
       beam.setAttribute("transform", "rotate(" + beamAngle.toFixed(2) + " " + cx + " " + cy + ")");
       beam.setAttribute("opacity", (0.18 + windN * 0.5).toFixed(2));
 
-      if (now > nextEmit) {
-        emitWord(now);
+      // Emit only when the last word has risen at least minGap -> guarantees no overlap.
+      var newest = liveWords[liveWords.length - 1];
+      if (now > nextEmit && (!newest || newest.y >= CFG.wordMinGapPx)) {
+        emitWord();
         nextEmit = now + Math.max(CFG.wordEmitMinMs, CFG.wordEmitIdleMs - (CFG.wordEmitIdleMs - CFG.wordEmitMinMs) * windN);
       }
+      var riseSpeed = CFG.wordRiseSpeed * (1 + windN * CFG.wordRiseTempo);
       for (var i = liveWords.length - 1; i >= 0; i--) {
-        var w = liveWords[i], age = now - w.born;
-        if (age > CFG.wordLifeMs) { wordsG.removeChild(w.el); liveWords.splice(i, 1); continue; }
-        var p = age / CFG.wordLifeMs;
-        var op = p < 0.25 ? p / 0.25 : (p > 0.7 ? (1 - p) / 0.3 : 1);
-        w.el.style.transform = "translate(-50%, " + (-p * CFG.wordRisePx).toFixed(1) + "px)";
+        var w = liveWords[i];
+        w.y += riseSpeed * dt;
+        if (w.y > CFG.wordMaxRisePx) { wordsG.removeChild(w.el); liveWords.splice(i, 1); continue; }
+        var op = w.y < CFG.wordFadeInPx ? w.y / CFG.wordFadeInPx
+               : (w.y > CFG.wordMaxRisePx - CFG.wordFadeOutPx ? (CFG.wordMaxRisePx - w.y) / CFG.wordFadeOutPx : 1);
+        w.el.style.transform = "translate(-50%, " + (-w.y).toFixed(1) + "px)";
         w.el.style.opacity = Math.max(0, op).toFixed(2);
       }
       requestAnimationFrame(frame);
