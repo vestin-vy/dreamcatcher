@@ -25,3 +25,6 @@ screenshots/
 cloudflared.exe
 backups/
 logs/
+
+# Security review artifacts (local only — never publish PoCs/findings)
+security-review/
