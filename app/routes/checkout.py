@@ -72,12 +72,20 @@ async def checkout_submit(
 def checkout_success(
     request: Request,
     order: str = "",
+    m: str = "",  # marketing consent outcome: "yes" | "no" | "" (not yet answered)
     lang: str = Depends(get_lang),
+    session: Session = Depends(get_session),
     site: dict = Depends(get_site_settings),
 ):
     # The order was placed; clear the cart. Payment status comes only from the webhook.
     cart_mod.clear(request)
-    return render(request, "public/checkout_success.html", lang=lang, site=site, order_number=order)
+    order_obj = orders_mod.find_order_by_ref(session, order) if order else None
+    return render(
+        request, "public/checkout_success.html", lang=lang, site=site,
+        order_number=order,
+        consent_email=(order_obj.customer_email if order_obj else ""),
+        consent_done=m,
+    )
 
 
 @router.get("/{lang}/checkout/cancel", name="checkout_cancel")

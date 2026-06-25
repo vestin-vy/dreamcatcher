@@ -182,6 +182,29 @@ UI: dict[str, dict[str, str]] = {
         "en": "We use essential cookies to make the cart and checkout work.",
     },
     "cookie.accept": {"el": "Εντάξει", "en": "Got it"},
+    # Marketing consent (GDPR/ePrivacy, Task 3). {privacy_policy} / {unsubscribe_link} are links.
+    "marketing.title": {"el": "Να μένουμε σε επαφή;", "en": "Stay in touch?"},
+    "marketing.body": {
+        "el": "Θα θέλατε να λαμβάνετε νέα, νέες συλλογές και προσφορές από το DreamCatcher στο email σας; Στέλνουμε περιστασιακά — όχι spam. Μπορείτε να διαγραφείτε οποιαδήποτε στιγμή με ένα κλικ. Δείτε πώς επεξεργαζόμαστε τα δεδομένα σας στην {privacy_policy}.",
+        "en": "Would you like to receive news, new collections and offers from DreamCatcher by email? We send occasionally — never spam. You can unsubscribe anytime with one click. See how we handle your data in our {privacy_policy}.",
+    },
+    "marketing.privacy_link": {"el": "Πολιτική Απορρήτου", "en": "Privacy Policy"},
+    "marketing.accept": {"el": "Ναι, κρατήστε με ενήμερο/η", "en": "Yes, keep me posted"},
+    "marketing.decline": {"el": "Όχι, ευχαριστώ", "en": "No thanks"},
+    "marketing.thanks_yes": {"el": "Ευχαριστούμε! Θα τα πούμε σύντομα.", "en": "Thanks! We'll be in touch."},
+    "marketing.thanks_no": {
+        "el": "Κανένα πρόβλημα. Θα λαμβάνετε μόνο email σχετικά με την παραγγελία σας.",
+        "en": "No problem. You'll only get emails about your order.",
+    },
+    "email.unsubscribe": {
+        "el": "Δεν θέλετε άλλα τέτοια email; {unsubscribe_link} — με ένα κλικ, χωρίς σύνδεση.",
+        "en": "Don't want these emails? {unsubscribe_link} — one click, no login needed.",
+    },
+    "email.unsubscribe_link": {"el": "Διαγραφή", "en": "Unsubscribe"},
+    "marketing.unsubscribed": {
+        "el": "Διαγραφήκατε. Δεν θα λαμβάνετε άλλα email μάρκετινγκ.",
+        "en": "You're unsubscribed. You won't receive marketing emails anymore.",
+    },
     # Footer
     "footer.tagline": {
         "el": "Χειροποίητα κοσμήματα, φτιαγμένα με μεράκι.",

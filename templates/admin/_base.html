@@ -17,6 +17,7 @@
       <a href="/admin" {% if current_path == '/admin' or current_path == '/admin/' %}aria-current="page"{% endif %}>{{ ui.icon('cog') }} Dashboard</a>
       <a href="/admin/products" {% if '/admin/products' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('box') }} Products</a>
       <a href="/admin/orders" {% if '/admin/orders' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('bag') }} Orders</a>
+      <a href="/admin/marketing" {% if '/admin/marketing' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('mail') }} Marketing</a>
       <a href="/admin/categories" {% if '/admin/categories' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('tag') }} Categories</a>
       <a href="/admin/settings" {% if '/admin/settings' in current_path %}aria-current="page"{% endif %}>{{ ui.icon('cog') }} Settings</a>
       <a href="/{{ DEFAULT_LANG }}/" target="_blank">{{ ui.icon('eye') }} View site</a>

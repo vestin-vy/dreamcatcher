@@ -506,6 +506,11 @@ main { flex: 1 0 auto; }
 .cookie-banner[hidden] { display: none; }
 .cookie-banner__text { margin: 0; font-size: 0.9rem; max-width: 70ch; }
 
+/* Marketing consent block — symmetric, equal-weight choices (no confirmshaming). */
+.marketing-consent { margin-top: var(--space-lg); text-align: center; }
+.marketing-consent__choices { display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap; margin-top: var(--space-md); }
+.marketing-consent__choices .btn { flex: 1 1 0; min-width: 12rem; justify-content: center; }
+
 /* First-visit language chooser */
 .lang-modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: var(--space-lg); background: rgba(12,10,9,0.55); }
 .lang-modal[hidden] { display: none; }

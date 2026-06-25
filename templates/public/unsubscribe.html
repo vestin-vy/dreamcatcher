@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ _('email.unsubscribe_link') }} · {{ site.site_title }}{% endblock %}
+{% block content %}
+<section class="section container">
+  <div class="status-card panel">
+    <h1>{{ _('email.unsubscribe_link') }}</h1>
+    <p>{{ _('marketing.unsubscribed') }}</p>
+    <a class="btn btn-primary" href="/{{ lang }}/">{{ site.site_title }}</a>
+  </div>
+</section>
+{% endblock %}

@@ -168,3 +168,19 @@ class OrderItem(SQLModel, table=True):
 class Setting(SQLModel, table=True):
     key: str = Field(primary_key=True)
     value: str = Field(default="")
+
+
+# --- Marketing consent (GDPR/ePrivacy, Task 3) ------------------------------
+# Decoupled from orders and keyed by email. Order anonymization (Task 2) never
+# touches this table — marketing consent stands on its own lawful basis.
+
+class MarketingConsent(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True)
+    status: str = Field(default="subscribed", index=True)  # subscribed | withdrawn
+    consented_at: datetime | None = Field(default=None)
+    withdrawn_at: datetime | None = Field(default=None)
+    lang: str = Field(default="el")                         # language at capture (el | en)
+    consent_text: str = Field(default="")                  # exact wording shown at capture
+    source: str = Field(default="")                        # e.g. "checkout_confirmation"
+    unsubscribe_token: str = Field(index=True, unique=True)  # random, unguessable

@@ -5,10 +5,11 @@ import re
 import unicodedata
 
 from fastapi import APIRouter, Depends, Form, Request, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from sqlmodel import Session, select
 from starlette.datastructures import UploadFile  # form() yields these (not fastapi's subclass)
 
+from app import marketing
 from app import orders as orders_mod
 from app.db import get_session
 from app.deps import DEFAULT_SETTINGS, get_site_settings, is_authenticated
@@ -646,3 +647,32 @@ async def order_anonymize(order_id: int, request: Request, session: Session = De
     else:
         flash(request, f"Order {order.number} was already anonymized.", "error")
     return RedirectResponse(url=f"/admin/orders/{order_id}", status_code=303)
+
+
+# --- marketing list (Task 3) -------------------------------------------------
+
+@router.get("/marketing")
+def marketing_list(request: Request, session: Session = Depends(get_session)):
+    if r := ensure_admin(request):
+        return r
+    rows = [{
+        "email": c.email, "consented_at": c.consented_at, "lang": c.lang, "source": c.source,
+    } for c in marketing.subscribed(session)]
+    return admin_render(request, "admin/marketing.html", subscribers=rows)
+
+
+@router.get("/marketing/export.csv")
+def marketing_csv(request: Request, session: Session = Depends(get_session)):
+    if r := ensure_admin(request):
+        return r
+    import csv
+    import io
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["email", "consented_at", "lang", "source"])
+    for c in marketing.subscribed(session):
+        writer.writerow([c.email,
+                         c.consented_at.isoformat() if c.consented_at else "",
+                         c.lang, c.source])
+    return Response(content=buf.getvalue(), media_type="text/csv",
+                    headers={"Content-Disposition": "attachment; filename=marketing_subscribers.csv"})

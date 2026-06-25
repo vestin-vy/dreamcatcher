@@ -34,6 +34,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))  # allow `import app.*` when run as a script
 
 from sqlalchemy import func, text  # noqa: E402
+from sqlalchemy.exc import ArgumentError, SQLAlchemyError  # noqa: E402
 from sqlmodel import Session, SQLModel, create_engine, select  # noqa: E402
 
 from app.config import _normalize_db_url  # noqa: E402
@@ -120,7 +121,18 @@ def main() -> int:
              "COMMIT" if args.commit else "DRY-RUN")
 
     src_engine = create_engine(source_url, connect_args={"check_same_thread": False})
-    tgt_engine = create_engine(target_url, pool_pre_ping=True)
+
+    # Build the target engine + verify connectivity with a clean error (no stacktrace
+    # wall) — this is where a bad/placeholder URL or an unreachable DB shows up.
+    try:
+        tgt_engine = create_engine(target_url, pool_pre_ping=True)
+        with tgt_engine.connect():
+            pass
+    except (ArgumentError, SQLAlchemyError) as exc:
+        log.error("Cannot connect to target %s (%s).", _mask(target_url), exc.__class__.__name__)
+        log.error("Check the connection string (scheme/host/port/credentials) and that the "
+                  "PostgreSQL server is reachable from here, then retry.")
+        return 4
 
     # Ensure the schema exists on the target before counting/inserting.
     SQLModel.metadata.create_all(tgt_engine)

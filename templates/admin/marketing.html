@@ -1,0 +1,31 @@
+{% extends "admin/_base.html" %}
+{% block title %}Marketing list · {{ site.site_title }}{% endblock %}
+{% block body %}
+
+<div class="admin-head">
+  <h1>Marketing list</h1>
+  <a class="btn btn-primary" href="/admin/marketing/export.csv">{{ ui.icon('box') }} Export CSV</a>
+</div>
+
+<div class="panel">
+  <p class="muted" style="margin-bottom:var(--space-md);">Currently subscribed contacts (explicit opt-in). Withdrawn contacts are excluded.</p>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Email</th><th>Consented</th><th>Lang</th><th>Source</th></tr></thead>
+      <tbody>
+        {% for s in subscribers %}
+        <tr>
+          <td>{{ s.email }}</td>
+          <td class="muted" style="font-size:0.85rem;">{{ s.consented_at.strftime('%Y-%m-%d %H:%M') if s.consented_at else '—' }}</td>
+          <td>{{ s.lang }}</td>
+          <td>{{ s.source }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">No subscribers yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

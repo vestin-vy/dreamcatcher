@@ -8,5 +8,27 @@
     {% if order_number %}<p class="muted">{{ _('checkout.order_number') }}: <strong>{{ order_number }}</strong></p>{% endif %}
     <a class="btn btn-primary" href="/{{ lang }}/catalog">{{ _('cart.continue') }}</a>
   </div>
+
+  {# Marketing consent — inline (not a modal), unticked, two symmetric choices. #}
+  {% if consent_done == 'yes' %}
+    <div class="status-card panel marketing-consent"><p>{{ _('marketing.thanks_yes') }}</p></div>
+  {% elif consent_done == 'no' %}
+    <div class="status-card panel marketing-consent"><p class="muted">{{ _('marketing.thanks_no') }}</p></div>
+  {% elif consent_email %}
+    {% set priv %}<a href="/{{ lang }}/privacy">{{ _('marketing.privacy_link') }}</a>{% endset %}
+    <div class="status-card panel marketing-consent">
+      <h2>{{ _('marketing.title') }}</h2>
+      <p class="muted">{{ _('marketing.body').replace('{privacy_policy}', priv) | safe }}</p>
+      <form method="post" action="/{{ lang }}/marketing/consent">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="order" value="{{ order_number }}">
+        <input type="hidden" name="email" value="{{ consent_email }}">
+        <div class="marketing-consent__choices">
+          <button class="btn btn-secondary" type="submit" name="choice" value="accept">{{ _('marketing.accept') }}</button>
+          <button class="btn btn-secondary" type="submit" name="choice" value="decline">{{ _('marketing.decline') }}</button>
+        </div>
+      </form>
+    </div>
+  {% endif %}
 </section>
 {% endblock %}
