@@ -1,11 +1,19 @@
-# Render Blueprint — free web service for the DreamCatcher shop.
+# Render Blueprint — web service + managed PostgreSQL for the DreamCatcher shop.
 # Deploy: push this repo to GitHub, then Render Dashboard -> New + -> Blueprint -> pick the repo.
 #
 # Notes:
-#  * Free tier has an EPHEMERAL filesystem and spins down when idle. AUTO_SEED=true
-#    re-creates the demo catalog (and images) on each cold start, so the demo always works.
-#    Orders placed on the demo are therefore not durable — fine for showing the site.
+#  * Data now lives in a managed PostgreSQL database (encrypted at rest, automated
+#    backups, persists across deploys/restarts) instead of the ephemeral SQLite file.
+#  * The web service filesystem is still ephemeral, so AUTO_SEED=true seeds the demo
+#    catalog ONLY when the products table is empty (no-op once data exists). Note that
+#    uploaded images still live on the ephemeral disk — move them to object storage later.
 #  * Render serves HTTPS, so SESSION_HTTPS_ONLY=true is correct here.
+databases:
+  - name: dreamcatcher-db
+    plan: free
+    databaseName: dreamcatcher
+    user: dreamcatcher
+
 services:
   - type: web
     name: dreamcatcher-shop
@@ -16,6 +24,11 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"
+      # Postgres connection string (Render emits 'postgres://...'; config normalizes it).
+      - key: DB_URL
+        fromDatabase:
+          name: dreamcatcher-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true          # Render generates a strong random value
       - key: ADMIN_USERNAME

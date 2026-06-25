@@ -21,6 +21,7 @@ static/uploads/thumbs/*
 screenshots/
 .pytest_cache/
 
-# Local tooling / backups
+# Local tooling / backups / logs
 cloudflared.exe
 backups/
+logs/

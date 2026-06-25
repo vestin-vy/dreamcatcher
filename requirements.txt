@@ -15,6 +15,7 @@ pillow                    # image processing
 babel                     # i18n (or fall back to a JSON dictionary)
 python-dotenv             # .env config
 httpx                     # runtime: Viva API calls in VIVA_MODE=live; also powers TestClient
+psycopg[binary]           # PostgreSQL driver (v3) for prod; SQLite stays the dev default
 
 # --- tests / verification ---
 pytest

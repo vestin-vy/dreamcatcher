@@ -20,6 +20,17 @@ def _as_bool(value: str | None, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _normalize_db_url(url: str) -> str:
+    """Force an explicit driver for Postgres. SQLAlchemy rejects the bare
+    'postgres://' scheme that Render hands out, and we use psycopg v3, so map
+    'postgres://' and driverless 'postgresql://' to 'postgresql+psycopg://'."""
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url[len("postgres://"):]
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://"):]
+    return url
+
+
 class Settings:
     """Plain settings object read from the environment.
 
@@ -45,9 +56,11 @@ class Settings:
         # i18n
         self.DEFAULT_LANG: str = os.getenv("DEFAULT_LANG", "el")
 
-        # Database
+        # Database. Precedence: DB_URL -> Render's DATABASE_URL -> local SQLite default.
+        # Dev stays on SQLite; prod sets DB_URL/DATABASE_URL to the Postgres connection.
         default_db = f"sqlite:///{(BASE_DIR / 'data.db').as_posix()}"
-        self.DB_URL: str = os.getenv("DB_URL", default_db)
+        raw_db = os.getenv("DB_URL") or os.getenv("DATABASE_URL") or default_db
+        self.DB_URL: str = _normalize_db_url(raw_db)
 
         # Session
         self.SESSION_COOKIE: str = os.getenv("SESSION_COOKIE", "dc_session")
