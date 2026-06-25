@@ -187,6 +187,8 @@ def run() -> None:
                     product_id=product.id, filename=meta["filename"], thumb=meta["thumb"],
                     width=meta["width"], height=meta["height"], sort_order=n,
                     alt=label,
+                    data=meta["data"], thumb_data=meta["thumb_data"],
+                    content_type=meta["content_type"],
                 ))
             session.commit()
 

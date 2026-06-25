@@ -105,7 +105,7 @@
   <div class="img-grid">
     {% for im in images %}
     <div class="img-card {{ 'is-main' if loop.first }}">
-      <img src="/static/{{ im.thumb }}" alt="{{ im.alt or '' }}">
+      <img src="/media/{{ im.id }}/thumb" alt="{{ im.alt or '' }}">
       <div class="img-card__actions">
         {% if not loop.first %}
         <form action="/admin/images/{{ im.id }}/main" method="post">

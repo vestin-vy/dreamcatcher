@@ -35,6 +35,10 @@ engine = create_engine(settings.DB_URL, **_engine_kwargs)
 # `order` is a reserved word and must stay quoted.
 _ADDITIVE_COLUMNS = [
     ('"order"', "anonymized_at", "TIMESTAMP WITHOUT TIME ZONE"),
+    # Product images stored in the DB (survive ephemeral-disk redeploys).
+    ("productimage", "content_type", "VARCHAR"),
+    ("productimage", "data", "BYTEA"),
+    ("productimage", "thumb_data", "BYTEA"),
 ]
 
 

@@ -41,10 +41,17 @@ def _flatten(img: Image.Image) -> Image.Image:
 
 
 def save_image(data: bytes) -> dict:
-    """Process an uploaded image; return dict with filename/thumb/width/height.
+    """Process an uploaded image; return its WebP bytes plus metadata.
 
-    Paths are relative to the `static/` directory (e.g. 'uploads/<uuid>.webp').
-    Raises InvalidImageError on bad input.
+    Returns a dict with:
+      filename/thumb  — paths relative to `static/` (legacy on-disk copy / fallback)
+      width/height    — full image dimensions
+      data/thumb_data — the WebP bytes (stored in the DB and served via /media)
+      content_type    — always 'image/webp'
+
+    The bytes are the source of truth (DB-backed, survive ephemeral disks); the
+    on-disk files are written too as a local-dev convenience. Raises
+    InvalidImageError on bad input.
     """
     img = _open_and_validate(data)
     img = _flatten(img)
@@ -52,20 +59,29 @@ def save_image(data: bytes) -> dict:
     name = uuid.uuid4().hex
     settings.ensure_dirs()
 
-    # Full image (resized to max side).
+    # Full image (resized to max side). Encode once to bytes, then mirror to disk.
     full = img.copy()
     full.thumbnail((settings.IMAGE_MAX_SIDE, settings.IMAGE_MAX_SIDE), Image.LANCZOS)
-    full_rel = f"uploads/{name}.webp"
-    full.save(settings.STATIC_DIR / full_rel, "WEBP", quality=85, method=6)
+    full_buf = BytesIO()
+    full.save(full_buf, "WEBP", quality=85, method=6)
+    full_bytes = full_buf.getvalue()
     width, height = full.size
+    full_rel = f"uploads/{name}.webp"
+    (settings.STATIC_DIR / full_rel).write_bytes(full_bytes)
 
     # Thumbnail.
     thumb = img.copy()
     thumb.thumbnail((settings.THUMB_MAX_SIDE, settings.THUMB_MAX_SIDE), Image.LANCZOS)
+    thumb_buf = BytesIO()
+    thumb.save(thumb_buf, "WEBP", quality=80, method=6)
+    thumb_bytes = thumb_buf.getvalue()
     thumb_rel = f"uploads/thumbs/{name}.webp"
-    thumb.save(settings.STATIC_DIR / thumb_rel, "WEBP", quality=80, method=6)
+    (settings.STATIC_DIR / thumb_rel).write_bytes(thumb_bytes)
 
-    return {"filename": full_rel, "thumb": thumb_rel, "width": width, "height": height}
+    return {
+        "filename": full_rel, "thumb": thumb_rel, "width": width, "height": height,
+        "data": full_bytes, "thumb_data": thumb_bytes, "content_type": "image/webp",
+    }
 
 
 def delete_image_files(filename: str, thumb: str) -> None:

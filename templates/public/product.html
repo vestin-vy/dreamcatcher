@@ -9,7 +9,7 @@
     <div class="gallery">
       <div class="gallery__main">
         {% if product.images %}
-        <img data-gallery-main data-lightbox-trigger src="/static/{{ product.images[0].filename }}"
+        <img data-gallery-main data-lightbox-trigger src="{{ product.images[0].filename }}"
              alt="{{ product.images[0].alt }}" width="800" height="800">
         {% else %}
         <img src="/static/img/placeholder.svg" alt="{{ product.title }}" width="800" height="800">
@@ -19,9 +19,9 @@
       <div class="gallery__thumbs" role="group" aria-label="{{ _('product.gallery') }}">
         {% for im in product.images %}
         <button type="button" class="gallery__thumb" data-gallery-thumb
-                data-full="/static/{{ im.filename }}" data-alt="{{ im.alt }}"
+                data-full="{{ im.filename }}" data-alt="{{ im.alt }}"
                 {% if loop.first %}aria-current="true"{% endif %} aria-label="{{ product.title }} {{ loop.index }}">
-          <img src="/static/{{ im.thumb }}" alt="" loading="lazy" width="160" height="160">
+          <img src="{{ im.thumb }}" alt="" loading="lazy" width="160" height="160">
         </button>
         {% endfor %}
       </div>

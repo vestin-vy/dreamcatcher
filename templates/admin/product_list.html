@@ -19,7 +19,7 @@
       <tbody>
         {% for p in products %}
         <tr>
-          <td>{% if p.image %}<img src="/static/{{ p.image }}" alt="">{% else %}<img src="/static/img/placeholder.svg" alt="">{% endif %}</td>
+          <td>{% if p.image %}<img src="{{ p.image }}" alt="">{% else %}<img src="/static/img/placeholder.svg" alt="">{% endif %}</td>
           <td><strong>{{ p.title }}</strong><br><span class="muted" style="font-size:0.8rem;">/{{ p.slug }}</span></td>
           <td>
             {% if p.price_on_request or p.price is none %}<span class="muted">On request</span>

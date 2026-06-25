@@ -173,7 +173,7 @@ def product_list(request: Request, session: Session = Depends(get_session), q: s
             "price_on_request": p.price_on_request,
             "stock": p.stock,
             "is_active": p.is_active, "is_featured": p.is_featured,
-            "image": p.images[0].thumb if p.images else None,
+            "image": f"/media/{p.images[0].id}/thumb" if p.images else None,
         })
     return admin_render(request, "admin/product_list.html", products=rows, q=q)
 
@@ -362,6 +362,8 @@ async def upload_images(product_id: int, request: Request, session: Session = De
             product_id=product.id, filename=meta["filename"], thumb=meta["thumb"],
             width=meta["width"], height=meta["height"], sort_order=next_order,
             alt=(form.get("alt") or None),
+            data=meta["data"], thumb_data=meta["thumb_data"],
+            content_type=meta["content_type"],
         ))
         next_order += 1
         saved += 1

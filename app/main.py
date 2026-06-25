@@ -19,6 +19,7 @@ from app.routes.cart import router as cart_router
 from app.routes.checkout import router as checkout_router
 from app.routes.payments import router as payments_router
 from app.routes.marketing import router as marketing_router
+from app.routes.media import router as media_router
 from app.routes.public import router as public_router
 from app.routes.wholesale import router as wholesale_router
 
@@ -27,7 +28,16 @@ from app.routes.wholesale import router as wholesale_router
 async def lifespan(app: FastAPI):
     settings.ensure_dirs()
     init_db()
-    if settings.AUTO_SEED:
+    if settings.FORCE_RESEED:
+        # Destructive one-shot: drop + recreate + reseed (see Settings.FORCE_RESEED).
+        import logging
+        logging.getLogger("seed").warning(
+            "FORCE_RESEED is set -> dropping and reseeding the database. "
+            "Remove this env var after this deploy."
+        )
+        from app.seed import run
+        run()
+    elif settings.AUTO_SEED:
         from app.seed import seed_if_empty
         seed_if_empty()
     yield
@@ -61,6 +71,7 @@ def root(request: Request) -> RedirectResponse:
 # Routers. Admin first; then the specific /{lang}/cart|checkout and /payments routers;
 # public last (its routes are explicit paths, but keep ordering predictable).
 app.include_router(admin_router)
+app.include_router(media_router)
 app.include_router(payments_router)
 app.include_router(cart_router)
 app.include_router(checkout_router)

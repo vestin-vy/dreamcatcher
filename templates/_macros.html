@@ -58,7 +58,7 @@
     <div class="product-card__media">
       {% if p.is_featured %}<span class="badge">{{ _('home.featured.title') }}</span>{% endif %}
       {% if p.image %}
-        <img src="/static/{{ p.image }}" alt="{{ p.title }}" loading="lazy" width="400" height="500">
+        <img src="{{ p.image }}" alt="{{ p.title }}" loading="lazy" width="400" height="500">
       {% else %}
         <img src="/static/img/placeholder.svg" alt="{{ p.title }}" loading="lazy" width="400" height="500">
       {% endif %}
@@ -100,7 +100,7 @@
   <a class="product-card__link" href="/{{ lang }}/product/{{ p.slug }}">
     <div class="product-card__media">
       {% if p.image %}
-        <img src="/static/{{ p.image }}" alt="{{ p.title }}" loading="lazy" width="400" height="500">
+        <img src="{{ p.image }}" alt="{{ p.title }}" loading="lazy" width="400" height="500">
       {% else %}
         <img src="/static/img/placeholder.svg" alt="{{ p.title }}" loading="lazy" width="400" height="500">
       {% endif %}

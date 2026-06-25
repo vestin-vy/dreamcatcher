@@ -75,6 +75,11 @@ class Settings:
         # Seed demo data on startup when the DB is empty (handy on hosts with an
         # ephemeral filesystem like Render's free tier). Off by default locally.
         self.AUTO_SEED: bool = _as_bool(os.getenv("AUTO_SEED"), default=False)
+        # One-shot maintenance switch: when true, DROP + recreate + reseed the whole
+        # schema on startup (regenerates demo data, e.g. to backfill DB-stored image
+        # bytes). DESTRUCTIVE — set it for a single deploy, then remove it. Off by
+        # default so a normal restart never wipes data.
+        self.FORCE_RESEED: bool = _as_bool(os.getenv("FORCE_RESEED"), default=False)
 
         # Uploads
         self.MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_BYTES", str(8 * 1024 * 1024)))

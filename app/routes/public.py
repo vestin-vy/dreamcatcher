@@ -25,7 +25,8 @@ def product_view(product: Product, lang: str) -> dict:
     """Flatten a Product into a template-friendly dict with the resolved lang."""
     tr = pick_translation(product.translations, lang)
     images = product.images
-    main_image = images[0].filename if images else None
+    # Images are served from the DB via /media/{id} (survive ephemeral disks).
+    main_image = f"/media/{images[0].id}" if images else None
     return {
         "id": product.id,
         "slug": product.slug,
@@ -44,7 +45,8 @@ def product_view(product: Product, lang: str) -> dict:
         "category_name": _category_name(product.category, lang),
         "image": main_image,
         "images": [
-            {"filename": im.filename, "thumb": im.thumb, "alt": im.alt or (tr.title if tr else "")}
+            {"filename": f"/media/{im.id}", "thumb": f"/media/{im.id}/thumb",
+             "alt": im.alt or (tr.title if tr else "")}
             for im in images
         ],
     }

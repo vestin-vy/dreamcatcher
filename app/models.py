@@ -91,12 +91,18 @@ class ProductTranslation(SQLModel, table=True):
 class ProductImage(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     product_id: int = Field(foreign_key="product.id", index=True)
-    filename: str  # path relative to static/ (e.g. uploads/uuid.webp)
-    thumb: str  # path relative to static/ (e.g. uploads/thumbs/uuid.webp)
+    filename: str  # legacy path relative to static/ (e.g. uploads/uuid.webp)
+    thumb: str  # legacy path relative to static/ (e.g. uploads/thumbs/uuid.webp)
     alt: str | None = Field(default=None)
     sort_order: int = Field(default=0)  # first (lowest) = main image
     width: int = Field(default=0)
     height: int = Field(default=0)
+    # Image bytes live IN the database (served via /media/{id}) so they survive
+    # redeploys on hosts with an ephemeral filesystem (e.g. Render). The on-disk
+    # files (filename/thumb) are kept only as a local-dev convenience/fallback.
+    content_type: str = Field(default="image/webp")
+    data: bytes | None = Field(default=None)        # full (resized) image bytes
+    thumb_data: bytes | None = Field(default=None)  # thumbnail bytes
 
     product: Product | None = Relationship(back_populates="images")
 
