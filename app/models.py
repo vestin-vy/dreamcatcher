@@ -35,7 +35,7 @@ class Category(SQLModel, table=True):
 class CategoryTranslation(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     category_id: int = Field(foreign_key="category.id", index=True)
-    lang: str = Field(index=True)  # el | en | ru | fr
+    lang: str = Field(index=True)  # el | en
     name: str
 
     category: Category | None = Relationship(back_populates="translations")
@@ -80,7 +80,7 @@ class Product(SQLModel, table=True):
 class ProductTranslation(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     product_id: int = Field(foreign_key="product.id", index=True)
-    lang: str = Field(index=True)  # el | en | ru | fr
+    lang: str = Field(index=True)  # el | en
     title: str
     description: str = Field(default="")
     material: str | None = Field(default=None)
@@ -140,6 +140,9 @@ class Order(SQLModel, table=True):
 
     created_at: datetime = Field(default_factory=_utcnow)
     updated_at: datetime = Field(default_factory=_utcnow)
+    # When the order's contact/shipping PII was irreversibly anonymized (GDPR
+    # retention / erasure). Financial fields are preserved; see app/orders.py.
+    anonymized_at: datetime | None = Field(default=None)
 
     items: list["OrderItem"] = Relationship(
         back_populates="order",

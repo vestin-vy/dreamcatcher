@@ -29,6 +29,9 @@ DEFAULT_SETTINGS: dict[str, str] = {
         "pickup|Παραλαβή από το κατάστημα|Store pickup|0"
     ),
     "notify_email": "",
+    # GDPR: days to keep order contact/shipping PII before the sweep anonymizes it
+    # (financial records are preserved regardless). Default 1095 = 3 years.
+    "order_pii_retention_days": "1095",
 }
 
 

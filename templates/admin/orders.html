@@ -22,7 +22,8 @@
         {% for o in orders %}
         <tr>
           <td><a href="/admin/orders/{{ o.id }}"><strong>{{ o.number }}</strong></a>
-              {% if o.is_wholesale %}<br><span class="pill pill--wholesale" style="font-size:0.7rem;">Wholesale</span>{% endif %}</td>
+              {% if o.is_wholesale %}<br><span class="pill pill--wholesale" style="font-size:0.7rem;">Wholesale</span>{% endif %}
+              {% if o.is_anonymized %}<br><span class="pill pill--cancelled" style="font-size:0.7rem;">Anonymized</span>{% endif %}</td>
           <td>{{ o.customer_name }}<br><span class="muted" style="font-size:0.8rem;">{{ o.customer_email }}</span></td>
           <td>{{ o.items }}</td>
           <td>{% if o.is_wholesale %}<span class="muted">— (quote)</span>{% else %}{{ '%.2f'|format(o.total) }} {{ o.currency }}{% endif %}</td>

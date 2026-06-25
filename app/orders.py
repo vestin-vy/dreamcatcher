@@ -5,12 +5,12 @@ Pure-ish helpers shared by checkout, the webhook, and the admin. Prices are gros
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlmodel import Session, func, select
 
 from app import cart as cart_mod
-from app.models import Order, OrderItem, Product
+from app.models import Order, OrderItem, Product, Setting
 
 
 def _utcnow() -> datetime:
@@ -220,3 +220,67 @@ def _vat_rate(site: dict) -> float:
         return float(site.get("vat_rate") or cart_mod.DEFAULT_VAT_RATE)
     except (TypeError, ValueError):
         return cart_mod.DEFAULT_VAT_RATE
+
+
+# --- GDPR: order PII anonymization + retention (Task 2) ----------------------
+# Neutral placeholders that IRREVERSIBLY replace contact/shipping PII. ship_country
+# is intentionally NOT here — a coarse region is kept. Financial/accounting fields
+# (number, status, totals, vat_*, currency, item snapshots, viva_* ids, timestamps)
+# are preserved for tax-law record-keeping.
+ANON_PLACEHOLDERS = {
+    "customer_name": "[anonymized]",
+    "customer_email": "anonymized@example.invalid",
+    "customer_phone": "",
+    "ship_address": "[removed]",
+    "ship_city": "[removed]",
+    "ship_postcode": "",
+}
+DEFAULT_PII_RETENTION_DAYS = 1095  # 3 years
+
+
+def pii_retention_days(session: Session) -> int:
+    """Read the admin-configured retention (Setting), falling back to the default."""
+    row = session.get(Setting, "order_pii_retention_days")
+    try:
+        return int(row.value) if row and str(row.value).strip() else DEFAULT_PII_RETENTION_DAYS
+    except (TypeError, ValueError):
+        return DEFAULT_PII_RETENTION_DAYS
+
+
+def anonymize_order(session: Session, order: Order) -> bool:
+    """Irreversibly overwrite an order's PII; preserve financial fields. Idempotent:
+    returns False if the order is already anonymized."""
+    if order.anonymized_at is not None:
+        return False
+    for field, value in ANON_PLACEHOLDERS.items():
+        setattr(order, field, value)
+    order.anonymized_at = _utcnow()
+    session.add(order)
+    session.commit()
+    return True
+
+
+def orders_due_for_anonymization(session: Session, retention_days: int | None = None) -> list[Order]:
+    """Shipped/cancelled orders older than the retention window, not yet anonymized."""
+    days = retention_days if retention_days is not None else pii_retention_days(session)
+    cutoff = _utcnow() - timedelta(days=days)
+    return session.exec(
+        select(Order)
+        .where(
+            Order.anonymized_at.is_(None),  # noqa: E711  (SQLAlchemy IS NULL)
+            Order.status.in_(("shipped", "cancelled")),
+            Order.updated_at < cutoff,
+        )
+        .order_by(Order.updated_at)
+    ).all()
+
+
+def anonymize_sweep(session: Session, retention_days: int | None = None,
+                    dry_run: bool = False) -> dict:
+    """Anonymize every order due for it. dry_run lists what WOULD change, writes nothing."""
+    due = orders_due_for_anonymization(session, retention_days)
+    preview = [{"number": o.number, "status": o.status, "updated_at": o.updated_at} for o in due]
+    if dry_run:
+        return {"committed": False, "count": len(due), "orders": preview}
+    changed = sum(1 for o in due if anonymize_order(session, o))
+    return {"committed": True, "count": changed, "orders": preview}

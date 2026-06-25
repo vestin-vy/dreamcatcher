@@ -5,6 +5,7 @@
 <div class="admin-head">
   <h1>Order {{ order.number }}
     {% if order.is_wholesale %}<span class="pill pill--wholesale">Wholesale</span>{% endif %}
+    {% if order.anonymized_at %}<span class="pill pill--cancelled">Anonymized</span>{% endif %}
   </h1>
   <a class="btn btn-ghost" href="/admin/orders">← Orders</a>
 </div>
@@ -66,6 +67,15 @@
          {{ order.customer_phone }}</p>
       <h3>Shipping address</h3>
       <p>{{ order.ship_address }}<br>{{ order.ship_postcode }} {{ order.ship_city }}<br>{{ order.ship_country }}</p>
+      {% if order.anonymized_at %}
+      <p class="muted" style="font-size:0.82rem;">Contact PII anonymized on {{ order.anonymized_at.strftime('%Y-%m-%d %H:%M') }} (financial record kept).</p>
+      {% else %}
+      <form action="/admin/orders/{{ order.id }}/anonymize" method="post"
+            onsubmit="return confirm('Irreversibly anonymize this customer\'s contact &amp; shipping data? Financial records are kept. This cannot be undone.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn btn-danger btn-sm" type="submit">{{ ui.icon('trash') }} Anonymize PII now</button>
+      </form>
+      {% endif %}
     </div>
 
     <div class="panel">

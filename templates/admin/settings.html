@@ -42,6 +42,7 @@
     <div class="form-grid">
       <div class="field"><label for="vat_rate">VAT rate (%)</label><input class="input" id="vat_rate" name="vat_rate" value="{{ site.vat_rate }}"></div>
       <div class="field"><label for="notify_email">Order notification email</label><input class="input" id="notify_email" name="notify_email" type="email" value="{{ site.notify_email }}"></div>
+      <div class="field"><label for="order_pii_retention_days">Order PII retention (days)</label><input class="input" id="order_pii_retention_days" name="order_pii_retention_days" type="number" min="0" value="{{ site.order_pii_retention_days }}"><small class="muted">Contact/shipping data on shipped/cancelled orders is anonymized after this; financial records are kept.</small></div>
       <div class="field field--full">
         <label for="shipping_methods">Shipping methods</label>
         <textarea class="textarea" id="shipping_methods" name="shipping_methods" rows="4">{{ site.shipping_methods }}</textarea>

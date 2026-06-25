@@ -9,6 +9,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 from starlette.datastructures import UploadFile  # form() yields these (not fastapi's subclass)
 
+from app import orders as orders_mod
 from app.db import get_session
 from app.deps import DEFAULT_SETTINGS, get_site_settings, is_authenticated
 from app.i18n import LANGS, pick_translation
@@ -570,7 +571,7 @@ def order_list(request: Request, session: Session = Depends(get_session), status
     orders = session.exec(query).all()
     rows = [{
         "id": o.id, "number": o.number, "status": o.status,
-        "is_wholesale": o.is_wholesale,
+        "is_wholesale": o.is_wholesale, "is_anonymized": o.anonymized_at is not None,
         "customer_name": o.customer_name, "customer_email": o.customer_email,
         "total": o.total, "currency": o.currency, "created_at": o.created_at,
         "items": len(o.items),
@@ -625,4 +626,23 @@ async def order_set_status(order_id: int, request: Request, session: Session = D
         flash(request, f"Order {order.number} → {new_status}.")
     else:
         flash(request, f"Cannot change {order.status} → {new_status}.", "error")
+    return RedirectResponse(url=f"/admin/orders/{order_id}", status_code=303)
+
+
+@router.post("/orders/{order_id}/anonymize")
+async def order_anonymize(order_id: int, request: Request, session: Session = Depends(get_session)):
+    """Erasure-on-request: irreversibly anonymize one order's PII (financials kept)."""
+    if r := ensure_admin(request):
+        return r
+    form = await request.form()
+    if not verify_csrf(request, form.get("csrf_token")):
+        return bad_csrf_redirect(f"/admin/orders/{order_id}")
+    order = session.get(Order, order_id)
+    if not order:
+        flash(request, "Order not found.", "error")
+        return RedirectResponse(url="/admin/orders", status_code=303)
+    if orders_mod.anonymize_order(session, order):
+        flash(request, f"Order {order.number} PII anonymized (financial record kept).")
+    else:
+        flash(request, f"Order {order.number} was already anonymized.", "error")
     return RedirectResponse(url=f"/admin/orders/{order_id}", status_code=303)
