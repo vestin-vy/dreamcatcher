@@ -14,7 +14,8 @@
            onerror="this.src='/static/img/placeholder.svg'">
     </div>
     <div class="prose" style="margin:0;">
-      {% for para in site.about_text.split('\n\n') %}
+      {% set about_text = site['about_text_' ~ lang] or site['about_text_el'] or site.about_text %}
+      {% for para in about_text.split('\n\n') %}
       <p>{{ para }}</p>
       {% endfor %}
       <p><a class="btn btn-primary" href="/{{ lang }}/contact">{{ _('nav.contact') }} {{ ui.icon('arrow-right') }}</a></p>

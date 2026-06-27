@@ -2,12 +2,16 @@
 {% import "_macros.html" as ui with context %}
 {% block content %}
 
+{# Admin-editable, per-language: chosen lang -> el -> legacy/i18n fallback. #}
+{% set hero_tagline = site['hero_tagline_' ~ lang] or site['hero_tagline_el'] or _('home.hero.tagline') %}
+{% set about_text = site['about_text_' ~ lang] or site['about_text_el'] or site.about_text %}
+
 <section class="hero">
   <div class="hero__inner container">
     <div class="hero__copy">
       <span class="eyebrow">{{ site.site_title }}</span>
-      <h1>{{ _('home.hero.tagline') }}</h1>
-      <p>{{ site.about_text }}</p>
+      <h1>{{ hero_tagline }}</h1>
+      <p>{{ about_text }}</p>
       <div class="hero__actions">
         <a class="btn btn-accent" href="/{{ lang }}/catalog">{{ _('home.hero.cta') }} {{ ui.icon('arrow-right') }}</a>
         <a class="btn btn-secondary" href="/{{ lang }}/contact" style="color:#fff;border-color:rgba(255,255,255,0.7);">{{ _('nav.contact') }}</a>
@@ -94,7 +98,7 @@
 <section class="section container" data-reveal>
   <div class="editorial">
     <span class="eyebrow">{{ _('home.featured.title') }}</span>
-    <p class="editorial__quote">{{ _('home.hero.tagline') }}</p>
+    <p class="editorial__quote">{{ hero_tagline }}</p>
     <a class="btn btn-accent" href="/{{ lang }}/catalog">{{ _('home.hero.cta') }} {{ ui.icon('arrow-right') }}</a>
   </div>
 </section>
@@ -128,7 +132,7 @@
     <div>
       <span class="eyebrow"><span class="section-index">03</span> {{ _('about.title') }}</span>
       <h2>{{ _('home.about.title') }}</h2>
-      <p class="mt-lg">{{ site.about_text }}</p>
+      <p class="mt-lg">{{ about_text }}</p>
       <p class="mt-lg"><a class="btn btn-secondary" href="/{{ lang }}/about">{{ _('home.about.more') }} {{ ui.icon('arrow-right') }}</a></p>
     </div>
   </div>

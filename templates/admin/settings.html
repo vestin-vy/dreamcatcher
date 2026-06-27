@@ -17,7 +17,17 @@
       <div class="field"><label for="whatsapp">WhatsApp (digits, intl)</label><input class="input" id="whatsapp" name="whatsapp" value="{{ site.whatsapp }}"></div>
       <div class="field"><label for="viber">Viber (digits, intl)</label><input class="input" id="viber" name="viber" value="{{ site.viber }}"></div>
       <div class="field"><label for="instagram">Instagram handle</label><input class="input" id="instagram" name="instagram" value="{{ site.instagram }}"></div>
-      <div class="field field--full"><label for="about_text">About text</label><textarea class="textarea" id="about_text" name="about_text">{{ site.about_text }}</textarea></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Homepage texts</h2>
+    <p class="muted" style="margin-bottom:var(--space-md);">Shown on the homepage hero &amp; the About section, per language. Greek (el) is used as the fallback when English is empty.</p>
+    <div class="form-grid">
+      <div class="field"><label for="hero_tagline_el">Hero heading (EL)</label><input class="input" id="hero_tagline_el" name="hero_tagline_el" value="{{ site.hero_tagline_el }}"></div>
+      <div class="field"><label for="hero_tagline_en">Hero heading (EN)</label><input class="input" id="hero_tagline_en" name="hero_tagline_en" value="{{ site.hero_tagline_en }}"></div>
+      <div class="field field--full"><label for="about_text_el">Intro / about text (EL)</label><textarea class="textarea" id="about_text_el" name="about_text_el" rows="4">{{ site.about_text_el }}</textarea><small class="muted">Blank line = new paragraph.</small></div>
+      <div class="field field--full"><label for="about_text_en">Intro / about text (EN)</label><textarea class="textarea" id="about_text_en" name="about_text_en" rows="4">{{ site.about_text_en }}</textarea><small class="muted">Blank line = new paragraph.</small></div>
     </div>
   </div>
 

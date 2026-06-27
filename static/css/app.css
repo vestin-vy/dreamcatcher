@@ -182,7 +182,8 @@ main { flex: 1 0 auto; }
 }
 .hero__inner { max-width: 760px; padding-inline: var(--space-lg); }
 .hero h1 { color: #fff; }
-.hero p { color: rgba(255,255,255,0.85); font-size: 1.15rem; margin-top: var(--space-md); }
+.hero p { color: rgba(255,255,255,0.85); font-size: 1.15rem; margin-top: var(--space-md);
+  max-width: 56ch; margin-inline: auto; overflow-wrap: anywhere; }
 .hero .eyebrow { color: #E7C77A; }
 .hero__actions { margin-top: var(--space-xl); display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
 
@@ -615,7 +616,9 @@ main { flex: 1 0 auto; }
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .hero__inner { position: relative; z-index: 1; max-width: 820px; width: 100%; margin-inline: auto; display: flex; flex-direction: column; align-items: center; gap: var(--space-lg); text-align: center; }
-.hero h1 { font-size: var(--fs-display); line-height: 1.02; letter-spacing: -0.01em; }
+.hero h1 { font-size: var(--fs-display); line-height: 1.02; letter-spacing: -0.01em;
+  /* Keep the layout stable when the heading text is edited in Settings. */
+  text-wrap: balance; overflow-wrap: anywhere; max-width: 18ch; margin-inline: auto; }
 .hero__actions { justify-content: center; }
 .hero__art { position: relative; aspect-ratio: 4 / 5; min-height: 360px; display: flex; align-items: flex-start; justify-content: center; touch-action: pan-y; cursor: grab;
   /* Stop long-press text selection / "copy" callout from hijacking the hold gesture. */

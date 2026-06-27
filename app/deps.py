@@ -27,6 +27,20 @@ DEFAULT_SETTINGS: dict[str, str] = {
     "carousel_interval_s": "4",     # seconds between auto-advances
     "carousel_arrows": "1",         # show prev/next arrows on desktop
     "about_text": "DreamCatcher creates handcrafted jewelry inspired by timeless elegance.",
+    # Homepage hero + intro text, per language (admin-editable). Fall back: chosen
+    # lang -> el -> legacy `about_text` / the i18n tagline.
+    "hero_tagline_el": "Χειροποίητα κοσμήματα που λένε τη δική σας ιστορία",
+    "hero_tagline_en": "Handcrafted jewelry that tells your story",
+    "about_text_el": (
+        "Το DreamCatcher είναι ένα εργαστήριο κοσμημάτων στην Αθήνα, με χειροποίητες δημιουργίες.\n\n"
+        "Κάθε κομμάτι συνδυάζει την ελληνική παράδοση με σύγχρονο σχεδιασμό — φτιαγμένο για "
+        "καθημερινή χρήση και για να το αγαπάτε μια ζωή."
+    ),
+    "about_text_en": (
+        "DreamCatcher is an Athens-based atelier crafting fine jewelry by hand.\n\n"
+        "Each piece blends Greek heritage with contemporary design — made to be worn "
+        "every day and treasured for a lifetime."
+    ),
     # Billing (SPEC-BILLING §4). settings_save picks these up automatically.
     "vat_rate": "24",
     # One shipping method per line: slug|Greek label|English label|cost
