@@ -8,7 +8,9 @@ from PIL import Image, UnidentifiedImageError
 
 from app.config import settings
 
-ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "GIF", "BMP", "TIFF"}
+# MPO = Multi-Picture Object: JPEG containers many phones/cameras produce
+# (iPhone photos, 3D/burst). Pillow reads the primary frame fine, so accept it.
+ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "GIF", "BMP", "TIFF", "MPO"}
 
 
 class InvalidImageError(ValueError):
