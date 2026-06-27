@@ -291,63 +291,90 @@
   }
 })();
 
-/* --- Featured carousel: gentle continuous marquee ------------------------- */
-/* Clones the cards once for a seamless loop, then advances scrollLeft a few px
-   per second via rAF. Pauses on hover/focus/touch and when the tab is hidden;
-   disabled entirely for prefers-reduced-motion (project a11y rule). */
+/* --- Featured carousel ---------------------------------------------------- */
+/* Desktop: auto-advances one card every few seconds and gets ← → arrows; when it
+   reaches the end it rewinds to the start. Mobile: a plain native swipe carousel
+   — NO JS scroll-writes there, since stepping scrollLeft fought touch momentum
+   and made the row jitter. Respects prefers-reduced-motion (no auto-advance). */
 (function () {
   "use strict";
   var track = document.querySelector(".grid--carousel");
   if (!track) return;
-  var originals = Array.prototype.slice.call(track.children);
-  if (originals.length <= 1) return;
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var cards = track.querySelectorAll(".card");
+  if (cards.length <= 1) return;
 
-  // Duplicate the cards so scrolling can loop without a visible jump. Clones are
-  // hidden from assistive tech and taken out of the tab order.
-  originals.forEach(function (node) {
-    var clone = node.cloneNode(true);
-    clone.setAttribute("aria-hidden", "true");
-    if ("inert" in clone) clone.inert = true;
-    clone.querySelectorAll("a, button, input, select, textarea").forEach(function (el) {
-      el.tabIndex = -1;
-    });
-    track.appendChild(clone);
-  });
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var desktop = window.matchMedia ? window.matchMedia("(min-width: 769px)") : { matches: true, addEventListener: function () {} };
+  var lang = (document.documentElement.lang || "el").slice(0, 2);
+  var T = lang === "el"
+    ? { prev: "Προηγούμενα", next: "Επόμενα" }
+    : { prev: "Previous", next: "Next" };
 
-  var SPEED = 36;            // px per second — gentle
-  var paused = false;
-  var pos = 0;
-  var last = null;
+  // Wrap the track so the absolutely-positioned arrows can sit over its edges.
+  var wrap = document.createElement("div");
+  wrap.className = "carousel";
+  track.parentNode.insertBefore(wrap, track);
+  wrap.appendChild(track);
 
-  function frame(ts) {
-    if (last === null) last = ts;
-    var dt = (ts - last) / 1000;
-    last = ts;
-    if (!paused && !document.hidden) {
-      var half = track.scrollWidth / 2;   // one full set of originals
-      if (half > track.clientWidth) {
-        pos += SPEED * dt;
-        if (pos >= half) pos -= half;
-        track.scrollLeft = pos;
-      }
-    }
-    window.requestAnimationFrame(frame);
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="%P%"/></svg>';
+  function makeBtn(dir, label, path) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "carousel__nav carousel__nav--" + dir;
+    b.setAttribute("aria-label", label);
+    b.innerHTML = CHEV.replace("%P%", path);
+    wrap.appendChild(b);
+    return b;
   }
 
-  // Keep `pos` in sync if the user scrolls/drags manually.
-  track.addEventListener("scroll", function () {
-    if (paused) pos = track.scrollLeft;
-  });
+  function cardStep() {
+    var c = track.querySelector(".card");
+    if (!c) return 0;
+    var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+    return c.getBoundingClientRect().width + gap;
+  }
+  function maxScroll() { return track.scrollWidth - track.clientWidth; }
 
-  function pause() { paused = true; }
-  function resume() { last = null; paused = false; }
-  track.addEventListener("mouseenter", pause);
-  track.addEventListener("mouseleave", resume);
-  track.addEventListener("focusin", pause);
-  track.addEventListener("focusout", resume);
-  track.addEventListener("touchstart", pause, { passive: true });
-  track.addEventListener("touchend", resume, { passive: true });
+  function next() {
+    if (track.scrollLeft >= maxScroll() - 4) {
+      track.scrollTo({ left: 0, behavior: "smooth" });       // rewind at the end
+    } else {
+      track.scrollBy({ left: cardStep(), behavior: "smooth" });
+    }
+  }
+  function prev() {
+    if (track.scrollLeft <= 4) {
+      track.scrollTo({ left: maxScroll(), behavior: "smooth" });
+    } else {
+      track.scrollBy({ left: -cardStep(), behavior: "smooth" });
+    }
+  }
 
-  window.requestAnimationFrame(frame);
+  var prevBtn = makeBtn("prev", T.prev, "m15 18-6-6 6-6");
+  var nextBtn = makeBtn("next", T.next, "m9 18 6-6-6-6");
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
+
+  var paused = false;
+  var timer = null;
+  function startAuto() {
+    if (timer || reduce) return;
+    timer = window.setInterval(function () {
+      // Only meaningful while there's something to scroll.
+      if (!paused && !document.hidden && maxScroll() > 4) next();
+    }, 4000);
+  }
+  function stopAuto() { if (timer) { window.clearInterval(timer); timer = null; } }
+  function apply() {
+    // Auto-advance only on desktop; mobile stays a clean native swipe.
+    if (!reduce && desktop.matches) startAuto(); else stopAuto();
+  }
+  if (desktop.addEventListener) desktop.addEventListener("change", apply);
+  apply();
+
+  // Pause auto-advance while the user is interacting.
+  track.addEventListener("mouseenter", function () { paused = true; });
+  track.addEventListener("mouseleave", function () { paused = false; });
+  track.addEventListener("focusin", function () { paused = true; });
+  track.addEventListener("focusout", function () { paused = false; });
 })();

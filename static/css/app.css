@@ -552,17 +552,17 @@ main { flex: 1 0 auto; }
   .grid--cats > .cat-tile { flex: 0 0 58%; scroll-snap-align: start; }
 }
 
-/* Featured products: gently auto-scrolling marquee on ALL screens (JS in app.js
-   clones the cards for a seamless loop). Only the featured grid carries --carousel.
-   ~4 cards on desktop, 3 on tablet, ~1.4 on phone. No scroll-snap — the JS owns
-   scrollLeft, and snap would fight the continuous motion. */
+/* Featured products carousel. On desktop the JS auto-advances (with ← → arrows);
+   on mobile it's a native swipe carousel with snap and NO JS scroll-writes (those
+   fought touch momentum and caused jitter). Only the featured grid carries
+   --carousel. ~4 cards on desktop, 3 on tablet, ~1.4 on phone. */
 .grid--carousel {
   display: flex; grid-template-columns: none;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
   gap: var(--space-lg); padding-bottom: var(--space-sm); scrollbar-width: none;
 }
 .grid--carousel::-webkit-scrollbar { display: none; }
-.grid--carousel > .card { flex: 0 0 calc((100% - 3 * var(--space-lg)) / 4); }
+.grid--carousel > .card { flex: 0 0 calc((100% - 3 * var(--space-lg)) / 4); scroll-snap-align: start; }
 @media (max-width: 1024px) {
   .grid--carousel > .card { flex-basis: calc((100% - 2 * var(--space-lg)) / 3); }
 }
@@ -570,6 +570,25 @@ main { flex: 1 0 auto; }
   .grid--carousel { gap: var(--space-md); }
   .grid--carousel > .card { flex-basis: 70%; }
 }
+
+/* Carousel arrow controls (added by app.js, desktop only). */
+.carousel { position: relative; }
+.carousel__nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--color-surface); color: var(--color-primary);
+  border: 1px solid var(--color-border); box-shadow: var(--shadow-md);
+  transition: background var(--transition), color var(--transition), transform var(--transition), opacity var(--transition);
+}
+.carousel__nav:hover { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+.carousel__nav:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.carousel__nav svg { width: 1.4rem; height: 1.4rem; }
+.carousel__nav--prev { left: -10px; }
+.carousel__nav--next { right: -10px; }
+@media (prefers-reduced-motion: reduce) { .carousel__nav { transition: none; } }
+/* Touch screens swipe instead — hide the arrows. */
+@media (max-width: 768px) { .carousel__nav { display: none; } }
 
 /* ============================ Editorial Pop ============================ */
 /* Rose action button — the energetic storefront CTA (white text passes 4.5:1). */
