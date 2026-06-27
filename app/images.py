@@ -16,17 +16,23 @@ class InvalidImageError(ValueError):
 
 
 def _open_and_validate(data: bytes) -> Image.Image:
+    # Reasons are lowercase phrases so callers can compose them into a sentence.
     if len(data) > settings.MAX_UPLOAD_BYTES:
-        raise InvalidImageError("File too large")
+        got = len(data) / (1024 * 1024)
+        limit = settings.MAX_UPLOAD_BYTES / (1024 * 1024)
+        raise InvalidImageError(f"file is {got:.1f} MB, over the {limit:.0f} MB limit")
     try:
         img = Image.open(BytesIO(data))
         img.verify()  # detect truncated/corrupt files
     except (UnidentifiedImageError, OSError) as exc:
-        raise InvalidImageError("Not a valid image") from exc
+        raise InvalidImageError("not a readable image (corrupt, or not an image file)") from exc
     # verify() leaves the image unusable; reopen for processing.
     img = Image.open(BytesIO(data))
     if img.format not in ALLOWED_FORMATS:
-        raise InvalidImageError(f"Unsupported format: {img.format}")
+        allowed = ", ".join(sorted(ALLOWED_FORMATS))
+        raise InvalidImageError(
+            f"unsupported format {img.format or 'unknown'} — allowed: {allowed}"
+        )
     return img
 
 

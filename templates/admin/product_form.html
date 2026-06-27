@@ -98,6 +98,7 @@
     <div class="field">
       <label for="images">Upload images (multiple, images only)</label>
       <input class="input" id="images" name="images" type="file" accept="image/*" multiple required>
+      <small class="muted">JPG, PNG, WEBP, GIF, BMP or TIFF — up to {{ MAX_UPLOAD_MB }} MB each.</small>
     </div>
     <button class="btn btn-primary" type="submit">{{ ui.icon('plus') }} Upload</button>
   </form>

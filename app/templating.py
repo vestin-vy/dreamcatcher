@@ -21,6 +21,7 @@ templates.env.globals["LANG_NAMES"] = i18n.LANG_NAMES
 templates.env.globals["DEFAULT_LANG"] = settings.DEFAULT_LANG
 templates.env.globals["format_price"] = i18n.format_price
 templates.env.globals["hreflang_alternates"] = i18n.hreflang_alternates
+templates.env.globals["MAX_UPLOAD_MB"] = round(settings.MAX_UPLOAD_BYTES / (1024 * 1024))
 
 
 def _asset_version() -> str:

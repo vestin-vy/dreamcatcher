@@ -371,17 +371,19 @@ async def upload_images(product_id: int, request: Request, session: Session = De
         return bad_csrf_redirect(f"/admin/products/{product_id}/edit")
     files = form.getlist("images")
     next_order = max([im.sort_order for im in product.images], default=-1) + 1
-    saved, rejected = 0, 0
+    saved = 0
+    rejected: list[str] = []
     for f in files:
         if not isinstance(f, UploadFile) or not f.filename:
             continue
         data = await f.read()
         if not data:
+            rejected.append(f"{f.filename}: empty file")
             continue
         try:
             meta = save_image(data)
-        except InvalidImageError:
-            rejected += 1
+        except InvalidImageError as exc:
+            rejected.append(f"{f.filename}: {exc}")
             continue
         session.add(ProductImage(
             product_id=product.id, filename=meta["filename"], thumb=meta["thumb"],
@@ -396,7 +398,7 @@ async def upload_images(product_id: int, request: Request, session: Session = De
     if saved:
         flash(request, f"{saved} image(s) uploaded.")
     if rejected:
-        flash(request, f"{rejected} file(s) rejected (not valid images).", "error")
+        flash(request, "Rejected — " + "; ".join(rejected), "error")
     return RedirectResponse(url=f"/admin/products/{product_id}/edit", status_code=303)
 
 
@@ -472,8 +474,8 @@ async def _save_category_image(request: Request, form, cat: Category) -> None:
         if data:
             try:
                 meta = save_image(data)
-            except InvalidImageError:
-                flash(request, "Category image rejected (not a valid image).", "error")
+            except InvalidImageError as exc:
+                flash(request, f"Category image rejected — {exc}.", "error")
                 return
             if cat.image:
                 delete_image_files(cat.image, cat.thumb)
