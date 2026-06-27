@@ -562,9 +562,11 @@ main { flex: 1 0 auto; }
   gap: var(--space-lg); padding-bottom: var(--space-sm); scrollbar-width: none;
 }
 .grid--carousel::-webkit-scrollbar { display: none; }
-.grid--carousel > .card { flex: 0 0 calc((100% - 3 * var(--space-lg)) / 4); scroll-snap-align: start; }
+/* ~3.5 cards so the next one always peeks -> there's something to scroll/auto-advance
+   even with just 4 featured items (otherwise 4-per-view fills the row exactly). */
+.grid--carousel > .card { flex: 0 0 calc((100% - 3 * var(--space-lg)) / 3.5); scroll-snap-align: start; }
 @media (max-width: 1024px) {
-  .grid--carousel > .card { flex-basis: calc((100% - 2 * var(--space-lg)) / 3); }
+  .grid--carousel > .card { flex-basis: calc((100% - 2 * var(--space-lg)) / 2.5); }
 }
 @media (max-width: 768px) {
   .grid--carousel { gap: var(--space-md); }
