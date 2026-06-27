@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from io import BytesIO
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.config import settings
 
@@ -62,6 +62,9 @@ def save_image(data: bytes) -> dict:
     InvalidImageError on bad input.
     """
     img = _open_and_validate(data)
+    # Honor EXIF orientation (phone photos) before we re-encode and drop metadata,
+    # otherwise portrait shots come out rotated.
+    img = ImageOps.exif_transpose(img)
     img = _flatten(img)
 
     name = uuid.uuid4().hex
