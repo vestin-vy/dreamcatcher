@@ -612,13 +612,20 @@ def order_list(request: Request, session: Session = Depends(get_session), status
     if status in ORDER_STATUSES:
         query = query.where(Order.status == status)
     orders = session.exec(query).all()
-    rows = [{
-        "id": o.id, "number": o.number, "status": o.status,
-        "is_wholesale": o.is_wholesale, "is_anonymized": o.anonymized_at is not None,
-        "customer_name": o.customer_name, "customer_email": o.customer_email,
-        "total": o.total, "currency": o.currency, "created_at": o.created_at,
-        "items": len(o.items),
-    } for o in orders]
+    rows = []
+    for o in orders:
+        titles = [it.title_snapshot or "—" for it in o.items]
+        summary = ", ".join(titles[:3]) + ("…" if len(titles) > 3 else "")
+        rows.append({
+            "id": o.id, "number": o.number, "status": o.status,
+            "is_wholesale": o.is_wholesale, "is_anonymized": o.anonymized_at is not None,
+            "customer_name": o.customer_name, "customer_email": o.customer_email,
+            "total": o.total, "currency": o.currency, "created_at": o.created_at,
+            # NOTE: not "items" — Jinja resolves dict.items to the built-in method.
+            "item_count": len(o.items),
+            "item_qty": sum(it.qty for it in o.items),
+            "item_summary": summary,
+        })
     return admin_render(
         request, "admin/orders.html",
         orders=rows, statuses=ORDER_STATUSES, active_status=status,
