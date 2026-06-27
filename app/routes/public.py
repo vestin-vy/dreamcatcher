@@ -72,11 +72,16 @@ def home(
     session: Session = Depends(get_session),
     site: dict = Depends(get_site_settings),
 ):
+    try:
+        featured_limit = int(site.get("featured_limit") or 6)
+    except (TypeError, ValueError):
+        featured_limit = 6
+    featured_limit = max(1, min(24, featured_limit))
     featured = session.exec(
         select(Product)
         .where(Product.is_active == True, Product.is_featured == True)  # noqa: E712
         .order_by(Product.sort_order, Product.created_at.desc())
-        .limit(6)
+        .limit(featured_limit)
     ).all()
     cats = active_categories(session, lang)
     return render(

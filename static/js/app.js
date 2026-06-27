@@ -305,6 +305,11 @@
 
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var lang = (document.documentElement.lang || "el").slice(0, 2);
+
+  // Admin-tunable config (data-* attrs from the template; sensible fallbacks).
+  var autoEnabled = track.dataset.carouselAutoscroll !== "0";
+  var arrowsEnabled = track.dataset.carouselArrows !== "0";
+  var intervalMs = Math.max(1500, (parseFloat(track.dataset.carouselInterval) || 4) * 1000);
   var T = lang === "el"
     ? { prev: "Προηγούμενα", next: "Επόμενα" }
     : { prev: "Previous", next: "Next" };
@@ -349,10 +354,10 @@
     }
   }
 
-  var prevBtn = makeBtn("prev", T.prev, "m15 18-6-6 6-6");
-  var nextBtn = makeBtn("next", T.next, "m9 18 6-6-6-6");
-  prevBtn.addEventListener("click", prev);
-  nextBtn.addEventListener("click", next);
+  if (arrowsEnabled) {
+    makeBtn("prev", T.prev, "m15 18-6-6 6-6").addEventListener("click", prev);
+    makeBtn("next", T.next, "m9 18 6-6-6-6").addEventListener("click", next);
+  }
 
   // Auto-advance runs on ALL screens (mobile included). It uses interval + smooth
   // scrollBy — NOT a per-frame rAF — so it never fights touch momentum. While the
@@ -370,13 +375,13 @@
     resumeTimer = window.setTimeout(function () { paused = false; }, delay || 0);
   }
   function startAuto() {
-    if (timer || reduce) return;
+    if (timer || reduce || !autoEnabled) return;
     timer = window.setInterval(function () {
       if (!paused && !document.hidden && maxScroll() > 4) next();
-    }, 4000);
+    }, intervalMs);
   }
 
-  if (!reduce) startAuto();
+  startAuto();
 
   track.addEventListener("mouseenter", pause);
   track.addEventListener("mouseleave", function () { resume(0); });

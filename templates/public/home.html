@@ -82,7 +82,10 @@
     <span class="eyebrow"><span class="section-index">01</span> {{ _('home.featured.title') }}</span>
     <h2>{{ _('home.featured.subtitle') }}</h2>
   </div>
-  <div class="grid grid--products grid--carousel">
+  <div class="grid grid--products grid--carousel"
+       data-carousel-autoscroll="{{ site.carousel_autoscroll }}"
+       data-carousel-interval="{{ site.carousel_interval_s }}"
+       data-carousel-arrows="{{ site.carousel_arrows }}">
     {% for p in featured %}{{ ui.product_card(p, lang) }}{% endfor %}
   </div>
 </section>

@@ -568,7 +568,7 @@ async def settings_save(request: Request, session: Session = Depends(get_session
     form = await request.form()
     if not verify_csrf(request, form.get("csrf_token")):
         return bad_csrf_redirect("/admin/settings")
-    checkbox_keys = {"show_prices"}
+    checkbox_keys = {"show_prices", "carousel_autoscroll", "carousel_arrows"}
     for key in DEFAULT_SETTINGS:
         if key in checkbox_keys:
             value = "1" if form.get(key) else "0"

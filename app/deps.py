@@ -21,6 +21,11 @@ DEFAULT_SETTINGS: dict[str, str] = {
     "map_lng": "23.7348",
     "default_lang": "el",
     "show_prices": "1",
+    # Storefront animation / featured carousel (admin-tunable).
+    "featured_limit": "6",          # max featured products shown on the home carousel
+    "carousel_autoscroll": "1",     # auto-advance the featured carousel
+    "carousel_interval_s": "4",     # seconds between auto-advances
+    "carousel_arrows": "1",         # show prev/next arrows on desktop
     "about_text": "DreamCatcher creates handcrafted jewelry inspired by timeless elegance.",
     # Billing (SPEC-BILLING §4). settings_save picks these up automatically.
     "vat_rate": "24",
