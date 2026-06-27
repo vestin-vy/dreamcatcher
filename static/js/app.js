@@ -304,7 +304,6 @@
   if (cards.length <= 1) return;
 
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var desktop = window.matchMedia ? window.matchMedia("(min-width: 769px)") : { matches: true, addEventListener: function () {} };
   var lang = (document.documentElement.lang || "el").slice(0, 2);
   var T = lang === "el"
     ? { prev: "Προηγούμενα", next: "Επόμενα" }
@@ -355,26 +354,34 @@
   prevBtn.addEventListener("click", prev);
   nextBtn.addEventListener("click", next);
 
+  // Auto-advance runs on ALL screens (mobile included). It uses interval + smooth
+  // scrollBy — NOT a per-frame rAF — so it never fights touch momentum. While the
+  // user touches/hovers it pauses, and after a touch it waits a few seconds before
+  // resuming so it never yanks the row mid-swipe.
   var paused = false;
+  var resumeTimer = null;
   var timer = null;
+  function pause() {
+    paused = true;
+    if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = null; }
+  }
+  function resume(delay) {
+    if (resumeTimer) window.clearTimeout(resumeTimer);
+    resumeTimer = window.setTimeout(function () { paused = false; }, delay || 0);
+  }
   function startAuto() {
     if (timer || reduce) return;
     timer = window.setInterval(function () {
-      // Only meaningful while there's something to scroll.
       if (!paused && !document.hidden && maxScroll() > 4) next();
     }, 4000);
   }
-  function stopAuto() { if (timer) { window.clearInterval(timer); timer = null; } }
-  function apply() {
-    // Auto-advance only on desktop; mobile stays a clean native swipe.
-    if (!reduce && desktop.matches) startAuto(); else stopAuto();
-  }
-  if (desktop.addEventListener) desktop.addEventListener("change", apply);
-  apply();
 
-  // Pause auto-advance while the user is interacting.
-  track.addEventListener("mouseenter", function () { paused = true; });
-  track.addEventListener("mouseleave", function () { paused = false; });
-  track.addEventListener("focusin", function () { paused = true; });
-  track.addEventListener("focusout", function () { paused = false; });
+  if (!reduce) startAuto();
+
+  track.addEventListener("mouseenter", pause);
+  track.addEventListener("mouseleave", function () { resume(0); });
+  track.addEventListener("focusin", pause);
+  track.addEventListener("focusout", function () { resume(0); });
+  track.addEventListener("touchstart", pause, { passive: true });
+  track.addEventListener("touchend", function () { resume(3500); }, { passive: true });
 })();
