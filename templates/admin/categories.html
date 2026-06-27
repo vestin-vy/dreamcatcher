@@ -44,7 +44,7 @@
         <tr>
           <td>
             <form id="cat-{{ c.id }}" action="/admin/categories/{{ c.id }}/edit" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"></form>
-            {% if c.thumb %}<img src="/static/{{ c.thumb }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block;margin-bottom:4px;">{% endif %}
+            {% if c.thumb %}<img src="{{ c.thumb }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block;margin-bottom:4px;">{% endif %}
             <input type="file" form="cat-{{ c.id }}" name="image" accept="image/*" style="max-width:150px;font-size:.8rem;">
             {% if c.image %}<label class="checkbox" style="font-size:.78rem;"><input form="cat-{{ c.id }}" type="checkbox" name="remove_image"> remove</label>{% endif %}
           </td>

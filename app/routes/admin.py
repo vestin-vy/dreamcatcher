@@ -457,17 +457,21 @@ def category_list(request: Request, session: Session = Depends(get_session)):
     for c in cats:
         names = {tr.lang: tr.name for tr in c.translations}
         pcount = len(session.exec(select(Product).where(Product.category_id == c.id)).all())
+        has_img = bool(c.image_data or c.image)
         rows.append({"id": c.id, "slug": c.slug, "is_active": c.is_active,
                      "sort_order": c.sort_order, "names": names,
-                     "image": c.image, "thumb": c.thumb, "products": pcount})
+                     "image": f"/media/category/{c.id}" if has_img else None,
+                     "thumb": f"/media/category/{c.id}/thumb" if has_img else None,
+                     "products": pcount})
     return admin_render(request, "admin/categories.html", categories=rows, langs=LANGS)
 
 
 async def _save_category_image(request: Request, form, cat: Category) -> None:
     """Apply image changes from a category form: remove and/or replace."""
-    if form.get("remove_image") == "on" and cat.image:
+    if form.get("remove_image") == "on" and (cat.image or cat.image_data):
         delete_image_files(cat.image, cat.thumb)
         cat.image = cat.thumb = None
+        cat.image_data = cat.thumb_data = cat.image_content_type = None
     file = form.get("image")
     if isinstance(file, UploadFile) and file.filename:
         data = await file.read()
@@ -480,6 +484,10 @@ async def _save_category_image(request: Request, form, cat: Category) -> None:
             if cat.image:
                 delete_image_files(cat.image, cat.thumb)
             cat.image, cat.thumb = meta["filename"], meta["thumb"]
+            # DB-backed bytes are the source of truth (survive ephemeral disks).
+            cat.image_data = meta["data"]
+            cat.thumb_data = meta["thumb_data"]
+            cat.image_content_type = meta["content_type"]
 
 
 @router.post("/categories/new")

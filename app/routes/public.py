@@ -58,7 +58,9 @@ def active_categories(session: Session, lang: str) -> list[dict]:
     ).all()
     return [
         {"id": c.id, "slug": c.slug, "name": _category_name(c, lang),
-         "image": c.image, "thumb": c.thumb}
+         # DB-backed (survives ephemeral disks); None when the category has no image.
+         "image": f"/media/category/{c.id}" if (c.image_data or c.image) else None,
+         "thumb": f"/media/category/{c.id}/thumb" if (c.image_data or c.image) else None}
         for c in cats
     ]
 

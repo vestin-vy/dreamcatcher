@@ -39,6 +39,10 @@ _ADDITIVE_COLUMNS = [
     ("productimage", "content_type", "VARCHAR"),
     ("productimage", "data", "BYTEA"),
     ("productimage", "thumb_data", "BYTEA"),
+    # Category images stored in the DB (same rationale).
+    ("category", "image_content_type", "VARCHAR"),
+    ("category", "image_data", "BYTEA"),
+    ("category", "thumb_data", "BYTEA"),
 ]
 
 

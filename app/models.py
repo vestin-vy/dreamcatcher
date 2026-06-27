@@ -21,9 +21,14 @@ class Category(SQLModel, table=True):
     slug: str = Field(index=True, unique=True)
     sort_order: int = Field(default=0)
     is_active: bool = Field(default=True)
-    # Optional category image (paths relative to static/, like ProductImage).
+    # Optional category image. Legacy on-disk paths (relative to static/) are kept
+    # as a local-dev mirror/fallback; the bytes below are the source of truth and
+    # are served via /media/category/{id} so they survive ephemeral-disk redeploys.
     image: str | None = Field(default=None)
     thumb: str | None = Field(default=None)
+    image_content_type: str | None = Field(default=None)
+    image_data: bytes | None = Field(default=None)        # full (resized) image bytes
+    thumb_data: bytes | None = Field(default=None)        # thumbnail bytes
 
     translations: list["CategoryTranslation"] = Relationship(
         back_populates="category",

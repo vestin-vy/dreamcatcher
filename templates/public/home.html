@@ -108,7 +108,7 @@
     {% for c in categories %}
     <a class="cat-tile" href="/{{ lang }}/catalog?category={{ c.slug }}">
       {% if c.image %}
-      <img src="/static/{{ c.image }}" alt="{{ c.name }}" loading="lazy">
+      <img src="{{ c.image }}" alt="{{ c.name }}" loading="lazy">
       {% else %}
       <img src="/static/img/cat-{{ c.slug }}.svg" alt="{{ c.name }}" loading="lazy"
            onerror="this.src='/static/img/placeholder.svg'">
