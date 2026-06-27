@@ -550,15 +550,25 @@ main { flex: 1 0 auto; }
   }
   .grid--cats::-webkit-scrollbar { display: none; }
   .grid--cats > .cat-tile { flex: 0 0 58%; scroll-snap-align: start; }
+}
 
-  /* Featured products: swipe carousel on mobile (only this grid carries --carousel). */
-  .grid--carousel {
-    display: flex; grid-template-columns: none;
-    overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-    gap: var(--space-md); padding-bottom: var(--space-sm); scrollbar-width: none;
-  }
-  .grid--carousel::-webkit-scrollbar { display: none; }
-  .grid--carousel > .card { flex: 0 0 70%; scroll-snap-align: start; }
+/* Featured products: gently auto-scrolling marquee on ALL screens (JS in app.js
+   clones the cards for a seamless loop). Only the featured grid carries --carousel.
+   ~4 cards on desktop, 3 on tablet, ~1.4 on phone. No scroll-snap — the JS owns
+   scrollLeft, and snap would fight the continuous motion. */
+.grid--carousel {
+  display: flex; grid-template-columns: none;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  gap: var(--space-lg); padding-bottom: var(--space-sm); scrollbar-width: none;
+}
+.grid--carousel::-webkit-scrollbar { display: none; }
+.grid--carousel > .card { flex: 0 0 calc((100% - 3 * var(--space-lg)) / 4); }
+@media (max-width: 1024px) {
+  .grid--carousel > .card { flex-basis: calc((100% - 2 * var(--space-lg)) / 3); }
+}
+@media (max-width: 768px) {
+  .grid--carousel { gap: var(--space-md); }
+  .grid--carousel > .card { flex-basis: 70%; }
 }
 
 /* ============================ Editorial Pop ============================ */

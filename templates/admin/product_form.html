@@ -45,8 +45,8 @@
     <div class="form-grid">
       <div class="field">
         <label for="category_id">Category</label>
-        <select class="input" id="category_id" name="category_id">
-          <option value="">— none —</option>
+        <select class="input" id="category_id" name="category_id" required>
+          <option value="" disabled {% if not (product and product.category_id) %}selected{% endif %} hidden>— select a category —</option>
           {% for c in categories %}
           <option value="{{ c.id }}" {% if product and product.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
           {% endfor %}
@@ -58,12 +58,13 @@
       </div>
       <div class="field">
         <label for="price">Price</label>
-        <input class="input" id="price" name="price" type="text" inputmode="decimal"
+        <input class="input" id="price" name="price" type="text" inputmode="decimal" required
                value="{{ product.price if product and product.price is not none else '' }}">
+        <small class="muted">Required unless “price on request” is set.</small>
       </div>
       <div class="field">
         <label for="currency">Currency</label>
-        <input class="input" id="currency" name="currency" value="{{ product.currency if product else 'EUR' }}">
+        <input class="input" id="currency" name="currency" required value="{{ product.currency if product else 'EUR' }}">
       </div>
       <div class="field">
         <label for="stock">Stock (units) *</label>

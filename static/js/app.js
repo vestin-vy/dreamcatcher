@@ -290,3 +290,64 @@
     recomputeSummary();
   }
 })();
+
+/* --- Featured carousel: gentle continuous marquee ------------------------- */
+/* Clones the cards once for a seamless loop, then advances scrollLeft a few px
+   per second via rAF. Pauses on hover/focus/touch and when the tab is hidden;
+   disabled entirely for prefers-reduced-motion (project a11y rule). */
+(function () {
+  "use strict";
+  var track = document.querySelector(".grid--carousel");
+  if (!track) return;
+  var originals = Array.prototype.slice.call(track.children);
+  if (originals.length <= 1) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  // Duplicate the cards so scrolling can loop without a visible jump. Clones are
+  // hidden from assistive tech and taken out of the tab order.
+  originals.forEach(function (node) {
+    var clone = node.cloneNode(true);
+    clone.setAttribute("aria-hidden", "true");
+    if ("inert" in clone) clone.inert = true;
+    clone.querySelectorAll("a, button, input, select, textarea").forEach(function (el) {
+      el.tabIndex = -1;
+    });
+    track.appendChild(clone);
+  });
+
+  var SPEED = 36;            // px per second — gentle
+  var paused = false;
+  var pos = 0;
+  var last = null;
+
+  function frame(ts) {
+    if (last === null) last = ts;
+    var dt = (ts - last) / 1000;
+    last = ts;
+    if (!paused && !document.hidden) {
+      var half = track.scrollWidth / 2;   // one full set of originals
+      if (half > track.clientWidth) {
+        pos += SPEED * dt;
+        if (pos >= half) pos -= half;
+        track.scrollLeft = pos;
+      }
+    }
+    window.requestAnimationFrame(frame);
+  }
+
+  // Keep `pos` in sync if the user scrolls/drags manually.
+  track.addEventListener("scroll", function () {
+    if (paused) pos = track.scrollLeft;
+  });
+
+  function pause() { paused = true; }
+  function resume() { last = null; paused = false; }
+  track.addEventListener("mouseenter", pause);
+  track.addEventListener("mouseleave", resume);
+  track.addEventListener("focusin", pause);
+  track.addEventListener("focusout", resume);
+  track.addEventListener("touchstart", pause, { passive: true });
+  track.addEventListener("touchend", resume, { passive: true });
+
+  window.requestAnimationFrame(frame);
+})();

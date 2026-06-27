@@ -88,6 +88,7 @@
         <div class="social-links">
           {% if site.instagram %}<a href="https://www.instagram.com/{{ site.instagram }}/" aria-label="Instagram" target="_blank" rel="noopener">{{ ui.icon('instagram') }}</a>{% endif %}
           {% if site.whatsapp %}<a href="https://wa.me/{{ site.whatsapp }}" aria-label="WhatsApp" target="_blank" rel="noopener">{{ ui.icon('whatsapp') }}</a>{% endif %}
+          {% if site.viber %}<a href="viber://chat?number=+{{ site.viber }}" aria-label="Viber" target="_blank" rel="noopener">{{ ui.icon('viber') }}</a>{% endif %}
           {% if site.email %}<a href="mailto:{{ site.email }}" aria-label="{{ _('contact.email') }}">{{ ui.icon('mail') }}</a>{% endif %}
         </div>
       </div>

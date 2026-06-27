@@ -20,6 +20,7 @@ from app.models import (
     Category,
     CategoryTranslation,
     Order,
+    OrderItem,
     Product,
     ProductImage,
     ProductTranslation,
@@ -222,6 +223,19 @@ def product_edit(product_id: int, request: Request, session: Session = Depends(g
                         **_product_form_ctx(session, product))
 
 
+def _validate_product_form(form) -> str | None:
+    """Server-side backstop for the admin product form (HTML `required` is bypassable)."""
+    if not (form.get("title_el") or "").strip():
+        return "Greek title is required."
+    if not (form.get("category_id") or "").strip():
+        return "Category is required."
+    if not (form.get("currency") or "").strip():
+        return "Currency is required."
+    if form.get("price_on_request") != "on" and not (form.get("price") or "").strip():
+        return "Price is required unless 'price on request' is set."
+    return None
+
+
 def _save_product_from_form(session: Session, request: Request, form, product: Product) -> None:
     product.sku = (form.get("sku") or "").strip() or None
     cat = form.get("category_id")
@@ -263,6 +277,9 @@ async def product_create(request: Request, session: Session = Depends(get_sessio
     form = await request.form()
     if not verify_csrf(request, form.get("csrf_token")):
         return bad_csrf_redirect("/admin/products/new")
+    if err := _validate_product_form(form):
+        flash(request, err, "error")
+        return RedirectResponse(url="/admin/products/new", status_code=303)
     title_el = (form.get("title_el") or "").strip()
     base = title_el or (form.get("title_en") or "").strip() or "item"
     product = Product(slug=unique_slug(session, base))
@@ -286,6 +303,9 @@ async def product_update(product_id: int, request: Request, session: Session = D
     form = await request.form()
     if not verify_csrf(request, form.get("csrf_token")):
         return bad_csrf_redirect(f"/admin/products/{product_id}/edit")
+    if err := _validate_product_form(form):
+        flash(request, err, "error")
+        return RedirectResponse(url=f"/admin/products/{product_id}/edit", status_code=303)
     _save_product_from_form(session, request, form, product)
     from datetime import datetime, timezone
     product.updated_at = datetime.now(timezone.utc)
@@ -304,6 +324,11 @@ async def product_delete(product_id: int, request: Request, session: Session = D
         return bad_csrf_redirect("/admin/products")
     product = session.get(Product, product_id)
     if product:
+        # Detach historical order items (FK is nullable; snapshots preserve the record).
+        # Without this the product.id FK on orderitem blocks the delete -> IntegrityError -> 500.
+        for item in session.exec(select(OrderItem).where(OrderItem.product_id == product.id)).all():
+            item.product_id = None
+            session.add(item)
         for im in product.images:  # hard delete: remove files too (SPEC §4 default)
             delete_image_files(im.filename, im.thumb)
         session.delete(product)

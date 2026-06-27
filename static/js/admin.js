@@ -15,3 +15,22 @@
     });
   });
 })();
+
+/* Price is required unless "price on request" is ticked. */
+(function () {
+  "use strict";
+  var price = document.getElementById("price");
+  var onReq = document.querySelector('input[name="price_on_request"]');
+  if (!price || !onReq) return;
+  function sync() {
+    if (onReq.checked) {
+      price.required = false;
+      price.disabled = true;
+    } else {
+      price.required = true;
+      price.disabled = false;
+    }
+  }
+  onReq.addEventListener("change", sync);
+  sync();
+})();
