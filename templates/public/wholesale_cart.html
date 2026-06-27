@@ -19,7 +19,7 @@
       {% for it in cart.lines %}
       <div class="cart-item">
         <a class="cart-item__media" href="/{{ lang }}/product/{{ it.slug }}">
-          <img src="/static/{{ it.image or 'img/placeholder.svg' }}" alt="{{ it.title }}" width="96" height="120" loading="lazy">
+          <img src="{{ it.image or '/static/img/placeholder.svg' }}" alt="{{ it.title }}" width="96" height="120" loading="lazy">
         </a>
         <div class="cart-item__info">
           <a class="cart-item__title" href="/{{ lang }}/product/{{ it.slug }}">{{ it.title }}</a>
