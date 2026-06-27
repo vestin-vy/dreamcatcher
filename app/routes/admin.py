@@ -454,9 +454,10 @@ def category_list(request: Request, session: Session = Depends(get_session)):
     rows = []
     for c in cats:
         names = {tr.lang: tr.name for tr in c.translations}
+        pcount = len(session.exec(select(Product).where(Product.category_id == c.id)).all())
         rows.append({"id": c.id, "slug": c.slug, "is_active": c.is_active,
                      "sort_order": c.sort_order, "names": names,
-                     "image": c.image, "thumb": c.thumb})
+                     "image": c.image, "thumb": c.thumb, "products": pcount})
     return admin_render(request, "admin/categories.html", categories=rows, langs=LANGS)
 
 
@@ -539,10 +540,14 @@ async def category_delete(category_id: int, request: Request, session: Session =
         return bad_csrf_redirect("/admin/categories")
     cat = session.get(Category, category_id)
     if cat:
-        # Detach products (don't delete them) then remove the category.
-        for p in session.exec(select(Product).where(Product.category_id == cat.id)).all():
-            p.category_id = None
-            session.add(p)
+        # Block deletion while products are still assigned — the admin must move
+        # them to another category first (avoids silently orphaning products).
+        n = len(session.exec(select(Product).where(Product.category_id == cat.id)).all())
+        if n:
+            flash(request,
+                  f"Can’t delete this category — {n} product(s) are still in it. "
+                  "Move them to another category first.", "error")
+            return RedirectResponse(url="/admin/categories", status_code=303)
         if cat.image:
             delete_image_files(cat.image, cat.thumb)
         session.delete(cat)
