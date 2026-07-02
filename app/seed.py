@@ -199,6 +199,7 @@ def run() -> None:
             "email": "hello@dreamcatcher.gr",
             "address": "Λ. Ειρήνης 2, Ηλιούπολη 163 45",
             "whatsapp": "302103210000",
+            "viber": "302103210000",
             "instagram": "dreamcatchergreece",
             "map_lat": "37.9779",
             "map_lng": "23.7350",
