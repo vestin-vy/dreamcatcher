@@ -108,7 +108,12 @@
   <div class="section__head section__head--left">
     <span class="eyebrow"><span class="section-index">02</span> {{ _('home.categories.title') }}</span>
   </div>
-  <div class="grid grid--cats">
+  {# On mobile this is a swipe carousel — same auto-scroll as featured (no arrows);
+     on desktop it's a plain grid with no overflow, so the auto-scroll no-ops. #}
+  <div class="grid grid--cats"
+       data-carousel-autoscroll="{{ site.carousel_autoscroll }}"
+       data-carousel-interval="{{ site.carousel_interval_s }}"
+       data-carousel-arrows="0">
     {% for c in categories %}
     <a class="cat-tile" href="/{{ lang }}/catalog?category={{ c.slug }}">
       {% if c.image %}

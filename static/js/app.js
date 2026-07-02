@@ -297,102 +297,97 @@
   }
 })();
 
-/* --- Featured carousel ---------------------------------------------------- */
-/* Desktop: auto-advances one card every few seconds and gets ← → arrows; when it
-   reaches the end it rewinds to the start. Mobile: a plain native swipe carousel
-   — NO JS scroll-writes there, since stepping scrollLeft fought touch momentum
-   and made the row jitter. Respects prefers-reduced-motion (no auto-advance). */
+/* --- Carousels (featured products + category tiles) ----------------------- */
+/* Auto-advances one item every few seconds (interval + smooth scrollBy — NOT a
+   per-frame rAF, so it never fights touch momentum); rewinds to the start at the
+   end. Pauses on hover/focus and during touch with a cooldown after touchend.
+   Arrows are optional per track (featured only). When a track has no overflow
+   (e.g. the categories GRID on desktop), the interval no-ops — nothing moves.
+   Respects prefers-reduced-motion (no auto-advance). Config via data-* attrs. */
 (function () {
   "use strict";
-  var track = document.querySelector(".grid--carousel");
-  if (!track) return;
-  var cards = track.querySelectorAll(".card");
-  if (cards.length <= 1) return;
-
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var lang = (document.documentElement.lang || "el").slice(0, 2);
-
-  // Admin-tunable config (data-* attrs from the template; sensible fallbacks).
-  var autoEnabled = track.dataset.carouselAutoscroll !== "0";
-  var arrowsEnabled = track.dataset.carouselArrows !== "0";
-  var intervalMs = Math.max(1500, (parseFloat(track.dataset.carouselInterval) || 4) * 1000);
   var T = lang === "el"
     ? { prev: "Προηγούμενα", next: "Επόμενα" }
     : { prev: "Previous", next: "Next" };
-
-  // Wrap the track so the absolutely-positioned arrows can sit over its edges.
-  var wrap = document.createElement("div");
-  wrap.className = "carousel";
-  track.parentNode.insertBefore(wrap, track);
-  wrap.appendChild(track);
-
   var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="%P%"/></svg>';
-  function makeBtn(dir, label, path) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "carousel__nav carousel__nav--" + dir;
-    b.setAttribute("aria-label", label);
-    b.innerHTML = CHEV.replace("%P%", path);
-    wrap.appendChild(b);
-    return b;
-  }
 
-  function cardStep() {
-    var c = track.querySelector(".card");
-    if (!c) return 0;
-    var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
-    return c.getBoundingClientRect().width + gap;
-  }
-  function maxScroll() { return track.scrollWidth - track.clientWidth; }
+  function setupCarousel(track, itemSelector) {
+    if (!track || track.querySelectorAll(itemSelector).length <= 1) return;
 
-  function next() {
-    if (track.scrollLeft >= maxScroll() - 4) {
-      track.scrollTo({ left: 0, behavior: "smooth" });       // rewind at the end
-    } else {
-      track.scrollBy({ left: cardStep(), behavior: "smooth" });
+    // Admin-tunable config (data-* attrs from the template; sensible fallbacks).
+    var autoEnabled = track.dataset.carouselAutoscroll !== "0";
+    var arrowsEnabled = track.dataset.carouselArrows !== "0";
+    var intervalMs = Math.max(1500, (parseFloat(track.dataset.carouselInterval) || 4) * 1000);
+
+    function cardStep() {
+      var c = track.querySelector(itemSelector);
+      if (!c) return 0;
+      var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+      return c.getBoundingClientRect().width + gap;
     }
-  }
-  function prev() {
-    if (track.scrollLeft <= 4) {
-      track.scrollTo({ left: maxScroll(), behavior: "smooth" });
-    } else {
-      track.scrollBy({ left: -cardStep(), behavior: "smooth" });
+    function maxScroll() { return track.scrollWidth - track.clientWidth; }
+
+    function next() {
+      if (track.scrollLeft >= maxScroll() - 4) {
+        track.scrollTo({ left: 0, behavior: "smooth" });       // rewind at the end
+      } else {
+        track.scrollBy({ left: cardStep(), behavior: "smooth" });
+      }
     }
+    function prev() {
+      if (track.scrollLeft <= 4) {
+        track.scrollTo({ left: maxScroll(), behavior: "smooth" });
+      } else {
+        track.scrollBy({ left: -cardStep(), behavior: "smooth" });
+      }
+    }
+
+    if (arrowsEnabled) {
+      // Wrap the track so the absolutely-positioned arrows can sit over its edges.
+      var wrap = document.createElement("div");
+      wrap.className = "carousel";
+      track.parentNode.insertBefore(wrap, track);
+      wrap.appendChild(track);
+      var makeBtn = function (dir, label, path) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "carousel__nav carousel__nav--" + dir;
+        b.setAttribute("aria-label", label);
+        b.innerHTML = CHEV.replace("%P%", path);
+        wrap.appendChild(b);
+        return b;
+      };
+      makeBtn("prev", T.prev, "m15 18-6-6 6-6").addEventListener("click", prev);
+      makeBtn("next", T.next, "m9 18 6-6-6-6").addEventListener("click", next);
+    }
+
+    var paused = false;
+    var resumeTimer = null;
+    var timer = null;
+    function pause() {
+      paused = true;
+      if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = null; }
+    }
+    function resume(delay) {
+      if (resumeTimer) window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(function () { paused = false; }, delay || 0);
+    }
+    if (!reduce && autoEnabled) {
+      timer = window.setInterval(function () {
+        if (!paused && !document.hidden && maxScroll() > 4) next();
+      }, intervalMs);
+    }
+
+    track.addEventListener("mouseenter", pause);
+    track.addEventListener("mouseleave", function () { resume(0); });
+    track.addEventListener("focusin", pause);
+    track.addEventListener("focusout", function () { resume(0); });
+    track.addEventListener("touchstart", pause, { passive: true });
+    track.addEventListener("touchend", function () { resume(3500); }, { passive: true });
   }
 
-  if (arrowsEnabled) {
-    makeBtn("prev", T.prev, "m15 18-6-6 6-6").addEventListener("click", prev);
-    makeBtn("next", T.next, "m9 18 6-6-6-6").addEventListener("click", next);
-  }
-
-  // Auto-advance runs on ALL screens (mobile included). It uses interval + smooth
-  // scrollBy — NOT a per-frame rAF — so it never fights touch momentum. While the
-  // user touches/hovers it pauses, and after a touch it waits a few seconds before
-  // resuming so it never yanks the row mid-swipe.
-  var paused = false;
-  var resumeTimer = null;
-  var timer = null;
-  function pause() {
-    paused = true;
-    if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = null; }
-  }
-  function resume(delay) {
-    if (resumeTimer) window.clearTimeout(resumeTimer);
-    resumeTimer = window.setTimeout(function () { paused = false; }, delay || 0);
-  }
-  function startAuto() {
-    if (timer || reduce || !autoEnabled) return;
-    timer = window.setInterval(function () {
-      if (!paused && !document.hidden && maxScroll() > 4) next();
-    }, intervalMs);
-  }
-
-  startAuto();
-
-  track.addEventListener("mouseenter", pause);
-  track.addEventListener("mouseleave", function () { resume(0); });
-  track.addEventListener("focusin", pause);
-  track.addEventListener("focusout", function () { resume(0); });
-  track.addEventListener("touchstart", pause, { passive: true });
-  track.addEventListener("touchend", function () { resume(3500); }, { passive: true });
+  setupCarousel(document.querySelector(".grid--carousel"), ".card");
+  setupCarousel(document.querySelector(".grid--cats"), ".cat-tile");
 })();
