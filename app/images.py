@@ -12,6 +12,13 @@ from app.config import settings
 # (iPhone photos, 3D/burst). Pillow reads the primary frame fine, so accept it.
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "GIF", "BMP", "TIFF", "MPO"}
 
+# Decompression-bomb guard: a small file can decode to a huge pixel grid and exhaust
+# memory. 40 Mpx (~7300x5500) is well above any real product photo but far below
+# Pillow's 128 Mpx warn / 256 Mpx hard-error defaults. We check declared dimensions
+# BEFORE any full decode, and also lower Pillow's global backstop.
+MAX_IMAGE_PIXELS = 40_000_000
+Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS * 2  # keep Pillow's own error as a backstop
+
 
 class InvalidImageError(ValueError):
     """Raised when an upload is not a valid/allowed image."""
@@ -30,6 +37,13 @@ def _open_and_validate(data: bytes) -> Image.Image:
         raise InvalidImageError("not a readable image (corrupt, or not an image file)") from exc
     # verify() leaves the image unusable; reopen for processing.
     img = Image.open(BytesIO(data))
+    # Reject oversized images by their DECLARED dimensions, before any full decode,
+    # so a decompression bomb never gets allocated into memory.
+    width, height = img.size
+    if width * height > MAX_IMAGE_PIXELS:
+        raise InvalidImageError(
+            f"image dimensions {width}x{height} exceed the {MAX_IMAGE_PIXELS:,}-pixel limit"
+        )
     if img.format not in ALLOWED_FORMATS:
         allowed = ", ".join(sorted(ALLOWED_FORMATS))
         raise InvalidImageError(

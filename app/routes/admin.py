@@ -43,6 +43,15 @@ router = APIRouter(prefix="/admin")
 
 # --- helpers ----------------------------------------------------------------
 
+def csv_safe(value) -> str:
+    """Neutralize CSV/spreadsheet formula injection: a cell that a customer controls
+    (e.g. an email typed as `=cmd|...`) must not execute when the admin opens the export
+    in Excel/Sheets. Prefix a leading formula trigger with an apostrophe."""
+    s = "" if value is None else str(value)
+    if s and s[0] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + s
+    return s
+
 def ensure_admin(request: Request) -> RedirectResponse | None:
     """Return a redirect to login if not authenticated, else None."""
     if not is_authenticated(request):
@@ -720,8 +729,8 @@ def marketing_csv(request: Request, session: Session = Depends(get_session)):
     writer = csv.writer(buf)
     writer.writerow(["email", "consented_at", "lang", "source"])
     for c in marketing.subscribed(session):
-        writer.writerow([c.email,
+        writer.writerow([csv_safe(c.email),
                          c.consented_at.isoformat() if c.consented_at else "",
-                         c.lang, c.source])
+                         csv_safe(c.lang), csv_safe(c.source)])
     return Response(content=buf.getvalue(), media_type="text/csv",
                     headers={"Content-Disposition": "attachment; filename=marketing_subscribers.csv"})

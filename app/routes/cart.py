@@ -57,7 +57,11 @@ async def cart_add(
         if qty > 0:
             cart_mod.add(request, product.id, qty)
     # Return to the cart by default, or to the page the form came from.
+    # Only allow same-site relative paths — never an absolute/scheme URL — so `next`
+    # can't be abused as an open redirect (phishing bounce).
     nxt = form.get("next") or f"/{lang}/cart"
+    if not nxt.startswith("/") or nxt.startswith("//"):
+        nxt = f"/{lang}/cart"
     return RedirectResponse(url=nxt, status_code=status.HTTP_303_SEE_OTHER)
 
 

@@ -14,6 +14,8 @@ try:
     from app.config import settings
     from app.db import engine
     from app.models import Order, Product, ProductTranslation
+    from app.routes.admin import csv_safe
+    from app import images as images_mod
     _IMPORT_ERROR = None
 except Exception as exc:  # pragma: no cover
     app = None
@@ -120,3 +122,47 @@ def test_product_description_is_escaped(client):
             if p:
                 session.delete(p)
             session.commit()
+
+
+# --- open redirect: cart `next` param must stay same-site --------------------
+
+def test_cart_next_rejects_offsite_redirect(client):
+    catalog = client.get("/el/catalog")
+    csrf = re.search(r'name="csrf_token" value="([^"]+)"', catalog.text).group(1)
+    pid = re.search(r'name="product_id" value="(\d+)"', catalog.text).group(1)
+    for evil in ("https://evil.example/phish", "//evil.example"):
+        r = client.post("/el/cart/add",
+                        data={"csrf_token": csrf, "product_id": pid, "qty": "1", "next": evil},
+                        follow_redirects=False)
+        assert r.status_code == 303
+        loc = r.headers["location"]
+        assert "evil.example" not in loc, f"open redirect via next={evil!r}"
+        assert loc.startswith("/"), "redirect must stay a same-site relative path"
+
+
+# --- CSV formula injection: customer-controlled cells are neutralized ---------
+
+def test_csv_safe_neutralizes_formula_triggers():
+    assert csv_safe("=cmd|'/c calc'!A1").startswith("'=")
+    assert csv_safe("+1").startswith("'+")
+    assert csv_safe("-2+3").startswith("'-")
+    assert csv_safe("@SUM(A1)").startswith("'@")
+    # normal values pass through untouched
+    assert csv_safe("buyer@example.com") == "buyer@example.com"
+    assert csv_safe("el") == "el"
+    assert csv_safe(None) == ""
+
+
+# --- decompression-bomb guard: oversized images are rejected pre-decode -------
+
+def test_oversized_image_rejected_before_decode():
+    from io import BytesIO
+    from PIL import Image
+    # A tiny file that DECLARES huge dimensions would be the real attack; here we just
+    # build an image whose pixel count exceeds the limit and confirm it's refused
+    # without the processing pipeline trying to allocate it.
+    side = int((images_mod.MAX_IMAGE_PIXELS) ** 0.5) + 500
+    buf = BytesIO()
+    Image.new("RGB", (side, side), (255, 255, 255)).save(buf, "PNG")
+    with pytest.raises(images_mod.InvalidImageError):
+        images_mod.save_image(buf.getvalue())
