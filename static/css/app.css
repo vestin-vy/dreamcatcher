@@ -261,7 +261,8 @@ main { flex: 1 0 auto; }
 .product__meta { list-style: none; margin-block: var(--space-md); display: grid; gap: var(--space-xs); }
 .product__meta li { color: var(--color-secondary); }
 .product__meta span { color: var(--color-muted-foreground); display: inline-block; min-width: 90px; }
-.product__desc { color: var(--color-secondary); line-height: 1.7; margin-block: var(--space-md) var(--space-lg); }
+/* pre-line preserves admin-entered line breaks; the template no longer injects <br> via |safe */
+.product__desc { color: var(--color-secondary); line-height: 1.7; margin-block: var(--space-md) var(--space-lg); white-space: pre-line; }
 
 /* Lightbox */
 .lightbox {

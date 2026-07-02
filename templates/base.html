@@ -2,6 +2,8 @@
 <html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
+  {# This exact script body is sha256-hashed in the CSP (app/main.py). If you edit it,
+     recompute the hash there or the browser will silently block it. #}
   <script>document.documentElement.classList.add('js')</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site.site_title }}{% endblock %}</title>

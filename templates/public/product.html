@@ -44,7 +44,7 @@
         {% if product.sku %}<li><span>{{ _('product.sku') }}</span> {{ product.sku }}</li>{% endif %}
       </ul>
 
-      {% if product.description %}<p class="product__desc">{{ product.description|replace('\n', '<br>')|safe }}</p>{% endif %}
+      {% if product.description %}<p class="product__desc">{{ product.description }}</p>{% endif %}
 
       {% if show_prices and not product.price_on_request and product.price is not none %}
         {% if product.in_stock %}

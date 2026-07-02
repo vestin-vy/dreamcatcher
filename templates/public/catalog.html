@@ -21,7 +21,7 @@
     <form method="get" action="/{{ lang }}/catalog">
       {% if active_category %}<input type="hidden" name="category" value="{{ active_category }}">{% endif %}
       <label class="visually-hidden" for="sort">{{ _('catalog.sort') }}</label>
-      <select class="select" id="sort" name="sort" onchange="this.form.submit()">
+      <select class="select" id="sort" name="sort" data-autosubmit>
         <option value="newest" {% if sort=='newest' %}selected{% endif %}>{{ _('catalog.sort.newest') }}</option>
         <option value="price_asc" {% if sort=='price_asc' %}selected{% endif %}>{{ _('catalog.sort.price_asc') }}</option>
         <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>{{ _('catalog.sort.price_desc') }}</option>

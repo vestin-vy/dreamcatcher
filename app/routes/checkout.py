@@ -60,6 +60,8 @@ async def checkout_submit(
     order = orders_mod.create_order_from_cart(request, session, lang, form, site)
     if order is None:
         return RedirectResponse(url=f"/{lang}/cart", status_code=status.HTTP_303_SEE_OTHER)
+    # Bind the order to this session: the pay/success pages only open for its creator.
+    orders_mod.remember_order(request, order.number)
 
     provider = get_provider()
     result = provider.create_checkout(order, lang=lang)
@@ -79,7 +81,9 @@ def checkout_success(
 ):
     # The order was placed; clear the cart. Payment status comes only from the webhook.
     cart_mod.clear(request)
-    order_obj = orders_mod.find_order_by_ref(session, order) if order else None
+    # Only resolve the order for the session that created it — numbers are guessable.
+    owned = orders_mod.session_owns_order(request, order)
+    order_obj = orders_mod.find_order_by_ref(session, order) if owned else None
     return render(
         request, "public/checkout_success.html", lang=lang, site=site,
         order_number=order,
@@ -109,6 +113,8 @@ def checkout_pay_demo(
     session: Session = Depends(get_session),
     site: dict = Depends(get_site_settings),
 ):
+    if not orders_mod.session_owns_order(request, number):
+        return RedirectResponse(url=f"/{lang}/cart", status_code=status.HTTP_303_SEE_OTHER)
     order = orders_mod.find_order_by_ref(session, number)
     if not order:
         return RedirectResponse(url=f"/{lang}/cart", status_code=status.HTTP_303_SEE_OTHER)
@@ -125,6 +131,8 @@ async def checkout_pay_demo_submit(
     form = await request.form()
     if not verify_csrf(request, form.get("csrf_token")):
         return RedirectResponse(url=f"/{lang}/checkout/pay/{number}", status_code=status.HTTP_303_SEE_OTHER)
+    if not orders_mod.session_owns_order(request, number):
+        return RedirectResponse(url=f"/{lang}/cart", status_code=status.HTTP_303_SEE_OTHER)
 
     # Mirror the real webhook: build a demo payload, verify it, mark the order paid.
     payload = json.dumps({

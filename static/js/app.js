@@ -31,6 +31,12 @@
     });
   }
 
+  // --- Auto-submit selects (catalog sort) — replaces inline onchange (CSP) ---
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el && el.matches && el.matches("select[data-autosubmit]") && el.form) el.form.submit();
+  });
+
   // --- Product gallery (swap main image from thumbs) ---
   var mainImg = document.querySelector("[data-gallery-main]");
   var thumbs = document.querySelectorAll("[data-gallery-thumb]");

@@ -16,6 +16,18 @@
   });
 })();
 
+/* Confirm-before-submit for destructive forms (data-confirm attribute).
+   Delegated so it works for every current and future form; replaces inline
+   onsubmit= handlers, which the CSP (app/main.py) forbids. */
+(function () {
+  "use strict";
+  document.addEventListener("submit", function (e) {
+    var form = e.target;
+    var msg = form && form.getAttribute && form.getAttribute("data-confirm");
+    if (msg && !window.confirm(msg)) e.preventDefault();
+  });
+})();
+
 /* Price is required unless "price on request" is ticked. */
 (function () {
   "use strict";

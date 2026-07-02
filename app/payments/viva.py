@@ -82,7 +82,7 @@ class VivaProvider(PaymentProvider):
         txn = data.get("transaction_id") or f"demo-{order_ref}"
         return PaymentResult(
             order_ref=str(order_ref),
-            status="paid" if status in {"paid", "success", "f"} else status,
+            status="paid" if status in {"paid", "success"} else status,
             transaction_id=str(txn),
         )
 

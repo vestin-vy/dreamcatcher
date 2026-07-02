@@ -1,21 +1,22 @@
 # DreamCatcher dependencies (Python 3.12, no node/npm/docker).
-# After the first successful install, lock exact versions:
-#   pip freeze > requirements.lock
+# Versions are PINNED to the locally tested set (pip freeze, 2026-07-02) for
+# supply-chain hygiene and reproducible Render builds. To upgrade: bump here,
+# reinstall, run the test suite, commit.
 # The one HARD constraint is bcrypt<4.1 (4.1+ breaks passlib's version probe on 3.12).
 
-fastapi
-uvicorn[standard]
-jinja2
-sqlmodel
-python-multipart          # file uploads
-itsdangerous              # signed session cookies
-passlib[bcrypt]           # password hashing
-bcrypt<4.1                # passlib compatibility on 3.12
-pillow                    # image processing
-babel                     # i18n (or fall back to a JSON dictionary)
-python-dotenv             # .env config
-httpx                     # runtime: Viva API calls in VIVA_MODE=live; also powers TestClient
-psycopg[binary]           # PostgreSQL driver (v3) for prod; SQLite stays the dev default
+fastapi==0.138.0
+uvicorn[standard]==0.49.0
+jinja2==3.1.6
+sqlmodel==0.0.38
+python-multipart==0.0.32   # file uploads
+itsdangerous==2.2.0        # signed session cookies
+passlib[bcrypt]==1.7.4     # password hashing
+bcrypt==4.0.1              # passlib compatibility on 3.12 (keep <4.1)
+pillow==12.2.0             # image processing
+babel==2.18.0              # i18n (or fall back to a JSON dictionary)
+python-dotenv==1.2.2       # .env config
+httpx==0.28.1              # runtime: Viva API calls in VIVA_MODE=live; also powers TestClient
+psycopg[binary]==3.3.4     # PostgreSQL driver (v3) for prod; SQLite stays the dev default
 
 # --- tests / verification ---
-pytest
+pytest==9.1.1

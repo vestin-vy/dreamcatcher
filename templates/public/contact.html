@@ -2,7 +2,9 @@
 {% import "_macros.html" as ui with context %}
 {% block title %}{{ _('contact.title') }} · {{ site.site_title }}{% endblock %}
 {% block head_extra %}
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H"
+        crossorigin="anonymous">
 {% endblock %}
 {% block content %}
 
@@ -67,18 +69,8 @@
 
 {% endblock %}
 {% block body_extra %}
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    (function () {
-      var el = document.getElementById('map');
-      if (!el || typeof L === 'undefined') return;
-      var lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
-      if (isNaN(lat) || isNaN(lng)) return;
-      var map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap', maxZoom: 19
-      }).addTo(map);
-      L.marker([lat, lng]).addTo(map).bindPopup(el.dataset.label);
-    })();
-  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
+          crossorigin="anonymous" defer></script>
+  <script src="/static/js/contact-map.js?v={{ ASSET_V }}" defer></script>
 {% endblock %}

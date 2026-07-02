@@ -63,7 +63,7 @@
                     style="opacity:.35;cursor:not-allowed;"
                     title="Can’t delete: {{ c.products }} product(s) still in this category. Move them to another category first.">{{ ui.icon('trash') }}</span>
               {% else %}
-              <form action="/admin/categories/{{ c.id }}/delete" method="post" onsubmit="return confirm('Delete this empty category?');">
+              <form action="/admin/categories/{{ c.id }}/delete" method="post" data-confirm="Delete this empty category?">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button class="icon-btn icon-btn--danger" type="submit" title="Delete" aria-label="Delete">{{ ui.icon('trash') }}</button>
               </form>

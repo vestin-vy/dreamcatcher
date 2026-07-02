@@ -24,8 +24,17 @@ from app.routes.public import router as public_router
 from app.routes.wholesale import router as wholesale_router
 
 
+# The insecure fallback from app/config.py — never acceptable outside local dev.
+_INSECURE_DEFAULT_KEY = "dev-insecure-change-me"
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if not settings.DEBUG and settings.SECRET_KEY in ("", _INSECURE_DEFAULT_KEY):
+        raise RuntimeError(
+            "SECRET_KEY is unset (or the insecure dev default) while DEBUG is off. "
+            "Set a strong SECRET_KEY in the environment before starting."
+        )
     settings.ensure_dirs()
     init_db()
     if settings.FORCE_RESEED:
@@ -53,6 +62,41 @@ app.add_middleware(
     same_site="lax",
     https_only=settings.SESSION_HTTPS_ONLY,
 )
+
+# Security headers on every response. The CSP allow-list mirrors the only external
+# origins the templates use: Google Fonts (@import in app.css), Leaflet from unpkg,
+# and OpenStreetMap tiles (contact map). The sha256 source is the one inline
+# bootstrap script in templates/base.html — if that script changes, recompute:
+#   python -c "import hashlib,base64;print(base64.b64encode(hashlib.sha256(b\"<script body>\").digest()).decode())"
+_CSP = (
+    "default-src 'self'; "
+    "script-src 'self' https://unpkg.com "
+    "'sha256-Du+OJKJSbdUgz5nrHeWWINvez6XKDDU/tyj/5c2uvwo='; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
+    "font-src 'self' https://fonts.gstatic.com; "
+    "img-src 'self' data: https://unpkg.com https://*.tile.openstreetmap.org; "
+    "connect-src 'self'; "
+    "object-src 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self' mailto:; "
+    "frame-ancestors 'none'"
+)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("Content-Security-Policy", _CSP)
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if settings.SESSION_HTTPS_ONLY:
+        response.headers.setdefault(
+            "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
+        )
+    return response
+
 
 # Static assets (css/js/img/uploads). Directory is created by ensure_dirs() too.
 settings.ensure_dirs()

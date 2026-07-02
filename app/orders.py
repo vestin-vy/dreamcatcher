@@ -159,6 +159,27 @@ def create_wholesale_order(request, session: Session, lang: str, form: dict) -> 
     return order
 
 
+# --- buyer session binding (anti-enumeration) --------------------------------
+# Order numbers are sequential and human-readable, so the public pay/success pages
+# must not resolve an arbitrary number: only the session that created the order may
+# open them. (The webhook is server-to-server and is NOT session-bound.)
+
+SESSION_ORDERS_KEY = "my_orders"
+_SESSION_ORDERS_MAX = 10
+
+
+def remember_order(request, number: str) -> None:
+    """Record an order number in the buyer's session (newest first, capped)."""
+    mine = [n for n in request.session.get(SESSION_ORDERS_KEY, []) if n != number]
+    mine.insert(0, number)
+    request.session[SESSION_ORDERS_KEY] = mine[:_SESSION_ORDERS_MAX]
+
+
+def session_owns_order(request, number: str) -> bool:
+    """True if this session created the order (see remember_order)."""
+    return bool(number) and number in request.session.get(SESSION_ORDERS_KEY, [])
+
+
 # --- mark paid (idempotent) -------------------------------------------------
 
 def mark_order_paid(session: Session, order: Order, transaction_id: str | None) -> bool:

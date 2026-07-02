@@ -53,7 +53,7 @@
             <div class="row-actions">
               <a class="icon-btn" href="/admin/products/{{ p.id }}/edit" title="Edit" aria-label="Edit">{{ ui.icon('pencil') }}</a>
               <form action="/admin/products/{{ p.id }}/delete" method="post"
-                    onsubmit="return confirm('Delete this product and its images?');">
+                    data-confirm="Delete this product and its images?">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button class="icon-btn icon-btn--danger" type="submit" title="Delete" aria-label="Delete">{{ ui.icon('trash') }}</button>
               </form>

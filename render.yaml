@@ -20,7 +20,11 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # --proxy-headers + --forwarded-allow-ips: behind Render's proxy the peer address
+    # is the proxy, not the visitor; this makes request.client.host the real client IP
+    # (login rate-limit keys on it). Only Render's proxy can reach the service directly,
+    # so trusting X-Forwarded-For from any peer ("*") is safe here.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips "*"
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"

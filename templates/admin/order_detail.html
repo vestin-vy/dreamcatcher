@@ -71,7 +71,7 @@
       <p class="muted" style="font-size:0.82rem;">Contact PII anonymized on {{ order.anonymized_at.strftime('%Y-%m-%d %H:%M') }} (financial record kept).</p>
       {% else %}
       <form action="/admin/orders/{{ order.id }}/anonymize" method="post"
-            onsubmit="return confirm('Irreversibly anonymize this customer\'s contact &amp; shipping data? Financial records are kept. This cannot be undone.');">
+            data-confirm="Irreversibly anonymize this customer's contact &amp; shipping data? Financial records are kept. This cannot be undone.">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <button class="btn btn-danger btn-sm" type="submit">{{ ui.icon('trash') }} Anonymize PII now</button>
       </form>
