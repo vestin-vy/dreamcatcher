@@ -174,17 +174,16 @@ main { flex: 1 0 auto; }
 .hero {
   position: relative; display: grid; place-items: center; text-align: center;
   min-height: min(82vh, 760px); padding-block: var(--space-3xl);
-  background:
-    linear-gradient(180deg, rgba(12,10,9,0.45), rgba(12,10,9,0.55)),
-    radial-gradient(circle at 30% 30%, #3f3a34, #1c1917 70%);
-  color: var(--color-on-primary);
+  background: var(--gradient-hero); /* LIGHT cream — hero text is dark */
+  color: var(--color-foreground);
   overflow: hidden;
 }
 .hero__inner { max-width: 760px; padding-inline: var(--space-lg); }
-.hero h1 { color: #fff; }
-.hero p { color: rgba(255,255,255,0.85); font-size: 1.15rem; margin-top: var(--space-md);
+/* Hero is LIGHT (cream gradient) — dark text on it. */
+.hero h1 { color: var(--color-foreground); }
+.hero p { color: var(--color-secondary); font-size: 1.15rem; margin-top: var(--space-md);
   max-width: 56ch; margin-inline: auto; overflow-wrap: anywhere; }
-.hero .eyebrow { color: #E7C77A; }
+.hero .eyebrow { color: var(--color-accent-hover); } /* terracotta-dark: 6.2:1 on cream */
 .hero__actions { margin-top: var(--space-xl); display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
 
 /* ============================ Grids & cards ============================ */
@@ -597,7 +596,7 @@ main { flex: 1 0 auto; }
 /* ============================ Editorial Pop ============================ */
 /* Rose action button — the energetic storefront CTA (white text passes 4.5:1). */
 .btn-accent { background: var(--color-accent-2); color: #fff; border-color: var(--color-accent-2); }
-.btn-accent:hover { background: var(--color-accent-2-hover); border-color: var(--color-accent-2-hover); color: #fff; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(190,24,93,0.28); }
+.btn-accent:hover { background: var(--color-accent-2-hover); border-color: var(--color-accent-2-hover); color: #fff; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(47,125,95,0.28); }
 
 /* Section heads: left-aligned editorial variant with a gradient tick + index. */
 .section__head--left { text-align: left; max-width: 62ch; margin-inline: 0; }
@@ -633,7 +632,7 @@ main { flex: 1 0 auto; }
 /* The press-and-hold zone is the whole .hero__art (incl. the words area to the
    right). touch-action:pan-y there lets a vertical swipe still scroll the page. */
 .dreamcatcher { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; }
-.dc-svg { width: min(80%, 300px); height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45)); overflow: visible; }
+.dc-svg { width: min(80%, 300px); height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.18)); overflow: visible; }
 .dc-bead { transform-box: fill-box; transform-origin: center; animation: dc-twinkle 2.6s ease-in-out infinite; }
 @keyframes dc-twinkle { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.25); } }
 
@@ -641,8 +640,8 @@ main { flex: 1 0 auto; }
 .dc-words { position: absolute; top: 0; bottom: 0; right: 0; width: 44%; pointer-events: none; z-index: 2; }
 .dc-word {
   position: absolute; left: 50%; top: 46%; transform: translate(-50%, 0); opacity: 0;
-  font-family: var(--font-heading); font-style: italic; color: #f4e4bf; white-space: nowrap;
-  font-size: clamp(1.25rem, 1.7vw, 1.9rem); text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  font-family: var(--font-heading); font-style: italic; color: var(--color-accent); white-space: nowrap;
+  font-size: clamp(1.25rem, 1.7vw, 1.9rem); text-shadow: 0 2px 12px rgba(0,0,0,0.15);
   pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   will-change: transform, opacity;
 }
@@ -670,8 +669,14 @@ main { flex: 1 0 auto; }
 .cat-tile:hover .cat-tile__label::after { width: 36px; }
 
 /* Editorial band: full-bleed gradient quote that breaks the grid monotony. */
-.editorial { position: relative; overflow: hidden; background: var(--gradient-hero); color: #fff; border-radius: var(--radius-xl); padding: clamp(2.5rem, 6vw, 5rem); display: grid; gap: var(--space-lg); }
-.editorial .eyebrow { color: #F9A8D4; }
+/* The single intentional DARK block on the light page (rhythm): warm dark brown
+   with a terracotta wash — rgba(180,85,45,…) is --color-accent as rgba. */
+.editorial { position: relative; overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 82% 8%, rgba(180,85,45,0.25), transparent 55%),
+    linear-gradient(180deg, var(--color-foreground) 0%, #241D19 100%);
+  color: #fff; border-radius: var(--radius-xl); padding: clamp(2.5rem, 6vw, 5rem); display: grid; gap: var(--space-lg); }
+.editorial .eyebrow { color: var(--color-accent-2-bright); } /* mint on dark brown: 7.9:1 */
 .editorial__quote { font-family: var(--font-heading); font-size: clamp(1.8rem, 3.6vw, 3rem); line-height: 1.15; max-width: 24ch; }
 .editorial .btn-accent { justify-self: start; }
 

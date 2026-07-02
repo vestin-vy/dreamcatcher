@@ -8,7 +8,8 @@
 
 **Project:** DreamCatcher
 **Generated:** 2026-06-20 12:32:42
-**Category:** Luxury/Premium Brand
+**Category:** Warm Handmade / Boho Brand
+**Repalette:** 2026-07-02 — warm handmade boho (cream/terracotta/mint), per rebrand brief; token names unchanged, values only
 
 ---
 
@@ -18,18 +19,41 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#1C1917` | `--color-primary` |
+| Primary | `#3B2F2A` | `--color-primary` |
 | On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#44403C` | `--color-secondary` |
-| Accent/CTA | `#A16207` | `--color-accent` |
-| Background | `#FAFAF9` | `--color-background` |
-| Foreground | `#0C0A09` | `--color-foreground` |
+| Secondary | `#6B5D54` | `--color-secondary` |
+| Accent/CTA | `#B4552D` | `--color-accent` |
+| Accent hover | `#94431F` | `--color-accent-hover` |
+| Background | `#FAF3E8` | `--color-background` |
+| Surface | `#FFFFFF` | `--color-surface` |
+| Surface alt | `#F3EADC` | `--color-surface-alt` |
+| Foreground | `#2E2622` | `--color-foreground` |
 | Muted | `#E8ECF0` | `--color-muted` |
-| Border | `#D6D3D1` | `--color-border` |
+| Muted foreground | `#7A6A5F` | `--color-muted-foreground` |
+| Border | `#E4D6C3` | `--color-border` |
 | Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#1C1917` | `--color-ring` |
+| Ring | `#3B2F2A` | `--color-ring` |
+| Accent 2 (secondary CTA) | `#2F7D5F` | `--color-accent-2` |
+| Accent 2 hover | `#266A50` | `--color-accent-2-hover` |
+| Accent 2 bright (decoration/gradients ONLY — never text on white) | `#7FCDB0` | `--color-accent-2-bright` |
+| Accent 2 soft (badge bg) | `#E9F6EF` | `--color-accent-2-soft` |
+| Accent 2 on soft | `#1E5C45` | `--color-accent-2-on-soft` |
 
-**Color Notes:** Premium black + gold accent [Accent adjusted from #CA8A04 for WCAG 3:1]
+**Gradients:**
+
+```css
+--gradient-hero:
+  radial-gradient(120% 120% at 82% 8%, rgba(180,85,45,0.14), transparent 55%),
+  radial-gradient(120% 120% at 0% 100%, rgba(127,205,176,0.22), transparent 52%),
+  linear-gradient(180deg, #FAF3E8 0%, #F3EADC 100%);   /* LIGHT hero */
+--gradient-accent: linear-gradient(120deg, var(--color-accent) 0%, var(--color-accent-2-bright) 100%); /* terracotta -> mint */
+```
+
+**Color Notes:** Warm handmade boho — cream page, terracotta primary CTA (white text 4.91:1 ✓),
+deep mint secondary CTA (white text 4.98:1 ✓, ties the site to the mint IG logo).
+Hero is LIGHT: hero text uses foreground/secondary; the mid-page editorial banner stays the
+single dark block (base `#2E2622` + terracotta wash). Gold survives only inside legacy SVG
+artwork where it still reads; the hero dreamcatcher line art is terracotta on cream.
 
 ### Typography
 
@@ -73,7 +97,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #A16207;
+  background: #B4552D;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -90,8 +114,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #1C1917;
-  border: 2px solid #1C1917;
+  color: #3B2F2A;
+  border: 2px solid #3B2F2A;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -104,7 +128,7 @@
 
 ```css
 .card {
-  background: #FAFAF9;
+  background: #FAF3E8;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -130,9 +154,9 @@
 }
 
 .input:focus {
-  border-color: #1C1917;
+  border-color: #3B2F2A;
   outline: none;
-  box-shadow: 0 0 0 3px #1C191720;
+  box-shadow: 0 0 0 3px #3B2F2A20;
 }
 ```
 

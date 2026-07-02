@@ -197,7 +197,7 @@ def run() -> None:
             "site_title": "DreamCatcher",
             "phone": "+30 210 321 0000",
             "email": "hello@dreamcatcher.gr",
-            "address": "Voukourestiou 7, Athens 106 71, Greece",
+            "address": "Λ. Ειρήνης 2, Ηλιούπολη 163 45",
             "whatsapp": "302103210000",
             "instagram": "dreamcatchergreece",
             "map_lat": "37.9779",

@@ -80,7 +80,8 @@
   {% if show_prices %}
   <div class="product-card__actions">
     {% if p.price_on_request or p.price is none %}
-      <a class="btn btn-ghost btn-sm" href="/{{ lang }}/product/{{ p.slug }}">{{ _('product.request') }}</a>
+      {# Request/WhatsApp is the lead channel (rebrand brief §2.3) — accent weight. #}
+      <a class="btn btn-primary btn-sm" href="/{{ lang }}/product/{{ p.slug }}">{{ _('product.request') }}</a>
     {% elif not p.in_stock %}
       <span class="chip" aria-disabled="true">{{ _('product.out_of_stock') }}</span>
     {% else %}

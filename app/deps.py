@@ -13,7 +13,7 @@ DEFAULT_SETTINGS: dict[str, str] = {
     "site_title": "DreamCatcher",
     "phone": "+30 210 000 0000",
     "email": "hello@dreamcatcher.example",
-    "address": "Ermou 1, Athens 105 63, Greece",
+    "address": "Λ. Ειρήνης 2, Ηλιούπολη 163 45",
     "whatsapp": "302100000000",
     "viber": "",
     "instagram": "dreamcatchergreece",

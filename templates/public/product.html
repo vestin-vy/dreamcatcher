@@ -46,6 +46,19 @@
 
       {% if product.description %}<p class="product__desc">{{ product.description }}</p>{% endif %}
 
+      {# WhatsApp is the lead channel for this audience (rebrand brief §2.3): the
+         request CTA comes first at primary (terracotta) weight; add-to-cart stays. #}
+      <div class="hero__actions" style="justify-content:flex-start;margin-top:var(--space-lg);">
+        {% if site.whatsapp %}
+        <a class="btn btn-primary" target="_blank" rel="noopener"
+           href="https://wa.me/{{ site.whatsapp }}?text={{ (_('product.request') ~ ': ' ~ product.title)|urlencode }}">
+           {{ ui.icon('whatsapp') }} {{ _('product.request') }}</a>
+        {% endif %}
+        <a class="btn btn-secondary"
+           href="mailto:{{ site.email }}?subject={{ ('['~site.site_title~'] '~product.title)|urlencode }}&body={{ (_('product.request') ~ ': ' ~ product.title)|urlencode }}">
+           {{ ui.icon('mail') }} {{ _('contact.email') }}</a>
+      </div>
+
       {% if show_prices and not product.price_on_request and product.price is not none %}
         {% if product.in_stock %}
         <form class="product__buy" method="post" action="/{{ lang }}/cart/add">
@@ -62,17 +75,6 @@
         <p class="chip" aria-disabled="true" style="margin-top:var(--space-md);">{{ _('product.out_of_stock') }}</p>
         {% endif %}
       {% endif %}
-
-      <div class="hero__actions" style="justify-content:flex-start;margin-top:var(--space-lg);">
-        {% if site.whatsapp %}
-        <a class="btn btn-primary" target="_blank" rel="noopener"
-           href="https://wa.me/{{ site.whatsapp }}?text={{ (_('product.request') ~ ': ' ~ product.title)|urlencode }}">
-           {{ ui.icon('whatsapp') }} {{ _('product.request') }}</a>
-        {% endif %}
-        <a class="btn btn-secondary"
-           href="mailto:{{ site.email }}?subject={{ ('['~site.site_title~'] '~product.title)|urlencode }}&body={{ (_('product.request') ~ ': ' ~ product.title)|urlencode }}">
-           {{ ui.icon('mail') }} {{ _('contact.email') }}</a>
-      </div>
     </div>
   </div>
 </section>

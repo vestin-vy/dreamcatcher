@@ -4,42 +4,43 @@
 
 :root {
   /* --- Color palette (MASTER.md §Color Palette) --- */
-  --color-primary: #1C1917;       /* premium black: text, outline buttons */
+  --color-primary: #3B2F2A;       /* warm dark brown: text, outline buttons */
   --color-on-primary: #FFFFFF;
-  --color-secondary: #44403C;
-  --color-accent: #A16207;        /* gold: CTA, accents (WCAG-safe) */
-  --color-accent-hover: #854D0E;  /* darker gold for hover/contrast */
-  --color-background: #FAFAF9;    /* warm white */
-  --color-foreground: #0C0A09;
+  --color-secondary: #6B5D54;
+  --color-accent: #B4552D;        /* terracotta: primary CTA (white text 4.91:1) */
+  --color-accent-hover: #94431F;  /* darker terracotta for hover/contrast */
+  --color-background: #FAF3E8;    /* warm cream */
+  --color-foreground: #2E2622;
   --color-muted: #E8ECF0;
-  --color-border: #D6D3D1;
+  --color-border: #E4D6C3;
   --color-destructive: #DC2626;
-  --color-ring: #1C1917;
+  --color-ring: #3B2F2A;
 
   /* Surfaces / supporting tones derived from the palette */
   --color-surface: #FFFFFF;
-  --color-surface-alt: #F5F5F4;
-  --color-muted-foreground: #57534E;
+  --color-surface-alt: #F3EADC;
+  --color-muted-foreground: #7A6A5F;
 
-  /* --- Editorial Pop accent (fashion rose) — costume-jewelry energy ---
-     accent-2 is WCAG-safe for text/CTA on white; -bright is decoration only. */
-  --color-accent-2: #BE185D;          /* rose: CTA / action color (white text passes 4.5:1) */
-  --color-accent-2-hover: #9D174D;
-  --color-accent-2-bright: #EC4899;   /* gradients / glow only — NOT text on white */
-  --color-accent-2-soft: #FDF2F8;     /* soft rose surface, pills */
-  --color-accent-2-on-soft: #9D174D;  /* text on the soft rose surface */
+  /* --- Secondary accent (deep mint/sage) — ties the site to the mint IG logo ---
+     accent-2 is WCAG-safe for text/CTA on white (4.98:1); -bright is decoration only. */
+  --color-accent-2: #2F7D5F;          /* deep mint: secondary CTA (white text passes 4.5:1) */
+  --color-accent-2-hover: #266A50;
+  --color-accent-2-bright: #7FCDB0;   /* gradients / glow only — NOT text on white */
+  --color-accent-2-soft: #E9F6EF;     /* soft mint surface, pills */
+  --color-accent-2-on-soft: #1E5C45;  /* text on the soft mint surface */
 
   /* Display type scale (fluid) for editorial headlines */
   --fs-display: clamp(2.6rem, 6vw, 5rem);
   --fs-h1: clamp(2rem, 4vw, 3.25rem);
   --fs-h2: clamp(1.6rem, 2.6vw, 2.4rem);
 
-  /* Layered hero background (gold + rose glow on ink) */
+  /* Layered hero background — LIGHT: terracotta + mint washes over warm cream.
+     Hero text must be dark (foreground/secondary); see app.css hero section. */
   --gradient-hero:
-    radial-gradient(120% 120% at 82% 8%, rgba(236,72,153,0.34), transparent 55%),
-    radial-gradient(120% 120% at 0% 100%, rgba(161,98,7,0.42), transparent 52%),
-    linear-gradient(180deg, #1c1917 0%, #0c0a09 100%);
-  --gradient-accent: linear-gradient(120deg, var(--color-accent) 0%, var(--color-accent-2-bright) 100%);
+    radial-gradient(120% 120% at 82% 8%, rgba(180,85,45,0.14), transparent 55%),
+    radial-gradient(120% 120% at 0% 100%, rgba(127,205,176,0.22), transparent 52%),
+    linear-gradient(180deg, #FAF3E8 0%, #F3EADC 100%);
+  --gradient-accent: linear-gradient(120deg, var(--color-accent) 0%, var(--color-accent-2-bright) 100%); /* terracotta -> mint */
 
   /* --- Spacing (MASTER.md §Spacing Variables) --- */
   --space-xs: 0.25rem;   /* 4px  */
