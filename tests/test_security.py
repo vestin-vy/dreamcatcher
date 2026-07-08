@@ -29,6 +29,51 @@ def client():
     return TestClient(app, base_url="https://testserver")
 
 
+# --- admin password reset ----------------------------------------------------
+
+def test_password_reset_emails_new_password_and_rotates_hash(client, monkeypatch):
+    from app import mailer
+    from app.models import Setting
+    from app.routes import admin as admin_routes
+
+    admin_routes._reset_hits.clear()
+    emails = []
+    monkeypatch.setattr(mailer, "is_configured", lambda: True)
+    monkeypatch.setattr(mailer, "send_email",
+                        lambda subject, body, to=None: emails.append(body) or True)
+
+    login = client.get("/admin/login")
+    csrf = re.search(r'name="csrf_token" value="([^"]+)"', login.text).group(1)
+    r = client.post("/admin/reset-password", data={"csrf_token": csrf},
+                    follow_redirects=False)
+    assert r.status_code == 303 and "reset=1" in r.headers["location"]
+    assert len(emails) == 1
+    new_password = re.search(r"Новый пароль: (\S+)", emails[0]).group(1)
+
+    # the emailed password logs in; the DB hash override is set
+    r = client.post("/admin/login", data={
+        "username": "admin", "password": new_password, "csrf_token": csrf,
+    }, follow_redirects=False)
+    assert r.status_code == 303
+    with Session(engine) as session:
+        row = session.get(Setting, "admin_password_hash")
+        assert row is not None and row.value
+        session.delete(row)  # cleanup: restore env-hash auth for other tests
+        session.commit()
+    client.post("/admin/logout")
+
+
+def test_password_reset_off_without_mail(client):
+    from app.routes import admin as admin_routes
+    admin_routes._reset_hits.clear()
+    login = client.get("/admin/login")
+    assert "reset-password" not in login.text  # button hidden
+    csrf = re.search(r'name="csrf_token" value="([^"]+)"', login.text).group(1)
+    r = client.post("/admin/reset-password", data={"csrf_token": csrf},
+                    follow_redirects=False)
+    assert r.status_code == 303 and "mail=off" in r.headers["location"]
+
+
 # --- security headers ---------------------------------------------------------
 
 def test_security_headers_present(client):

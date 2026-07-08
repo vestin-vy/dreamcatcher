@@ -116,6 +116,8 @@ class Settings:
         self.SMTP_USER: str = os.getenv("SMTP_USER", "")
         self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
         self.SMTP_FROM: str = os.getenv("SMTP_FROM", "")
+        # Where admin password resets (and future notifications) are sent.
+        self.NOTIFY_TO: str = os.getenv("NOTIFY_TO", "")
 
     def ensure_dirs(self) -> None:
         """Create runtime directories that must exist before serving."""

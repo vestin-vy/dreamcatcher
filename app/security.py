@@ -31,10 +31,22 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
 
-def check_admin_credentials(username: str, password: str) -> bool:
+def admin_password_hash(session) -> str:
+    """Current admin hash: the DB override (set by the email password reset)
+    wins; the ADMIN_PASSWORD_HASH env var is the bootstrap fallback."""
+    from app.models import Setting
+    row = session.get(Setting, "admin_password_hash")
+    if row and row.value:
+        return row.value
+    return settings.ADMIN_PASSWORD_HASH
+
+
+def check_admin_credentials(username: str, password: str,
+                            hashed: str | None = None) -> bool:
     if username != settings.ADMIN_USERNAME:
         return False
-    return verify_password(password, settings.ADMIN_PASSWORD_HASH)
+    return verify_password(
+        password, settings.ADMIN_PASSWORD_HASH if hashed is None else hashed)
 
 
 # --- session ----------------------------------------------------------------

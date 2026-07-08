@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse, Response
 from sqlmodel import Session, select
 from starlette.datastructures import UploadFile  # form() yields these (not fastapi's subclass)
 
-from app import marketing
+from app import mailer, marketing
 from app import orders as orders_mod
 from app.db import get_session
 from app.deps import DEFAULT_SETTINGS, get_site_settings, is_authenticated
@@ -27,8 +27,10 @@ from app.models import (
     Setting,
 )
 from app.security import (
+    admin_password_hash,
     check_admin_credentials,
     get_csrf_token,
+    hash_password,
     login_admin,
     logout_admin,
     record_attempt,
@@ -104,15 +106,19 @@ def bad_csrf_redirect(url: str) -> RedirectResponse:
 # --- auth -------------------------------------------------------------------
 
 @router.get("/login")
-def login_form(request: Request):
+def login_form(request: Request, reset: str = "", mail: str = ""):
     if is_authenticated(request):
         return RedirectResponse(url="/admin", status_code=302)
-    return admin_render(request, "admin/login.html", error=None)
+    return admin_render(request, "admin/login.html", error=None,
+                        reset_sent=reset == "1", reset_limited=reset == "limit",
+                        mail_off=mail == "off",
+                        reset_available=mailer.is_configured())
 
 
 @router.post("/login")
 def login_submit(
     request: Request,
+    session: Session = Depends(get_session),
     username: str = Form(...),
     password: str = Form(...),
     csrf_token: str = Form(""),
@@ -121,12 +127,65 @@ def login_submit(
         return admin_render(request, "admin/login.html", error="Invalid session, please retry.")
     if too_many_attempts(request):
         return admin_render(request, "admin/login.html", error="Too many attempts. Try again later.")
-    if check_admin_credentials(username, password):
+    if check_admin_credentials(username, password, admin_password_hash(session)):
         reset_attempts(request)
         login_admin(request)
         return RedirectResponse(url="/admin", status_code=status.HTTP_303_SEE_OTHER)
     record_attempt(request)
     return admin_render(request, "admin/login.html", error="Invalid credentials.")
+
+
+# in-memory limiter for password resets (per-process; fine for one instance)
+_reset_hits: dict[str, list[float]] = {}
+
+
+def _reset_rate_ok(key: str, max_hits: int, window: int) -> bool:
+    import time as _time
+    now = _time.time()
+    hits = [h for h in _reset_hits.get(key, []) if now - h < window]
+    if len(hits) >= max_hits:
+        _reset_hits[key] = hits
+        return False
+    hits.append(now)
+    _reset_hits[key] = hits
+    return True
+
+
+@router.post("/reset-password")
+def reset_password(request: Request, session: Session = Depends(get_session),
+                   csrf_token: str = Form("")):
+    """Email a freshly generated admin password to NOTIFY_TO (the owner's
+    mailbox). The old password stops working immediately; strict rate limits
+    keep strangers from spamming resets."""
+    import secrets as _secrets
+    import string as _string
+
+    if not verify_csrf(request, csrf_token):
+        return RedirectResponse(url="/admin/login", status_code=status.HTTP_303_SEE_OTHER)
+    if not mailer.is_configured():
+        return RedirectResponse(url="/admin/login?mail=off", status_code=status.HTTP_303_SEE_OTHER)
+    client_ip = request.client.host if request.client else "unknown"
+    if not _reset_rate_ok(f"ip:{client_ip}", 3, 86400) \
+            or not _reset_rate_ok("global", 2, 3600):
+        return RedirectResponse(url="/admin/login?reset=limit", status_code=status.HTTP_303_SEE_OTHER)
+
+    alphabet = _string.ascii_letters + _string.digits
+    new_password = "-".join(
+        "".join(_secrets.choice(alphabet) for _ in range(4)) for _ in range(3))
+    row = session.get(Setting, "admin_password_hash") or Setting(key="admin_password_hash")
+    row.value = hash_password(new_password)
+    session.add(row)
+    session.commit()
+    sent = mailer.send_email(
+        "Новый пароль от админки dc.elina-ami.gr",
+        "Кто-то (скорее всего вы) нажал «Забыл пароль» на странице входа.\n\n"
+        f"Логин: admin\nНовый пароль: {new_password}\n\n"
+        "Старый пароль больше не действует.\n"
+        "Вход: https://dc.elina-ami.gr/admin/login",
+    )
+    return RedirectResponse(
+        url="/admin/login?reset=1" if sent else "/admin/login?mail=off",
+        status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/logout")
