@@ -53,5 +53,10 @@ services:
         value: "false"
       - key: SESSION_HTTPS_ONLY
         value: "true"
+      # Demo catalog is retired: AUTO_SEED off + one-shot CLEAR_CATALOG (marker-
+      # guarded, so real admin-added products are never touched). Real products
+      # get added via /admin.
       - key: AUTO_SEED
+        value: "false"
+      - key: CLEAR_CATALOG
         value: "true"

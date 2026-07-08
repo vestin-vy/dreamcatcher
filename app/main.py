@@ -49,6 +49,11 @@ async def lifespan(app: FastAPI):
     elif settings.AUTO_SEED:
         from app.seed import seed_if_empty
         seed_if_empty()
+    if settings.CLEAR_CATALOG:
+        # One-shot, marker-guarded: empties the catalog until real products
+        # are added via the admin (see Settings.CLEAR_CATALOG).
+        from app.seed import clear_catalog_once
+        clear_catalog_once()
     yield
 
 

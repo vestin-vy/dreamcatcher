@@ -171,6 +171,34 @@ def test_payments_disabled_blocks_checkout(client, monkeypatch):
                 data={"csrf_token": csrf, "product_id": product_id})
 
 
+def test_clear_catalog_once_empties_and_is_marker_guarded(client):
+    """CLEAR_CATALOG: wipes products/categories/orders once, sets the marker,
+    never runs again, and the public pages survive an empty catalog."""
+    from app import seed as seed_mod
+    from app.models import Category, Setting as SettingModel
+
+    seed_mod.clear_catalog_once()
+    with Session(engine) as session:
+        assert session.exec(select(Product)).all() == []
+        assert session.exec(select(Category)).all() == []
+        assert session.exec(select(Order)).all() == []
+        marker = session.exec(select(SettingModel).where(
+            SettingModel.key == "catalog_cleared")).first()
+        assert marker is not None
+
+    # pages render fine with an empty catalog
+    assert client.get("/el/").status_code == 200
+    assert client.get("/el/catalog").status_code == 200
+
+    # marker-guarded: a second call is a clean no-op
+    seed_mod.clear_catalog_once()
+
+    # restore demo data for the remaining tests (run() drops the marker too)
+    seed_mod.run()
+    with Session(engine) as session:
+        assert session.exec(select(Product).limit(1)).first() is not None
+
+
 def test_webhook_idempotent_over_http(client):
     # Create a pending order through checkout, then POST the webhook twice.
     catalog = client.get("/el/catalog")

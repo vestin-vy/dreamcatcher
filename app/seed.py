@@ -16,6 +16,8 @@ from app.images import save_image
 from app.models import (
     Category,
     CategoryTranslation,
+    Order,
+    OrderItem,
     Product,
     ProductImage,
     ProductTranslation,
@@ -230,6 +232,29 @@ def run() -> None:
         n_products = len(session.exec(select(Product)).all())
         print(f"Seeded {len(CATEGORIES)} categories, {n_products} products, "
               f"{len(site_settings)} settings.")
+
+
+def clear_catalog_once() -> None:
+    """One-shot prod cleanup (CLEAR_CATALOG env): delete ALL products,
+    categories and the demo/test orders, leaving site settings intact.
+
+    Guarded by a `catalog_cleared` Setting marker, so leaving the env var
+    enabled can never wipe real products added later via the admin.
+    Pair it with AUTO_SEED=false - otherwise seed_if_empty() would refill
+    the demo catalog on the next restart.
+    """
+    with Session(engine) as session:
+        if session.exec(select(Setting).where(Setting.key == "catalog_cleared")).first():
+            return
+        # FK-safe order: order items -> orders, images/translations -> products,
+        # translations -> categories.
+        for model in (OrderItem, Order, ProductImage, ProductTranslation,
+                      Product, CategoryTranslation, Category):
+            for row in session.exec(select(model)).all():
+                session.delete(row)
+        session.add(Setting(key="catalog_cleared", value="1"))
+        session.commit()
+        print("CLEAR_CATALOG: demo catalog and test orders removed (marker set)")
 
 
 def seed_if_empty() -> None:

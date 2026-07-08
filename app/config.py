@@ -80,6 +80,11 @@ class Settings:
         # bytes). DESTRUCTIVE — set it for a single deploy, then remove it. Off by
         # default so a normal restart never wipes data.
         self.FORCE_RESEED: bool = _as_bool(os.getenv("FORCE_RESEED"), default=False)
+        # One-shot catalog cleanup: on startup delete ALL products/categories and
+        # demo orders (site settings stay). Safe to leave enabled - it runs only
+        # until the `catalog_cleared` marker appears in the settings table.
+        # Use together with AUTO_SEED=false.
+        self.CLEAR_CATALOG: bool = _as_bool(os.getenv("CLEAR_CATALOG"), default=False)
 
         # Uploads
         self.MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_BYTES", str(8 * 1024 * 1024)))
