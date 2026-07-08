@@ -235,8 +235,9 @@ def run() -> None:
 
 
 def clear_catalog_once() -> None:
-    """One-shot prod cleanup (CLEAR_CATALOG env): delete ALL products,
-    categories and the demo/test orders, leaving site settings intact.
+    """One-shot prod cleanup (CLEAR_CATALOG env): delete ALL products and the
+    demo/test orders. CATEGORIES and site settings stay - the category tree
+    (rings/necklaces/...) is real shop structure, not demo content.
 
     Guarded by a `catalog_cleared` Setting marker, so leaving the env var
     enabled can never wipe real products added later via the admin.
@@ -246,15 +247,31 @@ def clear_catalog_once() -> None:
     with Session(engine) as session:
         if session.exec(select(Setting).where(Setting.key == "catalog_cleared")).first():
             return
-        # FK-safe order: order items -> orders, images/translations -> products,
-        # translations -> categories.
-        for model in (OrderItem, Order, ProductImage, ProductTranslation,
-                      Product, CategoryTranslation, Category):
+        # FK-safe order: order items -> orders, images/translations -> products.
+        for model in (OrderItem, Order, ProductImage, ProductTranslation, Product):
             for row in session.exec(select(model)).all():
                 session.delete(row)
         session.add(Setting(key="catalog_cleared", value="1"))
         session.commit()
-        print("CLEAR_CATALOG: demo catalog and test orders removed (marker set)")
+        print("CLEAR_CATALOG: demo products and test orders removed (marker set)")
+
+
+def seed_categories_if_empty() -> None:
+    """Recreate the standard category tree when the table is empty
+    (e.g. after an over-eager cleanup). Products are not touched."""
+    with Session(engine) as session:
+        if session.exec(select(Category).limit(1)).first() is not None:
+            print("categories already present - nothing to do")
+            return
+        for c in CATEGORIES:
+            cat = Category(slug=c["slug"], sort_order=c["order"], is_active=True)
+            session.add(cat)
+            session.commit()
+            session.refresh(cat)
+            for lang, name in c["names"].items():
+                session.add(CategoryTranslation(category_id=cat.id, lang=lang, name=name))
+        session.commit()
+        print(f"restored {len(CATEGORIES)} categories")
 
 
 def seed_if_empty() -> None:

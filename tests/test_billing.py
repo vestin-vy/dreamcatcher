@@ -172,15 +172,15 @@ def test_payments_disabled_blocks_checkout(client, monkeypatch):
 
 
 def test_clear_catalog_once_empties_and_is_marker_guarded(client):
-    """CLEAR_CATALOG: wipes products/categories/orders once, sets the marker,
-    never runs again, and the public pages survive an empty catalog."""
+    """CLEAR_CATALOG: wipes products/orders once (categories SURVIVE), sets
+    the marker, never runs again, and public pages render with no products."""
     from app import seed as seed_mod
     from app.models import Category, Setting as SettingModel
 
     seed_mod.clear_catalog_once()
     with Session(engine) as session:
         assert session.exec(select(Product)).all() == []
-        assert session.exec(select(Category)).all() == []
+        assert len(session.exec(select(Category)).all()) == len(seed_mod.CATEGORIES)
         assert session.exec(select(Order)).all() == []
         marker = session.exec(select(SettingModel).where(
             SettingModel.key == "catalog_cleared")).first()
