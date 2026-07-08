@@ -71,9 +71,14 @@ def pop_flashes(request: Request) -> list[dict]:
 
 
 def admin_render(request: Request, template: str, **ctx):
-    """Render an admin page with csrf token + flashes injected."""
+    """Render an admin page with csrf token + flashes injected.
+
+    The admin UI is always English (lang="en") regardless of the public
+    site's default language - the shop owner asked for it explicitly.
+    Language tabs for product/category translations are unaffected."""
     return render(
         request, template,
+        lang="en",
         csrf_token=get_csrf_token(request),
         flashes=pop_flashes(request),
         **ctx,

@@ -1,11 +1,18 @@
 # DreamCatcher
 
-A jewelry **showcase** site (catalog + contact, not a shop) with a CRUD admin and
-four-language UI (Greek default, plus English, Russian, French). Server-rendered with
-FastAPI + Jinja2 + SQLModel + SQLite. Hand-written plain CSS, no build step.
+A handmade-jewelry **shop**: catalog, cart, checkout with Viva.com payments
+(currently disabled pending the merchant contract), a wholesale (B2B) request
+flow, and a CRUD admin. Two-language UI (Greek default + English). Server-rendered
+with FastAPI + Jinja2 + SQLModel (SQLite in dev, PostgreSQL in prod).
+Hand-written plain CSS, no build step.
 
-See [`SPEC.md`](SPEC.md) for the full specification and
-[`design-system/dreamcatcher/MASTER.md`](design-system/dreamcatcher/MASTER.md) for design tokens.
+**Production**: https://dc.elina-ami.gr (papaki VPS) — see [`DEPLOY.md`](DEPLOY.md).
+Pushing to GitHub does **not** auto-deploy; deploy = `git pull` + service restart
+on the server.
+
+See [`SPEC.md`](SPEC.md) + [`SPEC-BILLING.md`](SPEC-BILLING.md) for the full
+specification and [`design-system/dreamcatcher/MASTER.md`](design-system/dreamcatcher/MASTER.md)
+for design tokens.
 
 ## Requirements
 
@@ -15,7 +22,7 @@ See [`SPEC.md`](SPEC.md) for the full specification and
 ## Quick start (Windows / PowerShell)
 
 ```powershell
-cd D:\DreamCatcher
+cd D:\Dreamcatcher_site_with_billing
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -55,18 +62,19 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ## Internationalization
 
-- URL prefix per language: `/el`, `/en`, `/ru`, `/fr`. `/` redirects to the default
-  (cookie choice if set, else `el`).
+- URL prefix per language: `/el`, `/en` (the project was deliberately narrowed
+  to two languages). `/` redirects to the default (cookie choice if set, else `el`).
 - UI strings live in `app/i18n.py`. Content (products/categories) comes from the DB with a
-  fallback chain **el → en**.
+  fallback chain **el → en**. The admin UI itself is always English.
 
 ## Project layout
 
 ```
-app/        FastAPI app: config, db, models, i18n, deps, security, images, routes/, seed
+app/        FastAPI app: config, db, models, i18n, deps, security, images,
+            cart, orders, payments/ (Viva demo+live), mailer, routes/, seed
 templates/  Jinja2: base.html, _macros.html, public/*, admin/*
 static/     css/ (tokens.css + app.css), js/, img/, uploads/ (+ thumbs/)
-tests/      test_smoke.py — the route contract (SPEC §10 DoD)
+tests/      smoke / billing / security / wholesale / marketing / media / anonymize
 ```
 
 ## Verify
