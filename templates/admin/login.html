@@ -14,9 +14,9 @@
     <div class="brand-mark">{{ ui.icon('gem') }}</div>
     <h1>{{ site.site_title }}</h1>
     {% if error %}<div class="flash flash--error">{{ error }}</div>{% endif %}
-    {% if reset_sent %}<div class="flash flash--success" role="status">Новый пароль отправлен на почту.</div>{% endif %}
-    {% if reset_limited %}<div class="flash flash--error" role="alert">Слишком много запросов — попробуйте позже.</div>{% endif %}
-    {% if mail_off %}<div class="flash flash--error" role="alert">Почта не настроена — сброс пароля недоступен.</div>{% endif %}
+    {% if reset_sent %}<div class="flash flash--success" role="status">A new password has been emailed to you.</div>{% endif %}
+    {% if reset_limited %}<div class="flash flash--error" role="alert">Too many reset requests — try again later.</div>{% endif %}
+    {% if mail_off %}<div class="flash flash--error" role="alert">Mail is not configured — password reset unavailable.</div>{% endif %}
     <form action="/admin/login" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <div class="field">
@@ -31,9 +31,9 @@
     </form>
     {% if reset_available %}
     <form action="/admin/reset-password" method="post" class="reset-form"
-          data-confirm="Прислать новый пароль на почту? Текущий пароль перестанет работать.">
+          data-confirm="Email a new password? The current password will stop working.">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <button type="submit" class="btn-linklike">Забыл пароль</button>
+      <button type="submit" class="btn-linklike">Forgot password</button>
     </form>
     {% endif %}
   </div>
