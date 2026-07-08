@@ -14,6 +14,7 @@ from sqlmodel import Session
 
 from app import cart as cart_mod
 from app import orders as orders_mod
+from app.config import settings
 from app.deps import get_lang, get_session, get_site_settings
 from app.payments import get_provider
 from app.security import verify_csrf
@@ -55,6 +56,9 @@ async def checkout_submit(
 ):
     form = await request.form()
     if not verify_csrf(request, form.get("csrf_token")):
+        return RedirectResponse(url=f"/{lang}/checkout", status_code=status.HTTP_303_SEE_OTHER)
+    if not settings.PAYMENTS_ENABLED:
+        # The button is disabled in the UI; this guards direct POSTs.
         return RedirectResponse(url=f"/{lang}/checkout", status_code=status.HTTP_303_SEE_OTHER)
 
     order = orders_mod.create_order_from_cart(request, session, lang, form, site)

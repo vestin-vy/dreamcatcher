@@ -136,6 +136,41 @@ def test_checkout_demo_flow_marks_paid(client):
         assert order.viva_transaction_id
 
 
+def test_payments_disabled_blocks_checkout(client, monkeypatch):
+    """PAYMENTS_ENABLED=false: the pay button renders disabled and a direct
+    POST /checkout must not create an order (pre-Viva-contract state)."""
+    from app.config import settings as app_settings
+    monkeypatch.setattr(app_settings, "PAYMENTS_ENABLED", False)
+
+    catalog = client.get("/el/catalog")
+    csrf = _csrf(catalog.text)
+    product_id = PID_RE.search(catalog.text).group(1)
+    client.post("/el/cart/add",
+                data={"csrf_token": csrf, "product_id": product_id, "qty": "1"})
+
+    page = client.get("/el/checkout")
+    assert page.status_code == 200
+    assert 'type="submit" disabled' in page.text
+    assert "σύντομα" in page.text  # the payments-soon note (el)
+
+    with Session(engine) as session:
+        before = len(session.exec(select(Order)).all())
+    r = client.post("/el/checkout", data={
+        "csrf_token": csrf, "customer_name": "Off", "customer_email": "off@example.com",
+        "ship_address": "A", "ship_city": "Athens", "ship_postcode": "1",
+        "ship_country": "GR", "shipping_method": "courier",
+    }, follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/el/checkout"  # bounced back, no pay redirect
+    with Session(engine) as session:
+        after = len(session.exec(select(Order)).all())
+    assert after == before, "no order must be created while payments are off"
+    # cleanup: the module-scoped client shares its session (and cart) with the
+    # following tests - remove the line we added
+    client.post("/el/cart/remove",
+                data={"csrf_token": csrf, "product_id": product_id})
+
+
 def test_webhook_idempotent_over_http(client):
     # Create a pending order through checkout, then POST the webhook twice.
     catalog = client.get("/el/catalog")

@@ -46,6 +46,11 @@ services:
         value: el
       - key: VIVA_MODE
         value: demo
+      # Payments are OFF until the Viva.com contract is signed: the pay button
+      # renders disabled and POST /checkout refuses orders. Flip to "true"
+      # (Render dashboard or here) when Viva onboarding completes.
+      - key: PAYMENTS_ENABLED
+        value: "false"
       - key: SESSION_HTTPS_ONLY
         value: "true"
       - key: AUTO_SEED

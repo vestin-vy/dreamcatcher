@@ -71,7 +71,12 @@
         <div class="summary-total"><dt>{{ _('cart.total') }}</dt><dd id="sum-total">{{ format_price(total0, cart.currency, lang) }}</dd></div>
       </dl>
       <p class="muted summary-note">{{ _('cart.vat_included') }}</p>
+      {% if payments_enabled %}
       <button class="btn btn-accent btn-block" type="submit">{{ ui.icon('bag') }} {{ _('checkout.pay') }}</button>
+      {% else %}
+      <button class="btn btn-accent btn-block" type="submit" disabled aria-disabled="true">{{ ui.icon('bag') }} {{ _('checkout.pay') }}</button>
+      <p class="muted summary-note" role="status">{{ _('checkout.payments_soon') }}</p>
+      {% endif %}
       <a class="btn btn-ghost btn-block" href="/{{ lang }}/cart">{{ _('cart.title') }}</a>
     </aside>
   </form>

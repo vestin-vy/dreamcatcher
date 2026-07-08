@@ -108,6 +108,10 @@ UI: dict[str, dict[str, str]] = {
     "checkout.country": {"el": "Χώρα", "en": "Country"},
     "checkout.shipping_method": {"el": "Τρόπος αποστολής", "en": "Shipping method"},
     "checkout.pay": {"el": "Πληρωμή", "en": "Pay now"},
+    "checkout.payments_soon": {
+        "el": "Η online πληρωμή θα είναι σύντομα διαθέσιμη. Μέχρι τότε επικοινωνήστε μαζί μας για την παραγγελία σας.",
+        "en": "Online payment is coming soon. Until then, please contact us to complete your order.",
+    },
     "checkout.summary": {"el": "Σύνοψη παραγγελίας", "en": "Order summary"},
     "checkout.success.title": {"el": "Ευχαριστούμε!", "en": "Thank you!"},
     "checkout.success.body": {

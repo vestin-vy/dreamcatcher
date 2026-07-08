@@ -87,6 +87,12 @@ class Settings:
         self.THUMB_MAX_SIDE: int = int(os.getenv("THUMB_MAX_SIDE", "400"))
 
         # --- Payments: Viva (SPEC-BILLING §3) -------------------------------
+        # Master switch: when false the checkout pay button renders disabled and
+        # POST /checkout refuses to create orders (pre-Viva-contract state).
+        # Browsing and the cart keep working; flip to true once Viva is signed.
+        self.PAYMENTS_ENABLED: bool = _as_bool(
+            os.getenv("PAYMENTS_ENABLED"), default=True
+        )
         # VIVA_MODE: "demo" (no keys needed; internal stub flow) or "live".
         self.VIVA_MODE: str = os.getenv("VIVA_MODE", "demo").strip().lower()
         self.VIVA_MERCHANT_ID: str = os.getenv("VIVA_MERCHANT_ID", "")

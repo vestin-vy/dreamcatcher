@@ -101,6 +101,12 @@ main { flex: 1 0 auto; }
 }
 .btn svg { width: 1.1em; height: 1.1em; }
 
+.btn[disabled] {
+  opacity: 0.55; cursor: not-allowed;
+  transform: none; box-shadow: none;
+}
+.btn[disabled]:hover { transform: none; box-shadow: none; }
+
 .btn-primary { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
 .btn-primary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: #fff; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 

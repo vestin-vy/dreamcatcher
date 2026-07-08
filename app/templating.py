@@ -72,6 +72,7 @@ def render(
         # Available on every page: CSRF token (for public cart/checkout forms) and
         # the header cart badge count. Explicit context values still override these.
         "csrf_token": get_csrf_token(request),
+        "payments_enabled": settings.PAYMENTS_ENABLED,
         "cart_count": cart_count(request),
         "wholesale_count": cart_count(request, WHOLESALE_KEY),
         **context,
