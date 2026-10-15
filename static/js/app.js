@@ -37,6 +37,21 @@
     if (el && el.matches && el.matches("select[data-autosubmit]") && el.form) el.form.submit();
   });
 
+  // --- Image fallback (img[data-fallback]) — replaces inline onerror (CSP) ---
+  // `error` doesn't bubble, so listen in the capture phase; then sweep images that
+  // already failed before this script ran.
+  function useFallback(img) {
+    var fb = img.getAttribute("data-fallback");
+    if (fb && img.getAttribute("src") !== fb) img.src = fb;
+  }
+  document.addEventListener("error", function (e) {
+    var t = e.target;
+    if (t && t.tagName === "IMG" && t.hasAttribute("data-fallback")) useFallback(t);
+  }, true);
+  document.querySelectorAll("img[data-fallback]").forEach(function (img) {
+    if (img.complete && img.naturalWidth === 0) useFallback(img);
+  });
+
   // --- Product gallery (swap main image from thumbs) ---
   var mainImg = document.querySelector("[data-gallery-main]");
   var thumbs = document.querySelectorAll("[data-gallery-thumb]");

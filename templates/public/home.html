@@ -120,7 +120,7 @@
       <img src="{{ c.image }}" alt="{{ c.name }}" loading="lazy">
       {% else %}
       <img src="/static/img/cat-{{ c.slug }}.svg" alt="{{ c.name }}" loading="lazy"
-           onerror="this.src='/static/img/placeholder.svg'">
+           data-fallback="/static/img/placeholder.svg">
       {% endif %}
       <span class="cat-tile__label">{{ c.name }}</span>
     </a>
